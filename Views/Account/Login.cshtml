@@ -1,0 +1,57 @@
+﻿@model LoginModel
+
+@{
+	ViewData["Title"] = "Login";
+}
+
+<div class="container-fluid page-header py-5">
+	<h1 class="text-center text-white display-6">Sign in</h1>
+	<ol class="breadcrumb justify-content-center mb-0">
+		<li class="breadcrumb-item"><a href="#">Home</a></li>
+		<li class="breadcrumb-item"><a href="#">Pages</a></li>
+		<li class="breadcrumb-item active text-white">Sign in</li>
+	</ol>
+</div>
+<div class="container-fluid py-5">
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-lg-4">
+				<div class="text-center">
+					<i class="bi bi-person-circle display-4 text-secondary"></i>
+					<h1 class="mb-4">Sign in to you account</h1>
+				</div>
+				<div class="text-danger" asp-validation-summary="ModelOnly"></div>
+				<form asp-action="Login" asp-controller="Account" method="post">
+					<div class="form-item">
+						<label class="form-label my-3">Username<sup>*</sup></label>
+						<input type="text" class="form-control" asp-for="Username">
+						<span asp-validation-for="Username" class="text-danger"></span>
+					</div>
+					<div class="form-item">
+						<label class="form-label my-3">Password<sup>*</sup></label>
+						<input type="password" class="form-control" asp-for="Password">
+						<span asp-validation-for="Password" class="text-danger"></span>
+					</div>
+					<div class="mt-4 d-flex justify-content-between">
+						<div class="form-check text-start">
+							<input type="checkbox" class="form-check-input bg-primary border-0" id="Shipping-1" name="Shipping-1" value="Shipping">
+							<label class="form-check-label" for="Shipping-1">Remember me</label>
+						</div>
+						<a href="#">Forgot password?</a>
+					</div> <!-- form-group form-check .// -->
+					<div class="form-item pt-4 mt-4 g-4">
+						<button class="btn border-secondary py-1 px-2 text-primary w-100">Submit</button>
+					</div>
+				</form>
+				<p class="text-center mt-4">Don't have account? <a asp-action="Register" asp-controller="Account">Sign up</a></p>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

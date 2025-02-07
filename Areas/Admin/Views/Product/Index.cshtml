@@ -1,0 +1,80 @@
+﻿@model IEnumerable<ProductModel>
+
+@{
+	ViewData["Title"] = "Product List";
+}
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Product</h1>
+		<div class="row mb-2">
+			<div class="col-md-6">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item active">Product</li>
+				</ol>
+			</div>
+			<div class="col-md-6 text-end">
+				<a class="btn btn-sm btn-primary" asp-action="Create" asp-controller="Product">Add Product</a>
+			</div>
+		</div>
+		<div class="card mb-4">
+			<div class="card-header">
+				<i class="fas fa-table me-1"></i>
+				DataTable @ViewData["Title"]
+			</div>
+			<div class="card-body">
+				<table id="datatablesSimple">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th>Name</th>
+							<th>Image</th>
+							<th>Slug</th>
+							<th>Price</th>
+							<th>Description</th>
+							<th>Category</th>
+							<th>Status</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					
+					@if(Model != null && Model.Any())
+					{
+								var i = 1;
+						<tbody>
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td scope="col">@i</td>
+									<td>@item.Name</td>
+									<td><img src="~/media/products/@item.Image" alt="@item.Name" width="80"/></td>
+									<td>@item.Slug</td>
+									<td>@item.Price.ToString("#,##0 VND")</td>
+									<td>@item.Description</td>
+									<td>@item.Category.Name</td>
+									<td>
+										@if (item.Status == 1)
+										{
+											<span class="badge bg-success">Active</span>
+										}
+										else
+										{
+											<span class="badge bg-danger">Inactive</span>
+										}
+									</td>
+									<td>
+										<a class="btn btn-sm btn-info" asp-action="Edit" asp-controller="Product" asp-route-Id="@item.Id"><i class="fa-regular fa-pen-to-square"></i></a>
+										<a class="btn btn-sm btn-danger confirmDeletion" asp-action="Delete" asp-controller="Product" asp-route-Id="@item.Id"><i class="fa-regular fa-circle-xmark"></i></a>
+									</td>
+								</tr>
+								i++;
+							}
+						</tbody>
+					} else {
+						<tbody>
+						</tbody>
+					}
+				</table>
+			</div>
+		</div>
+	</div>
+</main>

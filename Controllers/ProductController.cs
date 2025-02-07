@@ -1,0 +1,92 @@
+﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using ShoppingFood.Models;
+using ShoppingFood.Models.ViewModel;
+using ShoppingFood.Repository;
+
+namespace ShoppingFood.Controllers
+{
+    public class ProductController : Controller
+    {
+        private readonly DataContext _dataContext;
+        private readonly INotyfService _notyf;
+
+        public ProductController(DataContext context, INotyfService notyf)
+        {
+            _dataContext = context;
+            _notyf = notyf;
+        }
+
+        public async Task<IActionResult> Index()
+        {
+            var products = await _dataContext.Products.Include(x => x.Category).ToListAsync();
+            return View(products);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Search(string keyword)
+        {
+            var keys = await _dataContext.Products.Include(x => x.Category).Where(x => x.Name.Contains(keyword) || x.Description.Contains(keyword) || x.Slug.Contains(keyword)).ToListAsync();
+
+            ViewBag.Keyword = keyword;
+
+            return View(keys);
+        }
+
+        public async Task<IActionResult> Details(int id, string slug = "")
+        {
+            if (id <= 0 && slug == null)
+            {
+                return RedirectToAction("Index");
+            }
+
+            var productById = await _dataContext.Products.Include(x => x.Category).Include(x => x.Rating).Where(x => x.Id == id && x.Slug == slug).FirstOrDefaultAsync();
+
+            var related = await _dataContext.Products.Where(x => x.CategoryId == productById.CategoryId && x.Id != productById.Id).Include(x => x.Category).Take(4).ToListAsync();
+
+            ViewBag.Related = related;
+
+            var ratings = new ProductRatingViewModel
+            {
+                Product = productById,
+            };
+
+            return View(ratings);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Comment(RatingModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                var ratings = new RatingModel
+                {
+                    ProductId = model.ProductId,
+                    Comment = model.Comment,
+                    Customer = model.Customer,
+                    Email = model.Email,
+                    Star = model.Star
+                };
+                await _dataContext.Ratings.AddAsync(model);
+                await _dataContext.SaveChangesAsync();
+                _notyf.Success("Comment successfully!");
+                return Redirect(Request.Headers["Referer"]);
+            }
+            else
+            {
+                List<string> errors = new List<string>();
+                foreach (var modelState in ModelState.Values)
+                {
+                    foreach (var error in modelState.Errors)
+                    {
+                        errors.Add(error.ErrorMessage);
+                    }
+                }
+                string errorMessage = string.Join("\n", errors);
+                //return RedirectToAction("Details", new { id = model.ProductId });
+                return BadRequest(errorMessage);
+            }
+        }
+    }
+}

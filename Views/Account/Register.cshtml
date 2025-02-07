@@ -1,0 +1,64 @@
+﻿@model RegisterModel
+
+@{
+	ViewData["Title"] = "Register";
+}
+<div class="container-fluid page-header py-5">
+	<h1 class="text-center text-white display-6">Sign up</h1>
+	<ol class="breadcrumb justify-content-center mb-0">
+		<li class="breadcrumb-item"><a href="#">Home</a></li>
+		<li class="breadcrumb-item"><a href="#">Pages</a></li>
+		<li class="breadcrumb-item active text-white">Sign up</li>
+	</ol>
+</div>
+<div class="container-fluid py-5">
+	<div class="container py-5">
+		<div class="row justify-content-center">
+			<div class="col-lg-4">
+				<div class="text-center">
+					<i class="bi bi-person-circle display-4 text-secondary"></i>
+					<h1 class="mb-4">Sign up</h1>
+				</div>
+				<div class="text-danger" asp-validation-summary="ModelOnly"></div>
+				<form asp-controller="Account" asp-action="Register">
+					<div class="form-item">
+						<label class="form-label my-3">Username<sup>*</sup></label>
+						<input type="text" asp-for="Username" class="form-control">
+						<span asp-validation-for="Username" class="text-danger"></span>
+					</div>
+					<div class="form-item">
+						<label class="form-label my-3">Email<sup>*</sup></label>
+						<input type="email" asp-for="Email" class="form-control">
+						<span asp-validation-for="Email" class="text-danger"></span>
+					</div>
+					<div class="form-item">
+						<label class="form-label my-3">Password<sup>*</sup></label>
+						<input type="password" class="form-control" asp-for="Password">
+						<span asp-validation-for="Password" class="text-danger"></span>
+					</div>
+					<div class="form-item"> 
+						<label class="form-label my-3">Confirm password<sup>*</sup></label> 
+						<input type="password" class="form-control" asp-for="ConfirmPassword">
+						<span asp-validation-for="ConfirmPassword" class="text-danger"></span>
+					 </div> 
+					<div class="mt-4">
+						<div class="form-check text-start">
+							<input type="checkbox" class="form-check-input bg-primary border-0" id="Shipping-1" name="Shipping-1" value="Shipping">
+							<label class="form-check-label" for="Shipping-1">I am agree with <a href="#">terms and contitions</label>
+						</div>
+					</div>
+					<div class="form-group pt-4 mt-4 g-4">
+						<button class="btn border-secondary py-1 px-2 text-primary w-100">Submit</button>
+					</div>
+				</form>
+				<p class="text-center mt-4">Have an account? <a asp-action="Login" asp-controller="Account">Log In</a></p>
+				<br><br>
+			</div>
+		</div>
+	</div>
+</div>
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

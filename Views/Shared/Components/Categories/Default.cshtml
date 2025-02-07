@@ -1,0 +1,10 @@
+﻿@model IEnumerable<CategoryModel>
+
+@foreach (var item in Model)
+{
+	<li class="nav-item">
+		<a class="d-flex py-2 m-2 bg-light rounded-pill" asp-action="Index" asp-controller="Category" asp-route-slug="@item.Slug">
+			<span class="text-dark" style="width: 130px;">@item.Name</span>
+		</a>
+	</li>
+}

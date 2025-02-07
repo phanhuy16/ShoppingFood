@@ -1,0 +1,64 @@
+﻿@model IEnumerable<ContactModel>
+
+@{
+	ViewData["Title"] = "Contact List";
+}
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Contact</h1>
+		<div class="row mb-2">
+			<div class="col-md-6">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item active">Contact</li>
+				</ol>
+			</div>
+		</div>
+		<div class="card mb-4">
+			<div class="card-header">
+				<i class="fas fa-table me-1"></i>
+				DataTable @ViewData["Title"]
+			</div>
+			<div class="card-body">
+				<table id="datatablesSimple" class="display nowrap" style="width:100%">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th>Logo</th>
+							<th>Name</th>
+							<th>Email</th>
+							<th>Message</th>
+							<th>Map</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					@if (Model != null && Model.Any())
+					{
+						var i = 1;
+						<tbody>
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td scope="col">@i</td>
+									<td><img src="~/media/contacts/@item.Logo" alt="@item.Name" width="80" /></td>
+									<td>@item.Name</td>
+									<td>@item.Email</td>
+									<td>@item.Message</td>
+									<td>@Html.Raw(item.Map)</td>
+									<td>
+										<a class="btn btn-sm btn-info" asp-action="Edit" asp-controller="Contact"><i class="fa-regular fa-pen-to-square"></i></a>
+									</td>
+								</tr>
+								i++;
+							}
+						</tbody>
+					}
+					else
+					{
+						<tbody>
+						</tbody>
+					}
+				</table>
+			</div>
+		</div>
+	</div>
+</main>

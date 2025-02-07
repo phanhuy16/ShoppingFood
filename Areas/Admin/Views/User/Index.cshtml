@@ -1,0 +1,69 @@
+﻿
+@{
+	ViewData["Title"] = "User list";
+}
+
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">User</h1>
+		<div class="row mb-2">
+			<div class="col-md-6">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item active">User</li>
+				</ol>
+			</div>
+			<div class="col-md-6 text-end">
+				<a class="btn btn-sm btn-primary" asp-action="Create" asp-controller="User">Add User</a>
+			</div>
+		</div>
+		<div class="card mb-4">
+			<div class="card-header">
+				<i class="fas fa-table me-1"></i>
+				DataTable @ViewData["Title"]
+			</div>
+			<div class="card-body">
+				<table id="datatablesSimple">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th>Username</th>
+							<th>Email</th>
+							<th>Phone</th>
+							<th>Role</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					
+					@if (Model != null)
+					{
+						var i = 1;
+						<tbody>
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td scope="col">@i</td>
+									<td>@item.User.UserName</td>
+									<td>@item.User.Email</td>
+									<td>@item.User.PhoneNumber</td>
+									<td>	 
+										@item.RoleName
+									</td>
+									<td>
+										<a class="btn btn-sm btn-info" asp-action="Edit" asp-controller="User" asp-route-id="@item.User.Id"><i class="fa-regular fa-pen-to-square"></i></a>
+										<a class="btn btn-sm btn-danger confirmDeletion" asp-action="Delete" asp-controller="User" asp-route-id="@item.User.Id"><i class="fa-regular fa-circle-xmark"></i></a>
+									</td>
+								</tr>
+								i++;
+							}
+						</tbody>
+					}
+					else
+					{
+						<tbody>
+						</tbody>
+					}
+				</table>
+			</div>
+		</div>
+	</div>
+</main>

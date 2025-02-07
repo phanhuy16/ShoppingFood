@@ -1,0 +1,119 @@
+﻿@model IEnumerable<OrderDetailModel>
+
+@{
+	ViewData["Title"] = "Home";
+	decimal total = 0;
+	decimal subTotal = 0;
+}
+
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Order</h1>
+		<ol class="breadcrumb mb-4">
+			<li class="breadcrumb-item"><a href="index.html">Dashboard</a></li>
+			<li class="breadcrumb-item active">View order</li>
+		</ol>
+		<div class="card mb-4">
+			<div class="card-header">
+				<i class="fas fa-table me-1"></i>
+				DataTable @ViewData["Title"]
+			</div>
+			<div class="card-body">
+				<table id="datatablesOrder">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th>Username</th>
+							<th>Order Code</th>
+							<th>Product Name</th>
+							<th>Price</th>
+							<th>Quantity</th>
+							<th>Subtotal</th>
+						</tr>
+					</thead>
+					@if (Model != null && Model.Any())
+					{
+						var i = 1;
+						<tbody>
+							@foreach (var item in Model)
+							{
+								subTotal = item.Quantity * item.Price;
+								total += subTotal;
+								<tr>
+									<input asp-for="@item.OrderCode" class="getId d-none" />
+									<td scope="col">@i</td>
+									<td>@item.UserName</td>
+									<td>@item.OrderCode</td>
+									<td>@item.Product.Name</td>
+									<td>@item.Price.ToString("#,##0 VND")</td>
+									<td>@item.Quantity</td>
+									<td>@subTotal.ToString("#,##0 VND")</td>
+								</tr>
+								i++;
+							}
+						</tbody>
+					}
+					else
+					{
+						<tbody>
+						</tbody>
+					}
+				</table>
+			</div>
+		</div>
+		<div class="row mb-4">
+			<div class="col-md-10"></div>
+			<div class="col-md-2">
+				<h6>Total: @total.ToString("C")</h6>
+				<select class="form-select select-update-order">
+					<option value="1">Đơn hàng mới</option>
+					<option value="2">Đã xử lý</option>
+				</select>
+			</div>
+		</div>
+	</div>
+</main>
+
+@section Scripts {
+	<script>
+		$(document).ready(function(){
+			$('.select-update-order').change(function(){
+				var status = $(this).val();
+				var orderCode = $('.getId').val();
+				$.ajax({
+					type:'POST',
+					url:"@Url.Action("UpdateStatus")",
+					data: {status: status, orderCode: orderCode},
+					success: function (result){
+						if(result){
+							Swal.fire({
+								title: "Cập nhật thành công!",
+								icon: "success",
+								draggable: true
+							});
+						}
+						else{
+							Swal.fire({
+								title: "Cập nhật thất bại!",
+								icon: "error",
+								draggable: true
+							});
+						}
+					},
+					error: function(req,status,error){
+						alert('Error');
+						console.log(error);
+					}
+				});
+			});
+		});
+
+		let table = new DataTable('#datatablesOrder', {
+			layout: {
+				topStart: {
+					buttons: ['pdf', 'print']
+				}
+			}
+		});
+	</script>
+}

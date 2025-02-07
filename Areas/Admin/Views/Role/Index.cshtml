@@ -1,0 +1,64 @@
+﻿@using Microsoft.AspNetCore.Identity
+@model IEnumerable<IdentityRole>
+
+@{
+	ViewData["Title"] = "Role List";
+}
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Role</h1>
+		<div class="row mb-2">
+			<div class="col-md-6">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item active">Role</li>
+				</ol>
+			</div>
+			<div class="col-md-6 text-end">
+				<a class="btn btn-sm btn-primary" asp-action="Create" asp-controller="Role">Add Role</a>
+			</div>
+		</div>
+		<div class="card mb-4">
+			<div class="card-header">
+				<i class="fas fa-table me-1"></i>
+				DataTable @ViewData["Title"]
+			</div>
+			<div class="card-body">
+				<table id="datatablesSimple">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th>Name</th>
+							<th>Role</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					
+					@if (Model != null && Model.Any())
+					{
+						var i = 1;
+						<tbody>
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td scope="col">@i</td>
+									<td>@item.Name</td>
+									<td>@item.NormalizedName</td>
+									<td>
+										<a class="btn btn-sm btn-info" asp-action="Edit" asp-controller="Role" asp-route-id="@item.Id"><i class="fa-regular fa-pen-to-square"></i></a>
+										<a class="btn btn-sm btn-danger confirmDeletion" asp-action="Delete" asp-controller="Role" asp-route-Id="@item.Id"><i class="fa-regular fa-circle-xmark"></i></a>
+									</td>
+								</tr>
+								i++;
+							}
+						</tbody>
+					}
+					else
+					{
+						<tbody>
+						</tbody>
+					}
+				</table>
+			</div>
+		</div>
+	</div>
+</main>
