@@ -1,5 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Models;
 using ShoppingFood.Models.ViewModel;
@@ -103,7 +104,7 @@ namespace ShoppingFood.Controllers
 
         public async Task<IActionResult> Increase(int id)
         {
-            await Task.CompletedTask;
+            var product = await _dataContext.Products.Where(x => x.Id == id).FirstOrDefaultAsync();
             var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
 
             if (cart == null)
@@ -118,14 +119,18 @@ namespace ShoppingFood.Controllers
                 return NotFound($"Product with ID {id} not found in the cart.");
             }
 
-            if (cartItem.Quantity >= 1)
+            if (cartItem.Quantity >= 1 && product.Quantity > cartItem.Quantity)
             {
                 cartItem.Quantity += 1;
+                _notyf.Success("Increase item quantity to cart successfully!");
+            }
+            else
+            {
+                cartItem.Quantity = product.Quantity;
+                _notyf.Warning("Maximum Quantity in Product");
             }
 
             HttpContext.Session.SetJson("Cart", cart);
-
-            _notyf.Success("Increase item quantity to cart successfully!");
 
             return RedirectToAction("Index");
         }
@@ -187,6 +192,11 @@ namespace ShoppingFood.Controllers
                     orderDetail.Quantity = item.Quantity;
                     orderDetail.ProductId = item.ProductId;
                     orderDetail.UserName = email;
+
+                    var product = await _dataContext.Products.Where(x=>x.Id==item.ProductId).FirstAsync();
+                    product.Quantity -= item.Quantity;
+                    product.Sold += item.Quantity;
+                    _dataContext.Products.Update(product);
 
                     await _dataContext.OrderDetails.AddAsync(orderDetail);
                     await _dataContext.SaveChangesAsync();

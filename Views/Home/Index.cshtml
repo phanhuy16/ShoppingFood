@@ -101,23 +101,34 @@
 												<h4>@item.Name</h4>
 												<p>@item.Description</p>
 												<p class="text-dark fs-5 fw-bold mb-0">$@item.Price.ToString("#,##0 VND") / kg</p>
-												@if (User.Identity.IsAuthenticated)
+												@if (item.Quantity > 0)
 												{
-													<div class="d-flex justify-content-between flex-lg-wrap mt-3">
-														<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart">
-															<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
-														</button>
+													if (User.Identity.IsAuthenticated)
+													{
+														<div class="d-flex justify-content-between flex-lg-wrap mt-3">
+															<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart">
+																<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+															</button>
 
-														<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-compare">
-															<i class="fas fa-plus-square text-primary"></i>
-														</button>
-													</div>
+															<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-compare">
+																<i class="fas fa-plus-square text-primary"></i>
+															</button>
+														</div>
+													}
+													else
+													{
+														<div class="d-flex justify-content-center flex-lg-wrap mt-3">
+															<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart">
+																<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+															</button>
+														</div>
+													}
 												}
 												else
 												{
 													<div class="d-flex justify-content-center flex-lg-wrap mt-3">
-														<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart">
-															<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+														<button class="btn border border-secondary rounded-pill px-3 text-primary">
+															Hết hàng
 														</button>
 													</div>
 												}
@@ -703,7 +714,7 @@
 
 			$('.add-to-compare').click(function () {
 				var id = $(this).data('id');
-			
+
 				$.ajax({
 					url: "@Url.Action("AddCompare", "Home")",
 					data: { id: id },

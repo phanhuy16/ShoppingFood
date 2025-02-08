@@ -2,6 +2,7 @@
 
 @{
 	ViewData["Title"] = "Create Quantity";
+	var totalQuantity = 0;
 }
 
 <main>
@@ -28,6 +29,42 @@
 				<button class="btn btn-sm btn-outline-secondary" asp-action="Index" formnovalidate>Cancel</button>
 			</div>
 		</form>
+
+		<h1 class="my-4">Existing Product Quantity</h1>
+		<table id="datatablesSimple">
+			<thead>
+				<tr>
+					<th class="text-center" scope="col">#</th>
+					<th class="text-center">Quantity</th>
+					<th class="text-center">CreateDate</th>
+				</tr>
+			</thead>
+
+			@if (ViewBag.Quantity != null)
+			{
+				var i = 1;
+				<tbody>
+					@foreach (var item in ViewBag.Quantity)
+					{
+						totalQuantity += item.Quantity;
+						<tr>
+							<td scope="col" class="text-center">@i</td>
+							<td class="text-center">@item.Quantity</td>
+							<td class="text-center">@item.CreateDate</td>
+						</tr>
+						i++;
+					}
+				</tbody>
+				<tr>
+					<td><span class="fw-bold">Total quantity</span>: <span class="text-primary"> @totalQuantity </span> </td>
+				</tr>
+			}
+			else
+			{
+				<tbody>
+				</tbody>
+			}
+		</table>
 	</div>
 </main>
 

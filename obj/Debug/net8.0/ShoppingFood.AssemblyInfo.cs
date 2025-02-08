@@ -14,7 +14,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("ShoppingFood")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+09b99c5bb97f2418f9406bd47818c9091e767c8c")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+ad4b38d5af4367bba400a6368fea0fef4e80f233")]
 [assembly: System.Reflection.AssemblyProductAttribute("ShoppingFood")]
 [assembly: System.Reflection.AssemblyTitleAttribute("ShoppingFood")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

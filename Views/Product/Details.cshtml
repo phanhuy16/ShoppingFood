@@ -52,7 +52,14 @@
 								</button>
 							</div>
 						</div>
-						<a href="#" class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
+						@if (Model.Product.Quantity > 0)
+						{
+							<button class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary add-to-cart" data-id="@Model.Product.Id"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</button>
+						}
+						else
+						{
+							<button class="btn border border-secondary rounded-pill px-4 py-2 mb-4 text-primary"> Hết hàng </button>
+						}
 					</div>
 					<div class="col-lg-12">
 						<nav>
@@ -402,16 +409,48 @@
 							<div class="vesitable-img">
 								<img src="~/media/products/@item.Image" class="img-fluid w-100 rounded-top" alt="">
 							</div>
+							@if (User.Identity.IsAuthenticated)
+							{
+								<button class="px-2 py-1 bg-transparent rounded border border-pri position-absolute add-to-wishlist" style="top: 10px; left: 10px;" data-id="@item.Id"><i class="fas fa-heart text-primary"></i></button>
+							}
 							<div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">@item.Category.Name</div>
 							<div class="p-4 pb-0 rounded-bottom">
 								<h4>@item.Name</h4>
 								<p>@item.Description</p>
-								<div class="d-flex justify-content-between flex-lg-wrap">
+								<div class="text-center">
 									<p class="text-dark fs-5 fw-bold">@item.Price.ToString("#,##0 VND") / kg</p>
 
-									<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 py-1 mb-4 text-primary add-to-cart">
-										<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
-									</button>
+									@if (item.Quantity > 0)
+									{
+										if (User.Identity.IsAuthenticated)
+										{
+											<div class="d-flex justify-content-between flex-lg-wrap mt-3">
+												<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary mb-4 add-to-cart">
+													<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+												</button>
+
+												<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary mb-4 add-to-compare">
+													<i class="fas fa-plus-square text-primary"></i>
+												</button>
+											</div>
+										}
+										else
+										{
+											<div class="d-flex justify-content-center flex-lg-wrap mt-3">
+												<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary mb-4 add-to-cart">
+													<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+												</button>
+											</div>
+										}
+									}
+									else
+									{
+										<div class="d-flex justify-content-center flex-lg-wrap mt-3">
+											<button class="btn border border-secondary rounded-pill px-3 text-primary mb-4">
+												Hết hàng
+											</button>
+										</div>
+									}
 								</div>
 							</div>
 						</div>
@@ -441,6 +480,41 @@
 							notyf.success(response.message);
 						} else {
 							notyf.error(response.message);
+						}
+					}
+				});
+			});
+
+
+			$('.add-to-wishlist').click(function () {
+				var id = $(this).data('id');
+
+				$.ajax({
+					url: "@Url.Action("AddWishlist", "Home")",
+					data: { id: id },
+					type: 'POST',
+					success: function (response) {
+						if (response.success) {
+							notyf.success(response.message);
+						} else {
+							notyf.error("Error add wishlist");
+						}
+					}
+				});
+			});
+
+			$('.add-to-compare').click(function () {
+				var id = $(this).data('id');
+
+				$.ajax({
+					url: "@Url.Action("AddCompare", "Home")",
+					data: { id: id },
+					type: 'POST',
+					success: function (response) {
+						if (response.success) {
+							notyf.success(response.message);
+						} else {
+							notyf.error("Error add wishlist");
 						}
 					}
 				});

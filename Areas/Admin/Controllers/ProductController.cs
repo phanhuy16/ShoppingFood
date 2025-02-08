@@ -191,8 +191,11 @@ namespace ShoppingFood.Areas.Admin.Controllers
             return RedirectToAction("Index");
         }
 
-        public IActionResult AddQuantity(int id)
+        public async Task<IActionResult> AddQuantity(int id)
         {
+            var quantity = await _dataContext.ProductQuantities.Where(x => x.ProductId == id).ToListAsync();
+
+            ViewBag.Quantity = quantity;
             ViewBag.Id = id;
             return View();
         }
