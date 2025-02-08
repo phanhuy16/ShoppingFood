@@ -59,6 +59,7 @@
 	@RenderBody()
 
 	@await Html.PartialAsync("_Footer")
+	<div id="fb-root"></div>
 	<!-- Back to Top -->
 	<a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
 
@@ -74,6 +75,8 @@
 
 	<!-- Template Javascript -->
 	<script src="~/js/main.js" asp-append-version="true"></script>
+	
+	<script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v22.0"></script>
 	@await Component.InvokeAsync("Notyf")
 	@await RenderSectionAsync("Scripts", required: false)
 </body>

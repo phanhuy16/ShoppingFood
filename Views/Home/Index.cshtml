@@ -91,17 +91,36 @@
 												<div class="fruite-img">
 													<img src="~/media/products/@item.Image" class="img-fluid w-100 rounded-top" alt="@item.Name">
 												</div>
-												<div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">@item.Category.Name</div>
 											</a>
+											<div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">@item.Category.Name</div>
+											@if (User.Identity.IsAuthenticated)
+											{
+												<button class="px-2 py-1 bg-transparent rounded border border-secondary position-absolute add-to-wishlist" style="top: 10px; right: 10px;" data-id="@item.Id"><i class="fas fa-heart text-primary"></i></button>
+											}
 											<div class="p-4 border border-secondary border-top-0 rounded-bottom">
 												<h4>@item.Name</h4>
 												<p>@item.Description</p>
-												<div class="d-flex justify-content-between flex-lg-wrap">
-													<p class="text-dark fs-5 fw-bold mb-0">$@item.Price.ToString("#,##0 VND") / kg</p>
-													<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart">
-														<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart 
-													</button>
-												</div>
+												<p class="text-dark fs-5 fw-bold mb-0">$@item.Price.ToString("#,##0 VND") / kg</p>
+												@if (User.Identity.IsAuthenticated)
+												{
+													<div class="d-flex justify-content-between flex-lg-wrap mt-3">
+														<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart">
+															<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+														</button>
+
+														<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-compare">
+															<i class="fas fa-plus-square text-primary"></i>
+														</button>
+													</div>
+												}
+												else
+												{
+													<div class="d-flex justify-content-center flex-lg-wrap mt-3">
+														<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart">
+															<i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart
+														</button>
+													</div>
+												}
 											</div>
 										</div>
 									</div>
@@ -645,15 +664,14 @@
 	</div>
 </div>
 <!-- Tastimonial End -->
-
-@section Scripts{
+@section Scripts {
 	<script>
 		$(document).ready(function () {
 			$('.add-to-cart').click(function () {
 				var id = $(this).data('id');
 
 				$.ajax({
-					url: "@Url.Action("Add","Cart")",
+					url: "@Url.Action("Add", "Cart")",
 					data: { id: id },
 					type: 'POST',
 					success: function (response) {
@@ -661,6 +679,40 @@
 							notyf.success(response.message);
 						} else {
 							notyf.error(response.message);
+						}
+					}
+				});
+			});
+
+			$('.add-to-wishlist').click(function () {
+				var id = $(this).data('id');
+
+				$.ajax({
+					url: "@Url.Action("AddWishlist", "Home")",
+					data: { id: id },
+					type: 'POST',
+					success: function (response) {
+						if (response.success) {
+							notyf.success(response.message);
+						} else {
+							notyf.error("Error add wishlist");
+						}
+					}
+				});
+			});
+
+			$('.add-to-compare').click(function () {
+				var id = $(this).data('id');
+			
+				$.ajax({
+					url: "@Url.Action("AddCompare", "Home")",
+					data: { id: id },
+					type: 'POST',
+					success: function (response) {
+						if (response.success) {
+							notyf.success(response.message);
+						} else {
+							notyf.error("Error add wishlist");
 						}
 					}
 				});

@@ -1,0 +1,228 @@
+﻿@model AppUserModel
+@{
+	ViewData["Title"] = "Profile";
+}
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+	<h1 class="text-center text-white display-6">Profile</h1>
+	<ol class="breadcrumb justify-content-center mb-0">
+		<li class="breadcrumb-item"><a href="#">Home</a></li>
+		<li class="breadcrumb-item"><a href="#">Pages</a></li>
+		<li class="breadcrumb-item active text-white">Profile</li>
+	</ol>
+</div>
+<!-- Single Page Header End -->
+<!-- Tastimonial Start -->
+<div class="container-fluid testimonial py-5">
+	<div class="container py-5">
+		<div class="testimonial-header text-center">
+			<h4 class="text-primary">Profile</h4>
+			<h1 class="display-5 mb-5 text-dark">Hello, @Model.UserName!</h1>
+		</div>
+
+		<div class="card" style="margin-bottom: 100px;">
+			<div class="card-header p-2">
+				<ul class="nav nav-pills">
+					<li class="nav-item"><a class="nav-link active" href="#activity" data-bs-toggle="tab">Wishlist</a></li>
+					<li class="nav-item"><a class="nav-link" href="#timeline" data-bs-toggle="tab">Compare</a></li>
+					<li class="nav-item"><a class="nav-link" href="#settings" data-bs-toggle="tab">Settings</a></li>
+				</ul>
+			</div><!-- /.card-header -->
+			<div class="card-body">
+				<div class="tab-content">
+					<div class="active tab-pane" id="activity">
+						<div class="row">
+							@foreach (var item in ViewBag.Wishlist)
+							{
+								<div class="col-lg-6">
+									<div class="card mb-3" style="max-width: 540px;">
+										<div class="row g-0">
+											<div class="col-md-4">
+												<img src="~/media/products/@item.Product.Image" class="img-fluid rounded-start" alt="...">
+											</div>
+											<div class="col-md-8">
+												<div class="card-body">
+													<h5 class="card-title">@item.Product.Name</h5>
+													<h6>@item.Product.Price.ToString("#,##0 VND")</h6>
+													<p class="card-text">@item.Product.Description</p>
+													<div class="d-flex justify-content-between align-items-center">
+														<p class="card-text mb-0"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+														<a asp-action="DeteleWishlist" class="btn btn-sm btn-primary" asp-controller="Account" asp-route-id="@item.Wishlist.Id"><i class="fas fa-trash-alt text-white"></i></a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+					<!-- /.tab-pane -->
+					<div class="tab-pane" id="timeline">
+						<!-- The timeline -->
+						<div class="row">
+							@foreach (var item in ViewBag.Compare)
+							{
+								<div class="col-lg-6">
+									<div class="card mb-3" style="max-width: 540px;">
+										<div class="row g-0">
+											<div class="col-md-4">
+												<img src="~/media/products/@item.Product.Image" class="img-fluid rounded-start" alt="...">
+											</div>
+											<div class="col-md-8">
+												<div class="card-body">
+													<h5 class="card-title">@item.Product.Name</h5>
+													<h6>@item.Product.Price.ToString("#,##0 VND")</h6>
+													<p class="card-text">@item.Product.Description</p>
+													<div class="d-flex justify-content-between align-items-center">
+														<p class="card-text mb-0"><small class="text-body-secondary">Last updated 3 mins ago</small></p>
+														<a asp-action="DeteleCompare" class="btn btn-sm btn-primary" asp-controller="Account" asp-route-id="@item.Compare.Id"><i class="fas fa-trash-alt text-white"></i></a>
+													</div>
+												</div>
+											</div>
+										</div>
+									</div>
+								</div>
+							}
+						</div>
+					</div>
+					<!-- /.tab-pane -->
+
+					<div class="tab-pane" id="settings">
+						<form class="form-horizontal">
+							<div class="form-group row">
+								<label for="inputName" class="col-sm-2 col-form-label">Name</label>
+								<div class="col-sm-10">
+									<input type="email" class="form-control" id="inputName" placeholder="Name">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="inputEmail" class="col-sm-2 col-form-label">Email</label>
+								<div class="col-sm-10">
+									<input type="email" class="form-control" id="inputEmail" placeholder="Email">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="inputName2" class="col-sm-2 col-form-label">Name</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="inputName2" placeholder="Name">
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="inputExperience" class="col-sm-2 col-form-label">Experience</label>
+								<div class="col-sm-10">
+									<textarea class="form-control" id="inputExperience" placeholder="Experience"></textarea>
+								</div>
+							</div>
+							<div class="form-group row">
+								<label for="inputSkills" class="col-sm-2 col-form-label">Skills</label>
+								<div class="col-sm-10">
+									<input type="text" class="form-control" id="inputSkills" placeholder="Skills">
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="offset-sm-2 col-sm-10">
+									<div class="checkbox">
+										<label>
+											<input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group row">
+								<div class="offset-sm-2 col-sm-10">
+									<button type="submit" class="btn btn-danger">Submit</button>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- /.tab-pane -->
+				</div>
+				<!-- /.tab-content -->
+			</div><!-- /.card-body -->
+		</div>
+
+		<div class="owl-carousel testimonial-carousel">
+			<div class="testimonial-item img-border-radius bg-light rounded p-4">
+				<div class="position-relative">
+					<i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
+					<div class="mb-4 pb-4 border-bottom border-secondary">
+						<p class="mb-0">
+							Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
+						</p>
+					</div>
+					<div class="d-flex align-items-center flex-nowrap">
+						<div class="bg-secondary rounded">
+							<img src="img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
+						</div>
+						<div class="ms-4 d-block">
+							<h4 class="text-dark">Client Name</h4>
+							<p class="m-0 pb-3">Profession</p>
+							<div class="d-flex pe-5">
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="testimonial-item img-border-radius bg-light rounded p-4">
+				<div class="position-relative">
+					<i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
+					<div class="mb-4 pb-4 border-bottom border-secondary">
+						<p class="mb-0">
+							Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
+						</p>
+					</div>
+					<div class="d-flex align-items-center flex-nowrap">
+						<div class="bg-secondary rounded">
+							<img src="img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
+						</div>
+						<div class="ms-4 d-block">
+							<h4 class="text-dark">Client Name</h4>
+							<p class="m-0 pb-3">Profession</p>
+							<div class="d-flex pe-5">
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+			<div class="testimonial-item img-border-radius bg-light rounded p-4">
+				<div class="position-relative">
+					<i class="fa fa-quote-right fa-2x text-secondary position-absolute" style="bottom: 30px; right: 0;"></i>
+					<div class="mb-4 pb-4 border-bottom border-secondary">
+						<p class="mb-0">
+							Lorem Ipsum is simply dummy text of the printing Ipsum has been the industry's standard dummy text ever since the 1500s,
+						</p>
+					</div>
+					<div class="d-flex align-items-center flex-nowrap">
+						<div class="bg-secondary rounded">
+							<img src="img/testimonial-1.jpg" class="img-fluid rounded" style="width: 100px; height: 100px;" alt="">
+						</div>
+						<div class="ms-4 d-block">
+							<h4 class="text-dark">Client Name</h4>
+							<p class="m-0 pb-3">Profession</p>
+							<div class="d-flex pe-5">
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+								<i class="fas fa-star text-primary"></i>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- Tastimonial End -->

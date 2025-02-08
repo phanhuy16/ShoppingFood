@@ -71,6 +71,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 exitsContact.Email = model.Email;
                 exitsContact.Message = model.Message;
                 exitsContact.Map = model.Map;
+                exitsContact.Address = model.Address;
+                exitsContact.Phone = model.Phone;
 
                 _dataContext.Contacts.Update(exitsContact);
                 await _dataContext.SaveChangesAsync();

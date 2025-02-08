@@ -1,21 +1,25 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Models;
+using ShoppingFood.Repository;
 
 namespace ShoppingFood.Controllers
 {
     public class AccountController : Controller
     {
+        private readonly DataContext _dataContext;
         private readonly UserManager<AppUserModel> _userManager;
         private readonly SignInManager<AppUserModel> _signInManager;
         private readonly INotyfService _notyf;
 
-        public AccountController(UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, INotyfService notyf)
+        public AccountController(DataContext context, UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, INotyfService notyf)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _notyf = notyf;
+            _dataContext = context;
         }
 
         public IActionResult Login(string returnUrl)
@@ -80,6 +84,62 @@ namespace ShoppingFood.Controllers
         {
             await _signInManager.SignOutAsync();
             return Redirect(returnUrl);
+        }
+
+        public async Task<IActionResult> Profile()
+        {
+            var user = await _userManager.GetUserAsync(User);
+
+            var wishlist = await (from w in _dataContext.Wishlists
+                                  join p in _dataContext.Products on w.ProductId equals p.Id
+                                  join u in _dataContext.Users on w.UserId equals u.Id
+                                  select new { User = u, Product = p, Wishlist = w }).ToListAsync();
+
+            var compare = await (from c in _dataContext.Compares
+                                 join p in _dataContext.Products on c.ProductId equals p.Id
+                                 join u in _dataContext.Users on c.UserId equals u.Id
+                                 select new { User = u, Product = p, Compare = c }).ToListAsync();
+
+            ViewBag.Wishlist = wishlist;
+            ViewBag.Compare = compare;
+
+            return View(user);
+        }
+
+        public async Task<IActionResult> DeteleWishlist(int id)
+        {
+            var wishlist = await _dataContext.Wishlists.FindAsync(id);
+
+            if (wishlist != null)
+            {
+                _dataContext.Wishlists.Remove(wishlist);
+                await _dataContext.SaveChangesAsync();
+                _notyf.Success("Deleted successfully!");
+                return RedirectToAction("Profile");
+            }
+            else
+            {
+                _notyf.Error("Wishlist not found!");
+                return RedirectToAction("Profile");
+            }
+        }
+
+        public async Task<IActionResult> DeteleCompare(int id)
+        {
+            var compare = await _dataContext.Compares.FindAsync(id);
+
+            if (compare != null)
+            {
+                _dataContext.Compares.Remove(compare);
+                await _dataContext.SaveChangesAsync();
+                _notyf.Success("Deleted successfully!");
+                return RedirectToAction("Profile");
+            }
+            else
+            {
+                _notyf.Error("Compare not found!");
+                return RedirectToAction("Profile");
+            }
         }
     }
 }

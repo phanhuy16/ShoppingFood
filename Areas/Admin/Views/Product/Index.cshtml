@@ -29,6 +29,7 @@
 							<th>Name</th>
 							<th>Image</th>
 							<th>Slug</th>
+							<th>Quantity</th>
 							<th>Price</th>
 							<th>Description</th>
 							<th>Category</th>
@@ -48,6 +49,9 @@
 									<td>@item.Name</td>
 									<td><img src="~/media/products/@item.Image" alt="@item.Name" width="80"/></td>
 									<td>@item.Slug</td>
+									<td>
+										<a asp-action="AddQuantity" asp-controller="Product" asp-route-id="@item.Id" class="btn btn-sm btn-secondary">+</a>
+									</td>
 									<td>@item.Price.ToString("#,##0 VND")</td>
 									<td>@item.Description</td>
 									<td>@item.Category.Name</td>

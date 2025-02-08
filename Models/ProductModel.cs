@@ -37,6 +37,9 @@ namespace ShoppingFood.Models
         [Required, Range(1, int.MaxValue, ErrorMessage = "Yêu cầu chọn thương hiệu")]
         public int BrandId { get; set; }
 
+        public int Quantity { get; set; }
+        public int Sold { get; set; }
+
         public virtual CategoryModel Category { get; set; } = null!;
         public virtual BrandModel Brand { get; set; } = null!;
         public virtual RatingModel Rating { get; set; } = null!;

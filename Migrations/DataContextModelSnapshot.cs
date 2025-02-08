@@ -280,6 +280,27 @@ namespace ShoppingFood.Migrations
                     b.ToTable("Categories");
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.CompareModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Compares");
+                });
+
             modelBuilder.Entity("ShoppingFood.Models.ContactModel", b =>
                 {
                     b.Property<string>("Name")
@@ -397,8 +418,14 @@ namespace ShoppingFood.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
                     b.Property<string>("Slug")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Sold")
+                        .HasColumnType("int");
 
                     b.Property<int>("Status")
                         .HasColumnType("int");
@@ -410,6 +437,30 @@ namespace ShoppingFood.Migrations
                     b.HasIndex("CategoryId");
 
                     b.ToTable("Products");
+                });
+
+            modelBuilder.Entity("ShoppingFood.Models.ProductQuantityModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<DateTime>("CreateDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductQuantities");
                 });
 
             modelBuilder.Entity("ShoppingFood.Models.RatingModel", b =>
@@ -473,6 +524,27 @@ namespace ShoppingFood.Migrations
                     b.ToTable("Sliders");
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.WishlistModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("Wishlists");
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -524,6 +596,17 @@ namespace ShoppingFood.Migrations
                         .IsRequired();
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.CompareModel", b =>
+                {
+                    b.HasOne("ShoppingFood.Models.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("ShoppingFood.Models.OrderDetailModel", b =>
                 {
                     b.HasOne("ShoppingFood.Models.ProductModel", "Product")
@@ -554,11 +637,33 @@ namespace ShoppingFood.Migrations
                     b.Navigation("Category");
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.ProductQuantityModel", b =>
+                {
+                    b.HasOne("ShoppingFood.Models.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("ShoppingFood.Models.RatingModel", b =>
                 {
                     b.HasOne("ShoppingFood.Models.ProductModel", "Product")
                         .WithOne("Rating")
                         .HasForeignKey("ShoppingFood.Models.RatingModel", "ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
+            modelBuilder.Entity("ShoppingFood.Models.WishlistModel", b =>
+                {
+                    b.HasOne("ShoppingFood.Models.ProductModel", "Product")
+                        .WithMany()
+                        .HasForeignKey("ProductId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 

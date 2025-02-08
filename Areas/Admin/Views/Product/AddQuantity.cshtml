@@ -1,0 +1,38 @@
+﻿@model ProductQuantityModel
+
+@{
+	ViewData["Title"] = "Create Quantity";
+}
+
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Add new Quantity</h1>
+		<ol class="breadcrumb mb-4">
+			<li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Dashboard</a></li>
+			<li class="breadcrumb-item active">Add new Quantity</li>
+		</ol>
+		<form asp-action="AddQuantity" method="post">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input value="@ViewBag.Id" type="hidden" name="ProductId" />
+			<div class="row">
+				<div class="col-md-8">
+					<div class="form-group">
+						<label class="form-label">Quantity</label>
+						<input asp-for="Quantity" class="form-control" type="number" min="1" max="100" value="1" />
+						<span asp-validation-for="Quantity" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+			<div class="my-3">
+				<button class="btn btn-sm btn-primary">Submit</button>
+				<button class="btn btn-sm btn-outline-secondary" asp-action="Index" formnovalidate>Cancel</button>
+			</div>
+		</form>
+	</div>
+</main>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

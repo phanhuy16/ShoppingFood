@@ -190,5 +190,35 @@ namespace ShoppingFood.Areas.Admin.Controllers
             _notyf.Success("Xóa sản phẩm thành công!");
             return RedirectToAction("Index");
         }
+
+        public IActionResult AddQuantity(int id)
+        {
+            ViewBag.Id = id;
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> AddQuantity(ProductQuantityModel model)
+        {
+            var product = await _dataContext.Products.FindAsync(model.ProductId);
+            if (product == null)
+            {
+                _notyf.Error("Product not found");
+            }
+            product.Quantity += model.Quantity;
+
+            var newQuantity = new ProductQuantityModel
+            {
+                Quantity = model.Quantity,
+                ProductId = model.ProductId,
+                CreateDate = DateTime.Now
+            };
+
+            await _dataContext.ProductQuantities.AddAsync(newQuantity);
+            await _dataContext.SaveChangesAsync();
+            _notyf.Success("Add quantity successfully!");
+            return RedirectToAction("Index");
+        }
     }
 }

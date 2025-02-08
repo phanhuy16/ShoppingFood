@@ -287,3 +287,4 @@ D:\Projects\DotNet\ShoppingFood\bin\Debug\net8.0\Microsoft.AspNetCore.Cryptograp
 D:\Projects\DotNet\ShoppingFood\bin\Debug\net8.0\Microsoft.AspNetCore.Identity.EntityFrameworkCore.dll
 D:\Projects\DotNet\ShoppingFood\bin\Debug\net8.0\Microsoft.Extensions.Identity.Core.dll
 D:\Projects\DotNet\ShoppingFood\bin\Debug\net8.0\Microsoft.Extensions.Identity.Stores.dll
+D:\Projects\DotNet\ShoppingFood\obj\Debug\net8.0\ShoppingFood.sourcelink.json
