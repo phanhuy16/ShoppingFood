@@ -1,0 +1,178 @@
+﻿@model ShippingModel
+
+@{
+	ViewData["Title"] = "Create Shipping";
+}
+
+<style type="text/css">
+	.css_select_div {
+		text-align: center;
+	}
+
+	.css_select {
+		display: inline-table;
+		width: 25%;
+		padding: 5px;
+		margin: 5px 2%;
+		border: solid 1px #686868;
+		border-radius: 5px;
+	}
+</style>
+
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Add new Shipping</h1>
+		<ol class="breadcrumb mb-4">
+			<li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Dashboard</a></li>
+			<li class="breadcrumb-item active">Add new Shipping</li>
+		</ol>
+		<div class="row">
+			<div class="col-md-8">
+				<div class="css_select_div">
+					<label class="form-label">Tỉnh thành</label>
+					<select class="css_select" id="tinh" name="tinh" title="Chọn Tỉnh Thành">
+						<option value="0">Tỉnh Thành</option>
+					</select>
+					<label class="form-label">Quận huyện</label>
+					<select class="css_select" id="quan" name="quan" title="Chọn Quận Huyện">
+						<option value="0">Quận Huyện</option>
+					</select>
+					<label class="form-label">Phường xã</label>
+					<select class="css_select" id="phuong" name="phuong" title="Chọn Phường Xã">
+						<option value="0">Phường Xã</option>
+					</select>
+				</div>
+				<div class="form-group">
+					<label class="form-label">Price</label>
+					<input asp-for="Price" type="number" id="price-shipping" class="form-control" />
+				</div>
+			</div>
+		</div>
+		<div class="my-3">
+			<button class="btn btn-sm btn-primary add-btn-shipping" type="button">Submit</button>
+			<button class="btn btn-sm btn-outline-secondary" asp-action="Index" formnovalidate>Cancel</button>
+		</div>
+
+		<h1 class="my-4">Existing Shipping</h1> 
+		<table id="datatablesSimple"> 
+			<thead> 
+				<tr> 
+					<th class="text-center" scope="col">#</th> 
+					<th class="text-center">City</th> 
+					<th class="text-center">District</th> 
+					<th class="text-center">Ward</th> 
+					<th class="text-center">Price</th> 
+					<th class="text-center">Actions</th> 
+				</tr> 
+			</thead> 
+
+			@if (ViewBag.Shipping != null)
+			{ 
+				var i = 1; 
+				<tbody>
+					@foreach (var item in ViewBag.Shipping)
+					{ 
+						<tr> 
+							<td scope="col" class="text-center">@i</td> 
+							<td class="text-center">@item.City</td> 
+							<td class="text-center">@item.District</td> 
+							<td class="text-center">@item.Ward</td> 
+							<td class="text-center">@item.Price</td> 
+							<td class="text-center">
+								<a class="btn btn-sm btn-danger confirmDeletion" asp-action="Delete" asp-controller="Shipping" asp-route-Id="@item.Id"><i class="fa-regular fa-circle-xmark"></i></a>
+							</td> 
+						</tr> 
+						i++; 
+					} 
+				</tbody>
+			} 
+			else 
+			{ 
+				<tbody> 
+				</tbody> 
+			} 
+		</table> 
+	</div>
+</main>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script>
+
+		$(document).ready(function() {
+			$('.add-btn-shipping').click(function(){
+				var tinh = $('#tinh').find('option:selected').text();
+				var quan = $('#quan').find('option:selected').text();
+				var phuong = $('#phuong').find('option:selected').text();
+				var price = $('#price-shipping').val();
+
+				if(tinh==''||quan==''||phuong==''||price=='')
+				{
+					Swal.fire({
+									title: "Vui lòng không được để trống!",
+									icon: "warning",
+									draggable: true
+								});
+				} else {
+					$.ajax({
+						type:'POST',
+						url:"@Url.Action("Store", "Shipping")",
+						data:{tinh:tinh,quan:quan,phuong:phuong,price:price},
+						success:function(response){
+							if(response.success){
+								Swal.fire({
+									title: response.message,
+									icon: "success",
+									draggable: true
+								});
+							} else if(response.duplicate){
+								Swal.fire({
+									title: response.message,
+									icon: "warning",
+									draggable: true
+								});
+							}
+						}
+					})
+				}
+			});
+			//Lấy tỉnh thành
+			$.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm',function(data_tinh){
+				if(data_tinh.error==0){
+				   $.each(data_tinh.data, function (key_tinh,val_tinh) {
+					  $("#tinh").append('<option value="'+val_tinh.id+'">'+val_tinh.full_name+'</option>');
+				   });
+				   $("#tinh").change(function(e){
+						var idtinh=$(this).val();
+						//Lấy quận huyện
+						$.getJSON('https://esgoo.net/api-tinhthanh/2/'+idtinh+'.htm',function(data_quan){
+							if(data_quan.error==0){
+							   $("#quan").html('<option value="0">Quận Huyện</option>');
+							   $("#phuong").html('<option value="0">Phường Xã</option>');
+							   $.each(data_quan.data, function (key_quan,val_quan) {
+								  $("#quan").append('<option value="'+val_quan.id+'">'+val_quan.full_name+'</option>');
+							   });
+							   //Lấy phường xã
+							   $("#quan").change(function(e){
+									var idquan=$(this).val();
+									$.getJSON('https://esgoo.net/api-tinhthanh/3/'+idquan+'.htm',function(data_phuong){
+										if(data_phuong.error==0){
+										   $("#phuong").html('<option value="0">Phường Xã</option>');
+										   $.each(data_phuong.data, function (key_phuong,val_phuong) {
+											  $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+										   });
+										}
+									});
+							   });
+
+							}
+						});
+				   });
+
+				}
+			});
+		 });
+	</script>
+}
