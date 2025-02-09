@@ -3,7 +3,20 @@
 	ViewData["Title"] = "Cart Page";
 }
 
+<style type="text/css">
+	.css_select_div {
+		text-align: center;
+	}
 
+	.css_select {
+		display: inline-table;
+		width: 25%;
+		padding: 5px;
+		margin: 5px 2%;
+		border: solid 1px #686868;
+		border-radius: 5px;
+	}
+</style>
 
 <!-- Single Page Header start -->
 <div class="container-fluid page-header py-5">
@@ -89,7 +102,25 @@
 			<button class="btn border-secondary rounded-pill px-4 py-3 text-primary" type="button">Apply Coupon</button>
 		</div>
 		<div class="row g-4 justify-content-end">
-			<div class="col-8"></div>
+			<div class="col-8">
+				<div class="css_select_div">
+					<label class="form-label">Tỉnh thành</label>
+					<select class="css_select" id="tinh" name="tinh" title="Chọn Tỉnh Thành">
+						<option value="0">Tỉnh Thành</option>
+					</select>
+					<label class="form-label">Quận huyện</label>
+					<select class="css_select" id="quan" name="quan" title="Chọn Quận Huyện">
+						<option value="0">Quận Huyện</option>
+					</select>
+					<label class="form-label">Phường xã</label>
+					<select class="css_select" id="phuong" name="phuong" title="Chọn Phường Xã">
+						<option value="0">Phường Xã</option>
+					</select>
+				</div>
+				<div class="my-3 text-end">
+					<button class="btn btn-sm btn-primary add-btn-shipping text-white" type="button">Tính phí ship</button>
+				</div>
+			</div>
 			<div class="col-sm-8 col-md-7 col-lg-6 col-xl-4">
 				<div class="bg-light rounded">
 					<div class="p-4">
@@ -101,16 +132,19 @@
 						<div class="d-flex justify-content-between">
 							<h5 class="mb-0 me-4">Shipping</h5>
 							<div class="">
-								<p class="mb-0">Flat rate: $3.00</p>
+								<p class="mb-0">Flat rate: @Model.ShippingCost.ToString("#,##0 VND")</p>
 							</div>
 						</div>
-						<p class="mb-0 text-end">Shipping to Ukraine.</p>
+						@* <p class="mb-0 text-end">Shipping to Ukraine.</p> *@
 					</div>
 					<div class="py-4 mb-4 border-top border-bottom d-flex justify-content-between">
 						<h5 class="mb-0 ps-4 me-4">Total</h5>
-						<p class="mb-0 pe-4">$99.00</p>
+						@{
+							var total = Model.GrandTotal + Model.ShippingCost;
+						}
+						<p class="mb-0 pe-4">@total.ToString("#,##0 VND")</p>
 					</div>
-					@if(User.Identity.IsAuthenticated)
+					@if (User.Identity.IsAuthenticated)
 					{
 						<a asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed Checkout</a>
 					}
@@ -120,3 +154,65 @@
 	</div>
 </div>
 <!-- Cart Page End -->
+@section Scripts {
+	<script>
+		$(document).ready(function() {
+			$('.add-btn-shipping').click(function(){
+				var tinh = $('#tinh').find('option:selected').text();
+				var quan = $('#quan').find('option:selected').text();
+				var phuong = $('#phuong').find('option:selected').text();
+
+				if(tinh==''||quan==''||phuong=='')
+				{
+					_notyf.warning("Vui lòng không được để trống!");
+				} else {
+					$.ajax({
+						type:'POST',
+						url:"@Url.Action("GetShipping", "Cart")",
+						data:{tinh:tinh,quan:quan,phuong:phuong},
+						success:function(response){
+							if(response.success){
+								location.reload();
+							}
+						}
+					})
+				}
+			});
+			//Lấy tỉnh thành
+			$.getJSON('https://esgoo.net/api-tinhthanh/1/0.htm',function(data_tinh){
+				if(data_tinh.error==0){
+				   $.each(data_tinh.data, function (key_tinh,val_tinh) {
+					  $("#tinh").append('<option value="'+val_tinh.id+'">'+val_tinh.full_name+'</option>');
+				   });
+				   $("#tinh").change(function(e){
+						var idtinh=$(this).val();
+						//Lấy quận huyện
+						$.getJSON('https://esgoo.net/api-tinhthanh/2/'+idtinh+'.htm',function(data_quan){
+							if(data_quan.error==0){
+							   $("#quan").html('<option value="0">Quận Huyện</option>');
+							   $("#phuong").html('<option value="0">Phường Xã</option>');
+							   $.each(data_quan.data, function (key_quan,val_quan) {
+								  $("#quan").append('<option value="'+val_quan.id+'">'+val_quan.full_name+'</option>');
+							   });
+							   //Lấy phường xã
+							   $("#quan").change(function(e){
+									var idquan=$(this).val();
+									$.getJSON('https://esgoo.net/api-tinhthanh/3/'+idquan+'.htm',function(data_phuong){
+										if(data_phuong.error==0){
+										   $("#phuong").html('<option value="0">Phường Xã</option>');
+										   $.each(data_phuong.data, function (key_phuong,val_phuong) {
+											  $("#phuong").append('<option value="'+val_phuong.id+'">'+val_phuong.full_name+'</option>');
+										   });
+										}
+									});
+							   });
+
+							}
+						});
+				   });
+
+				}
+			});
+		 });
+	</script>
+}

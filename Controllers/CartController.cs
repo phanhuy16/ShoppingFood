@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
 using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Models;
 using ShoppingFood.Models.ViewModel;
@@ -25,10 +26,20 @@ namespace ShoppingFood.Controllers
         {
             List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
 
+            var shippingPriceCookie = Request.Cookies["ShippingPrice"];
+            decimal shippingPrice = 0;
+
+            if (shippingPriceCookie != null)
+            {
+                var shippingPriceJson = shippingPriceCookie;
+                shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceJson);
+            }
+
             CartItemViewModel cartItemViewModel = new CartItemViewModel()
             {
                 CartItems = cartItems,
                 GrandTotal = cartItems.Sum(x => x.Quantity * x.Price),
+                ShippingCost = shippingPrice
             };
 
             return View(cartItemViewModel);
@@ -193,7 +204,7 @@ namespace ShoppingFood.Controllers
                     orderDetail.ProductId = item.ProductId;
                     orderDetail.UserName = email;
 
-                    var product = await _dataContext.Products.Where(x=>x.Id==item.ProductId).FirstAsync();
+                    var product = await _dataContext.Products.Where(x => x.Id == item.ProductId).FirstAsync();
                     product.Quantity -= item.Quantity;
                     product.Sold += item.Quantity;
                     _dataContext.Products.Update(product);
@@ -203,6 +214,7 @@ namespace ShoppingFood.Controllers
                 }
 
                 HttpContext.Session.Remove("Cart");
+                Response.Cookies.Delete("ShippingPrice");
 
                 // Send email
                 var receiver = email;
@@ -214,6 +226,43 @@ namespace ShoppingFood.Controllers
                 _notyf.Success("Đặt hàng thành công, vui lòng chờ duyệt đơn hàng!");
                 return RedirectToAction("Index", "Home");
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> GetShipping(ShippingModel model, string tinh, string quan, string phuong)
+        {
+            var existShipping = await _dataContext.Shippings.FirstOrDefaultAsync(x => x.City == tinh && x.District == quan && x.Ward == phuong);
+
+            decimal shippingPrice = 0;
+
+            if (existShipping != null)
+            {
+                shippingPrice = existShipping.Price;
+            }
+            else
+            {
+                shippingPrice = 30000;
+            }
+
+            var priceConvert = JsonConvert.SerializeObject(shippingPrice);
+
+            try
+            {
+                var cookieOptions = new CookieOptions
+                {
+                    HttpOnly = true,
+                    Expires = DateTimeOffset.UtcNow.AddMinutes(30),
+                    Secure = true,
+                };
+
+                Response.Cookies.Append("ShippingPrice", priceConvert, cookieOptions);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, ex.Message);
+            }
+
+            return Json(new { shippingPrice });
         }
     }
 }
