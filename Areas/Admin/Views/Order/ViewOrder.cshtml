@@ -62,14 +62,18 @@
 			</div>
 		</div>
 		<div class="row mb-4">
-			<div class="col-md-10"></div>
-			<div class="col-md-2">
-				<h6>Total: @total.ToString("C")</h6>
+			<div class="col-md-9"></div>
+			<div class="col-md-3">
+				<h6>Total: @total.ToString("#,##0 VND")</h6>
+				<h6>ShippingCost: @ViewBag.ShippingCost.ToString("#,##0 VND")</h6>
 				<select class="form-select select-update-order">
 					<option value="1">Đơn hàng mới</option>
 					<option value="2">Đã xử lý</option>
 				</select>
 			</div>
+		</div>
+		<div class="text-end">
+			<a class="btn btn-outline-secondary btn-sm" asp-action="Index" asp-controller="Order" type="submit">Cancel</a>
 		</div>
 	</div>
 </main>

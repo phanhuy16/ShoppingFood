@@ -28,6 +28,10 @@ namespace ShoppingFood.Areas.Admin.Controllers
         public async Task<IActionResult> ViewOrder(string code)
         {
             var detail = await _dataContext.OrderDetails.Include(x => x.Product).Where(x => x.OrderCode == code).ToListAsync();
+
+            var shippingCost = _dataContext.Orders.Where(x => x.OrderCode == code).First();
+            ViewBag.ShippingCost = shippingCost.ShippingCode;
+
             return View(detail);
         }
 
@@ -54,6 +58,20 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 return StatusCode(500);
             }
 
+        }
+
+        public async Task<IActionResult>Delete(int id)
+        {
+            var order = await _dataContext.Orders.FindAsync(id);
+            if(order !=null)
+            {
+                _dataContext.Orders.Remove(order);
+                await _dataContext.SaveChangesAsync();
+                _notyf.Success("Deleted order successfully!");
+                return RedirectToAction("Index");
+            }
+            _notyf.Error("Order not found!");
+            return View(order);
         }
     }
 }

@@ -146,7 +146,15 @@
 					</div>
 					@if (User.Identity.IsAuthenticated)
 					{
-						<a asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4" type="button">Proceed Checkout</a>
+						@if (Model.ShippingCost <= 0)
+						{
+							<button disabled="disabled" asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</button>
+							<p class="px-3 pb-3 text-danger">Vui lòng tính phí vẫn chuyển trước khi đặt hàng</p>
+						}
+						else
+						{
+							<a asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</a>
+						}
 					}
 				</div>
 			</div>
@@ -172,7 +180,7 @@
 						data:{tinh:tinh,quan:quan,phuong:phuong},
 						success:function(response){
 							if(response.success){
-								location.reload();
+								location.reload()
 							}
 						}
 					})

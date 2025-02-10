@@ -187,6 +187,17 @@ namespace ShoppingFood.Controllers
 
                 orderItem.OrderCode = orderCode;
                 orderItem.UserName = email;
+
+                var shippingPriceCookie = Request.Cookies["ShippingPrice"];
+                decimal shippingPrice = 0;
+
+                if (shippingPriceCookie != null)
+                {
+                    var shippingPriceJson = shippingPriceCookie;
+                    shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceJson);
+                }
+                orderItem.ShippingCode = shippingPrice;
+
                 orderItem.CreatedDate = DateTime.Now;
                 orderItem.Status = 1;
 

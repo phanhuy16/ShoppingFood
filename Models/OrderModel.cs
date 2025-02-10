@@ -16,5 +16,7 @@ namespace ShoppingFood.Models
         public DateTime CreatedDate { get; set; }
 
         public int Status { get; set; }
+
+        public decimal ShippingCode { get; set; }
     }
 }
