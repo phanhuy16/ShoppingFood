@@ -18,10 +18,45 @@ namespace ShoppingFood.Controllers
             _notyf = notyf;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string sort_by = "", string startprice = "", string endprice = "")
         {
-            var products = await _dataContext.Products.Include(x => x.Category).ToListAsync();
-            return View(products);
+            var products = _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1);
+
+            if (sort_by == "price_increase")
+            {
+                products = products.OrderBy(x => x.Price);
+            }
+            else if (sort_by == "price_decrease")
+            {
+                products = products.OrderByDescending(x => x.Price);
+            }
+            else if (sort_by == "price_newest")
+            {
+                products = products.OrderByDescending(x => x.Id);
+            }
+            else if (sort_by == "price_oldest")
+            {
+                products = products.OrderBy(x => x.Id);
+            }
+            else if (startprice != "" && endprice != "")
+            {
+                decimal start;
+                decimal end;
+                if (decimal.TryParse(startprice, out start) && decimal.TryParse(endprice, out end))
+                {
+                    products = products.Where(x => x.Price >= start && x.Price <= end);
+                }
+                else
+                {
+                    products = products.OrderByDescending(x => x.Id);
+                }
+            }
+            else
+            {
+                products = products.OrderByDescending(x => x.Id);
+            }
+
+            return View(await products.ToListAsync());
         }
 
         [HttpPost]

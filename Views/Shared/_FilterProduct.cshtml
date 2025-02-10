@@ -1,0 +1,16 @@
+﻿@{
+	var currentUrl = Url.ActionContext.HttpContext.Request.Path;
+}
+
+<div class="col-xl-3">
+	<div class="bg-light ps-3 py-3 rounded d-flex justify-content-between mb-4">
+		<label for="fruits">Default Sorting:</label>
+		<select id="sort_by" name="fruitlist" class="border-0 form-select-sm bg-light me-3" form="fruitform">
+			<option value="">Nothing</option>
+			<option value="@currentUrl?sort_by=price_increase">Tăng dần</option>
+			<option value="@currentUrl?sort_by=price_decrease">Giảm dần</option>
+			<option value="@currentUrl?sort_by=price_newest">Mới nhất</option>
+			<option value="@currentUrl?sort_by=price_oldest">Cũ nhất</option>
+		</select>
+	</div>
+</div>

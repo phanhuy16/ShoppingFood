@@ -27,20 +27,10 @@
 						</form>
 					</div>
 					<div class="col-6"></div>
-					<div class="col-xl-3">
-						<div class="bg-light ps-3 py-3 rounded d-flex justify-content-between mb-4">
-							<label for="fruits">Default Sorting:</label>
-							<select id="fruits" name="fruitlist" class="border-0 form-select-sm bg-light me-3" form="fruitform">
-								<option value="volvo">Nothing</option>
-								<option value="saab">Popularity</option>
-								<option value="opel">Organic</option>
-								<option value="audi">Fantastic</option>
-							</select>
-						</div>
-					</div>
+				@await Html.PartialAsync("_FilterProduct")
 				</div>
 				<div class="row g-4">
-					@await Html.PartialAsync("_SideBar")
+					@await Html.PartialAsync("_SiderBar")
 					<div class="col-lg-9">
 						<div class="row g-4 justify-content-center">
 							@if (Model != null && Model.Any())
@@ -126,7 +116,7 @@
 </div>
 <!-- Fruits Shop End-->
 @section Scripts {
-	<script>
+	<script type="text/javascript">
 		$(document).ready(function () {
 			$('.add-to-cart').click(function () {
 				var id = $(this).data('id');
@@ -178,6 +168,41 @@
 					}
 				});
 			});
+
+			$('#sort_by').on('change', function(){
+				var url = $(this).val();
+				if(url){
+					window.location = url;
+				}
+				return false;
+			})
+			$(function() {
+			  $( "#slider-range" ).slider({
+				range: true,
+				step: 10000,
+				min: 10000,
+				max: 10000000,
+				values: [ 75, 300 ],
+				slide: function( event, ui ) {
+					$( "#amount" ).val(
+						new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(ui.values[ 0 ]) +
+						" - " +
+						new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(ui.values[ 1 ])
+					);
+				}
+			  });
+			  $( "#amount" ).val( new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format($( "#slider-range" ).slider( "values", 0 )) +
+				" - " + new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format($( "#slider-range" ).slider( "values", 1 )));
+			});
+
+			$('.btn-filter').on('click', function(){
+				var url = $(this).data('current_url');
+				if(url){
+					window.location = url + "?startprice=" + $( "#slider-range" ).slider( "values", 0 ) + "&endprice=" + $( "#slider-range" ).slider( "values", 1 );
+				}
+				return false;
+			})
 		});
+
 	</script>
 }
