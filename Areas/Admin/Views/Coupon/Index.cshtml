@@ -1,0 +1,182 @@
+﻿@model CouponModel
+
+@{
+	ViewData["Title"] = "Create Coupon";
+}
+
+<style type="text/css">
+	#datepicker-start, #datepicker-expired {
+		cursor: pointer;
+		background-color: #fff;
+	}
+
+</style>
+
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Add new Coupon</h1>
+		<ol class="breadcrumb mb-4">
+			<li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Dashboard</a></li>
+			<li class="breadcrumb-item active">Add new Coupon</li>
+		</ol>
+		<div class="row">
+			<div class="col-md-8">
+				<form asp-action="Create" method="post">
+					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+					<div class="form-group">
+						<label class="form-label">Name</label>
+						<input asp-for="Name" class="form-control" type="text" />
+						<span asp-validation-for="Name" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Descripts</label>
+						<textarea asp-for="Description" class="form-control"></textarea>
+						<span asp-validation-for="Description" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Quantity</label>
+						<input asp-for="Quantity" class="form-control" type="number" min="1" max="100" value="1" />
+						<span asp-validation-for="Quantity" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Date Start</label>
+						<div class="input-group">
+							<input asp-for="DateStart" id="datepicker-start" class="form-control" type="text" placeholder="Select a date" />
+							<span class="input-group-text"><i class="fa-solid fa-calendar"></i></span>
+						</div>
+						<span asp-validation-for="DateStart" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Date Expired</label>
+						<div class="input-group">
+							<input asp-for="DateExpired" id="datepicker-expired" class="form-control" type="text" placeholder="Select a date" />
+							<span class="input-group-text"><i class="fa-solid fa-calendar"></i></span>
+						</div>
+						<span asp-validation-for="DateExpired" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Status</label>
+						<select asp-for="Status" class="form-select">
+							<option>-- Choose a status --</option>
+							<option value="1"> Hiện </option>
+							<option value="0"> Ẩn </option>
+						</select>
+						<span asp-validation-for="Status" class="text-danger"></span>
+					</div>
+					<div class="my-3">
+						<button class="btn btn-sm btn-primary">Submit</button>
+						<button class="btn btn-sm btn-outline-secondary" asp-action="Index" formnovalidate>Cancel</button>
+					</div>
+				</form>
+
+			</div>
+		</div>
+		<h5 class="my-4">Existing Product Coupon</h5>
+		<table id="datatablesSimple">
+			<thead>
+				<tr>
+					<th class="text-center" scope="col">#</th>
+					<th class="text-center">Name</th>
+					<th class="text-center">Description</th>
+					<th class="text-center">Quantity</th>
+					<th class="text-center">Date Start</th>
+					<th class="text-center">Date Expired</th>
+					<th class="text-center">Actions</th>
+					<th class="text-center">Status</th>
+				</tr>
+			</thead>
+
+			@if (ViewBag.Coupons != null)
+			{
+				var i = 1;
+				<tbody>
+					@foreach (var item in ViewBag.Coupons)
+					{
+						<tr>
+							<td scope="col" class="text-center">@i</td>
+							<td class="text-center">@item.Name</td>
+							<td class="text-center">@item.Description</td>
+							<td class="text-center">@item.Quantity</td>
+							<td class="text-center">@item.DateStart.ToString("dd/MM/yyyy")</td>
+							<td class="text-center">@item.DateExpired.ToString("dd/MM/yyyy")</td>
+							<td class="text-center">
+								@if (item.Status == 1)
+								{
+									<select name="Status">
+										<option selected value="1">Kích hoạt</option>
+										<option value="0">Ẩn</option>
+									</select>
+								}
+								else
+								{
+									<select name="Status">
+										<option value="1">Kích hoạt</option>
+										<option selected value="0">Ẩn</option>
+									</select>
+								}
+							</td>
+							<td class="text-center">
+								@if (item.DateExpired < DateTime.Now)
+								{
+									<span class="text-danger">Expired</span>
+								}
+								else
+								{
+									TimeSpan remainingTime = item.DateExpired - DateTime.Now;
+									int daysRemaining = remainingTime.Days;
+									if (daysRemaining == 0)
+									{
+										<span class="text-danger">Today</span>
+									}
+									else
+									{
+										<span class="text-success">@daysRemaining days left</span>
+									}
+								}
+							</td>
+						</tr>
+						i++;
+					}
+				</tbody>
+			}
+			else
+			{
+				<tbody>
+				</tbody>
+			}
+		</table>
+
+
+
+	</div>
+</main>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+	<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+	<!-- Timepicker Addon -->
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
+	<script>
+		$(function () {
+			$("#datepicker-start, #datepicker-expired").datetimepicker({
+				dateFormat: 'dd/mm/yy',
+				timeFormat: 'HH:mm:ss',
+				showSecond: true,
+				controlType: 'select',
+				oneLine: true
+			});
+
+			$("form").on("submit", function () {
+				$("#datepicker-start, #datepicker-expired").each(function () {
+					let parts = $(this).val().split(" ");
+					let dateParts = parts[0].split("/");
+					$(this).val(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]} ${parts[1]}`);
+				});
+			});
+
+		});
+	</script>
+
+}

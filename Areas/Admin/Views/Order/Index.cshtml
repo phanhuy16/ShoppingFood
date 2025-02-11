@@ -22,6 +22,7 @@
 							<th scope="col">#</th>
 							<th>Username</th>
 							<th>Order Code</th>
+							<th>Coupon Code</th>
 							<th>Shipping cost</th>
 							<th>Create date</th>
 							<th>Status</th>
@@ -38,6 +39,7 @@
 									<td scope="col">@i</td>
 									<td>@item.UserName</td>
 									<td>@item.OrderCode</td>
+									<td>@item.CouponCode</td>
 									<td>@item.ShippingCode.ToString("#,##0 VND")</td>
 									<td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
 									<td>

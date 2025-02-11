@@ -1,4 +1,5 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -35,11 +36,15 @@ namespace ShoppingFood.Controllers
                 shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceJson);
             }
 
+            // nhận coupon từ cookie
+            var coupon = Request.Cookies["CouponTitle"];
+
             CartItemViewModel cartItemViewModel = new CartItemViewModel()
             {
                 CartItems = cartItems,
                 GrandTotal = cartItems.Sum(x => x.Quantity * x.Price),
-                ShippingCost = shippingPrice
+                ShippingCost = shippingPrice,
+                CouponCode = coupon,
             };
 
             return View(cartItemViewModel);
@@ -191,12 +196,16 @@ namespace ShoppingFood.Controllers
                 var shippingPriceCookie = Request.Cookies["ShippingPrice"];
                 decimal shippingPrice = 0;
 
+                // nhận coupon từ cookie
+                var coupon = Request.Cookies["CouponTitle"];
+
                 if (shippingPriceCookie != null)
                 {
                     var shippingPriceJson = shippingPriceCookie;
                     shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceJson);
                 }
                 orderItem.ShippingCode = shippingPrice;
+                orderItem.CouponCode = coupon;
 
                 orderItem.CreatedDate = DateTime.Now;
                 orderItem.Status = 1;
@@ -267,13 +276,56 @@ namespace ShoppingFood.Controllers
                 };
 
                 Response.Cookies.Append("ShippingPrice", priceConvert, cookieOptions);
+                return Ok(new { success = true });
             }
             catch (Exception ex)
             {
                 return StatusCode(500, ex.Message);
             }
 
-            return Json(new { shippingPrice });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Coupon(string value)
+        {
+            var validCoupon = await _dataContext.Coupons.FirstOrDefaultAsync(x => x.Name == value);
+
+            string couponTitle = validCoupon.Name + " | " + validCoupon.Description;
+
+            if (couponTitle != null)
+            {
+                TimeSpan remainingTime = validCoupon.DateExpired - DateTime.Now;
+                int daysRemaining = remainingTime.Days;
+
+                if (daysRemaining >= 0)
+                {
+                    try
+                    {
+                        var cookieOptions = new CookieOptions
+                        {
+                            HttpOnly = true,
+                            Expires = DateTimeOffset.UtcNow.AddMinutes(30),
+                            Secure = true,
+                            SameSite = SameSiteMode.Strict
+                        };
+
+                        Response.Cookies.Append("CouponTitle", couponTitle, cookieOptions);
+                        return Ok(new { success = true, message = "Coupon applied successfully!" });
+                    }
+                    catch (Exception ex)
+                    {
+                        StatusCode(500, ex.Message);
+                        return Ok(new { success = false, message = "Coupon applied failed" });
+                    }
+                }else
+                {
+                    return Ok(new { success = false, message = "Coupon has expired" });
+                }
+            }
+            else
+            {
+                return Ok(new { success = false, message = "Coupon not expired" });
+            }
         }
     }
 }
