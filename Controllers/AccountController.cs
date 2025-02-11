@@ -210,13 +210,14 @@ namespace ShoppingFood.Controllers
 
         public async Task<IActionResult> ForgotPasswordConfirm(AppUserModel model, string token)
         {
-            var checkUser = await _userManager.Users.Where(x=>x.Email == model.Email).Where(x=>x.Token == token).FirstOrDefaultAsync();
+            var checkUser = await _userManager.Users.Where(x => x.Email == model.Email).Where(x => x.Token == token).FirstOrDefaultAsync();
 
-            if(checkUser != null)
+            if (checkUser != null)
             {
                 ViewBag.Email = checkUser.Email;
                 ViewBag.Token = token;
-            } else
+            }
+            else
             {
                 _notyf.Error("Email not found or tokne is not right");
                 return RedirectToAction("ForgotPassword", "Account");
@@ -234,7 +235,7 @@ namespace ShoppingFood.Controllers
             {
                 string newToken = Guid.NewGuid().ToString();
                 var password = new PasswordHasher<AppUserModel>();
-                var passwordHash = password.HashPassword(checkUser,model.PasswordHash);
+                var passwordHash = password.HashPassword(checkUser, model.PasswordHash);
 
                 checkUser.PasswordHash = passwordHash;
                 checkUser.Token = newToken;
@@ -248,7 +249,47 @@ namespace ShoppingFood.Controllers
                 _notyf.Error("Email not found or tokne is not right");
                 return RedirectToAction("ForgotPassword", "Account");
             }
-            return View();
+        }
+
+        public async Task<IActionResult> Edit()
+        {
+            if ((bool)!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            return View(user);
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(AppUserModel model)
+        {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            if (user == null)
+            {
+                _notyf.Error("User not found");
+            }
+            else
+            {
+                var password = new PasswordHasher<AppUserModel>();
+                var passwordHash = password.HashPassword(user, model.PasswordHash);
+
+                user.PasswordHash = passwordHash;
+                user.PhoneNumber = model.PhoneNumber;
+                _dataContext.Users.Update(user);
+                await _dataContext.SaveChangesAsync();
+                _notyf.Success("Edited Account infomation successfully!");
+                return RedirectToAction("Edit", "Account");
+            }
+
+            return View(user);
         }
     }
 }

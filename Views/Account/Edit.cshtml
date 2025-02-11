@@ -1,0 +1,96 @@
+﻿@model AppUserModel
+
+@{
+	ViewData["Title"] = "Profile";
+}
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+	<h1 class="text-center text-white display-6">Profile</h1>
+	<ol class="breadcrumb justify-content-center mb-0">
+		<li class="breadcrumb-item"><a href="#">Home</a></li>
+		<li class="breadcrumb-item"><a href="#">Pages</a></li>
+		<li class="breadcrumb-item active text-white">Profile</li>
+	</ol>
+</div>
+<!-- Single Page Header End -->
+<!-- Tastimonial Start -->
+<div class="container-fluid testimonial py-5">
+	<div class="container py-5">
+		<div class="testimonial-header text-center">
+			<h4 class="text-primary">Profile</h4>
+			<h1 class="display-5 mb-5 text-dark">Hello, @Model.Email</h1>
+		</div>
+
+		<div class="card" style="margin-bottom: 100px;">
+			<div class="card-header p-2">
+				<ul class="nav nav-pills">
+					<li class="nav-item"><a class="nav-link" href="#activity" data-bs-toggle="tab">Wishlist</a></li>
+					<li class="nav-item"><a class="nav-link" asp-action="Profile" asp-controller="Account">Compare</a></li>
+					<li class="nav-item"><a class="nav-link active" href="#settings" data-bs-toggle="tab">Settings</a></li>
+				</ul>
+			</div><!-- /.card-header -->
+			<div class="card-body">
+				<div class="tab-content">
+					<div class="active tab-pane">
+						<form autocomplete="off" class="form-horizontal" asp-action="Edit" asp-controller="Account" method="post">
+							<input type="hidden" asp-for="Id"/>
+							<div class="text-danger" asp-validation-summary="ModelOnly"></div>
+							<div class="form-group row my-3">
+								<label for="inputName" class="col-sm-2 form-label">Name</label>
+								<div class="col-sm-10">
+									<input type="text" asp-for="UserName" readonly class="form-control" id="inputName" placeholder="Name">
+									<span asp-validation-for="UserName" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group row my-3">
+								<label for="inputEmail" class="col-sm-2 form-label">Email</label>
+								<div class="col-sm-10">
+									<input type="email" class="form-control" readonly asp-for="Email" id="inputEmail" placeholder="Email">
+									<span asp-validation-for="Email" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group row my-3">
+								<label for="inputPhone" class="col-sm-2 form-label">Phone</label>
+								<div class="col-sm-10">
+									<input type="text" asp-for="PhoneNumber" class="form-control" id="inputPhone" placeholder="PhoneNumber">
+									<span asp-validation-for="PhoneNumber" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group row my-3">
+								<label for="inputOldPassword" class="col-sm-2 form-label">Old password</label>
+								<div class="col-sm-10">
+									<input type="text" readonly value="@Model.PasswordHash" class="form-control" id="inputOldPassword" placeholder="Password">
+								</div>
+							</div>
+							<div class="form-group row my-3">
+								<label for="inputPassword" class="col-sm-2 form-label">New password</label>
+								<div class="col-sm-10">
+									<input type="password" name="PasswordHash" class="form-control" id="inputPassword" placeholder="Password">
+									<span asp-validation-for="PasswordHash" class="text-danger"></span>
+								</div>
+							</div>
+							<div class="form-group row my-3">
+								<div class="offset-sm-2 col-sm-10">
+									<div class="checkbox">
+										<label>
+											<input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group row my-3">
+								<div class="offset-sm-2 col-sm-10">
+									<button type="submit" class="btn btn-danger">Submit</button>
+								</div>
+							</div>
+						</form>
+					</div>
+					<!-- /.tab-pane -->
+				</div>
+				<!-- /.tab-content -->
+			</div><!-- /.card-body -->
+		</div>
+	</div>
+</div>
+<!-- Tastimonial End -->
