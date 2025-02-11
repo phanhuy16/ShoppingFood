@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Models;
 using ShoppingFood.Repository;
 using System.Security.Claims;
@@ -14,13 +15,15 @@ namespace ShoppingFood.Controllers
         private readonly UserManager<AppUserModel> _userManager;
         private readonly SignInManager<AppUserModel> _signInManager;
         private readonly INotyfService _notyf;
+        private readonly IEmailSender _emailSender;
 
-        public AccountController(DataContext context, UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, INotyfService notyf)
+        public AccountController(DataContext context, UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, INotyfService notyf, IEmailSender email)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _notyf = notyf;
             _dataContext = context;
+            _emailSender = email;
         }
 
         public IActionResult Login(string returnUrl)
@@ -171,6 +174,81 @@ namespace ShoppingFood.Controllers
                 return BadRequest(ex.Message);
             }
             return RedirectToAction("Profile", "Account");
+        }
+
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ForgotPassword(AppUserModel model)
+        {
+            var checkMail = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
+
+            if (checkMail == null)
+            {
+                _notyf.Error("Email not found!");
+                return RedirectToAction("ForgotPassword", "Account");
+            }
+            else
+            {
+                string token = Guid.NewGuid().ToString();
+                checkMail.Token = token;
+                _dataContext.Users.Update(checkMail);
+                await _dataContext.SaveChangesAsync();
+
+                var receiver = checkMail.Email;
+                var subject = "Change password for user " + checkMail.Email;
+                var message = "Click on link to change password " + "<a href='" + $"{Request.Scheme}://{Request.Host}/Account/ForgotPasswordConfirm?email=" + checkMail.Email + "&token=" + token + "'>";
+
+                await _emailSender.SendEmailAsync(receiver, subject, message);
+            }
+            _notyf.Success("Send email successfully");
+            return RedirectToAction("ForgotPassword", "Account");
+        }
+
+        public async Task<IActionResult> ForgotPasswordConfirm(AppUserModel model, string token)
+        {
+            var checkUser = await _userManager.Users.Where(x=>x.Email == model.Email).Where(x=>x.Token == token).FirstOrDefaultAsync();
+
+            if(checkUser != null)
+            {
+                ViewBag.Email = checkUser.Email;
+                ViewBag.Token = token;
+            } else
+            {
+                _notyf.Error("Email not found or tokne is not right");
+                return RedirectToAction("ForgotPassword", "Account");
+            }
+            return View();
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> UpdatePasswordConfirm(AppUserModel model, string token)
+        {
+            var checkUser = await _userManager.Users.Where(x => x.Email == model.Email).Where(x => x.Token == token).FirstOrDefaultAsync();
+
+            if (checkUser != null)
+            {
+                string newToken = Guid.NewGuid().ToString();
+                var password = new PasswordHasher<AppUserModel>();
+                var passwordHash = password.HashPassword(checkUser,model.PasswordHash);
+
+                checkUser.PasswordHash = passwordHash;
+                checkUser.Token = newToken;
+
+                await _userManager.UpdateAsync(checkUser);
+                _notyf.Success("Password updated successfully");
+                return RedirectToAction("Login", "Account");
+            }
+            else
+            {
+                _notyf.Error("Email not found or tokne is not right");
+                return RedirectToAction("ForgotPassword", "Account");
+            }
+            return View();
         }
     }
 }

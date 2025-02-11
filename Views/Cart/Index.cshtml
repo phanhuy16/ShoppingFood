@@ -79,7 +79,7 @@
 									<p class="mb-0 mt-4">@Model.CartItems.Where(x => x.ProductId == item.ProductId).Sum(x => x.Quantity * x.Price).ToString("#,##0 VND")</p>
 								</td>
 								<td>
-									<a class="btn btn-md rounded-circle bg-light border mt-4" asp-action="Remove" asp-controller="Cart" asp-route-id="@item.ProductId">
+									<a onclick="return confirm('Bạn có xác nhận muốn xoá không?')" class="btn btn-md rounded-circle bg-light border mt-4" asp-action="Remove" asp-controller="Cart" asp-route-id="@item.ProductId">
 										<i class="fa fa-times text-danger"></i>
 									</a>
 								</td>
