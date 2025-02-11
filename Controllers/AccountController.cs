@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Models;
 using ShoppingFood.Repository;
+using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
 {
@@ -88,7 +89,15 @@ namespace ShoppingFood.Controllers
 
         public async Task<IActionResult> Profile()
         {
-            var user = await _userManager.GetUserAsync(User);
+            if ((bool)!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            var orders = await _dataContext.Orders.Where(x => x.UserName == userEmail).OrderByDescending(x => x.Id).ToListAsync();
 
             var wishlist = await (from w in _dataContext.Wishlists
                                   join p in _dataContext.Products on w.ProductId equals p.Id
@@ -102,8 +111,9 @@ namespace ShoppingFood.Controllers
 
             ViewBag.Wishlist = wishlist;
             ViewBag.Compare = compare;
+            ViewBag.UserEmail = userEmail;
 
-            return View(user);
+            return View(orders);
         }
 
         public async Task<IActionResult> DeteleWishlist(int id)
@@ -140,6 +150,27 @@ namespace ShoppingFood.Controllers
                 _notyf.Error("Compare not found!");
                 return RedirectToAction("Profile");
             }
+        }
+
+        public async Task<IActionResult> CancelOrder(string code)
+        {
+            if ((bool)!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            try
+            {
+                var order = await _dataContext.Orders.Where(x => x.OrderCode == code).FirstAsync();
+                order.Status = 3;
+                await _dataContext.SaveChangesAsync();
+                _notyf.Success("Cancel order successfully!");
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
+            return RedirectToAction("Profile", "Account");
         }
     }
 }

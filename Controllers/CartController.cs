@@ -244,7 +244,7 @@ namespace ShoppingFood.Controllers
                 await _emailSender.SendEmailAsync(receiver, subject, message);
 
                 _notyf.Success("Đặt hàng thành công, vui lòng chờ duyệt đơn hàng!");
-                return RedirectToAction("Index", "Home");
+                return RedirectToAction("Profile", "Account");
             }
         }
 

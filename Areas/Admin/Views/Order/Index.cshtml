@@ -1,15 +1,15 @@
 ﻿@model IEnumerable<OrderModel>
 
 @{
-    ViewData["Title"] = "Home";
+	ViewData["Title"] = "Home";
 }
 
 <main>
-    <div class="container-fluid px-4">
-        <h1 class="mt-4">Order</h1>
-        <ol class="breadcrumb mb-4">
-            <li class="breadcrumb-item active">Order</li>
-        </ol>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Order</h1>
+		<ol class="breadcrumb mb-4">
+			<li class="breadcrumb-item active">Order</li>
+		</ol>
 		<div class="card mb-4">
 			<div class="card-header">
 				<i class="fas fa-table me-1"></i>
@@ -47,9 +47,11 @@
 										{
 											<span class="badge bg-success"> Đơn hàng mới </span>
 										}
-										else
+										else if (item.Status == 2)
 										{
-											<span class="badge bg-danger"> Đã xử lý </span>
+											<span class="badge bg-primary"> Đã xử lý </span>
+										} else {
+											<span class="badge bg-danger"> Đã huỷ </span>
 										}
 									</td>
 									<td>
@@ -69,5 +71,5 @@
 				</table>
 			</div>
 		</div>
-    </div>
+	</div>
 </main>

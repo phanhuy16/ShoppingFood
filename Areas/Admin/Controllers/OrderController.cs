@@ -29,8 +29,9 @@ namespace ShoppingFood.Areas.Admin.Controllers
         {
             var detail = await _dataContext.OrderDetails.Include(x => x.Product).Where(x => x.OrderCode == code).ToListAsync();
 
-            var shippingCost = _dataContext.Orders.Where(x => x.OrderCode == code).First();
-            ViewBag.ShippingCost = shippingCost.ShippingCode;
+            var orders = _dataContext.Orders.Where(x => x.OrderCode == code).First();
+            ViewBag.ShippingCost = orders.ShippingCode;
+            ViewBag.Status = orders.Status;
 
             return View(detail);
         }
