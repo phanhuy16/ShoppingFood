@@ -66,11 +66,18 @@
 			<div class="col-md-3">
 				<h6>Total: @total.ToString("#,##0 VND")</h6>
 				<h6>ShippingCost: @ViewBag.ShippingCost.ToString("#,##0 VND")</h6>
-				@if (ViewBag.Status != 3)
+				@if (ViewBag.Status == 0)
+				{
+					<select class="form-select select-update-order">
+						<option disabled value="1">Đơn hàng mới</option>
+						<option value="0">Đã xử lý</option>
+					</select>
+				}
+				else
 				{
 					<select class="form-select select-update-order">
 						<option value="1">Đơn hàng mới</option>
-						<option value="2">Đã xử lý</option>
+						<option value="0">Đã xử lý</option>
 					</select>
 				}
 			</div>

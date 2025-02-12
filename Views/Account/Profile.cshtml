@@ -99,7 +99,7 @@
 			{
 				<div class="testimonial-item img-border-radius bg-light rounded p-4">
 					<div class="position-relative">
-						@if (item.Status != 3)
+						@if (item.Status != 2)
 						{
 							<a onclick="return confirm('Bạn có xác nhận muốn xoá không?')" asp-action="CancelOrder" asp-controller="Account" asp-route-code="@item.OrderCode">
 								<i class="far fa-times-circle fa-2x text-danger position-absolute" style="bottom: 30px; right: 0;"></i>
@@ -117,7 +117,7 @@
 								{
 									<p class="m-0 pb-3 text-success">Đơn hàng mới</p>
 								}
-								else if (item.Status == 2)
+								else if (item.Status == 0)
 								{
 									<p class="m-0 pb-3 text-primary">Đã xử lý</p>
 								}

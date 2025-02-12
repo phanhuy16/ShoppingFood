@@ -4,19 +4,11 @@
 	ViewData["Title"] = "Create Coupon";
 }
 
-<style type="text/css">
-	#datepicker-start, #datepicker-expired {
-		cursor: pointer;
-		background-color: #fff;
-	}
-
-</style>
-
 <main>
 	<div class="container-fluid px-4">
 		<h1 class="mt-4">Add new Coupon</h1>
 		<ol class="breadcrumb mb-4">
-			<li class="breadcrumb-item"><a asp-action="Index" asp-controller="Home">Dashboard</a></li>
+			<li class="breadcrumb-item"><a asp-action="Index" asp-controller="Dashboard">Dashboard</a></li>
 			<li class="breadcrumb-item active">Add new Coupon</li>
 		</ol>
 		<div class="row">
@@ -40,18 +32,14 @@
 					</div>
 					<div class="form-group">
 						<label class="form-label">Date Start</label>
-						<div class="input-group">
-							<input asp-for="DateStart" id="datepicker-start" class="form-control" type="text" placeholder="Select a date" />
-							<span class="input-group-text"><i class="fa-solid fa-calendar"></i></span>
-						</div>
+						<input asp-for="DateStart" class="form-control" type="datetime-local" placeholder="Select a date" />
+
 						<span asp-validation-for="DateStart" class="text-danger"></span>
 					</div>
 					<div class="form-group">
 						<label class="form-label">Date Expired</label>
-						<div class="input-group">
-							<input asp-for="DateExpired" id="datepicker-expired" class="form-control" type="text" placeholder="Select a date" />
-							<span class="input-group-text"><i class="fa-solid fa-calendar"></i></span>
-						</div>
+						<input asp-for="DateExpired" class="form-control" type="datetime-local" placeholder="Select a date" />
+
 						<span asp-validation-for="DateExpired" class="text-danger"></span>
 					</div>
 					<div class="form-group">
@@ -155,28 +143,4 @@
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}
-	<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
-	<!-- Timepicker Addon -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-ui-timepicker-addon/1.6.3/jquery-ui-timepicker-addon.min.js"></script>
-	<script>
-		$(function () {
-			$("#datepicker-start, #datepicker-expired").datetimepicker({
-				dateFormat: 'dd/mm/yy',
-				timeFormat: 'HH:mm:ss',
-				showSecond: true,
-				controlType: 'select',
-				oneLine: true
-			});
-
-			$("form").on("submit", function () {
-				$("#datepicker-start, #datepicker-expired").each(function () {
-					let parts = $(this).val().split(" ");
-					let dateParts = parts[0].split("/");
-					$(this).val(`${dateParts[2]}-${dateParts[1]}-${dateParts[0]} ${parts[1]}`);
-				});
-			});
-
-		});
-	</script>
-
 }

@@ -1,0 +1,201 @@
+﻿@model StatisticalModel
+@{
+	ViewData["Title"] = "Dashboard";
+}
+
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Dashboard</h1>
+		<ol class="breadcrumb mb-4">
+			<li class="breadcrumb-item active">Dashboard</li>
+		</ol>
+		<div class="row">
+			<div class="col-xl-3 col-md-6">
+				<div class="card bg-primary text-white mb-4">
+					<div class="card-body">
+						<h6>Thống kê sản phẩm</h6>
+						<p class="mb-0">Số lượng: @ViewBag.CountProduct</p>
+					</div>
+					<div class="card-footer d-flex align-items-center justify-content-between">
+						<a class="small text-white stretched-link" href="#">View Details</a>
+						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-md-6">
+				<div class="card bg-warning text-white mb-4">
+					<div class="card-body">
+						<h6>Thống kê người dùng</h6>
+						<p class="mb-0">Số lượng: @ViewBag.CountUser</p>
+					</div>
+					<div class="card-footer d-flex align-items-center justify-content-between">
+						<a class="small text-white stretched-link" href="#">View Details</a>
+						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-md-6">
+				<div class="card bg-info text-white mb-4">
+					<div class="card-body">
+						<h6>Thống kê đơn hàng</h6>
+						<p class="mb-0">Số lượng: @ViewBag.CountOrder</p>
+					</div>
+					<div class="card-footer d-flex align-items-center justify-content-between">
+						<a class="small text-white stretched-link" href="#">View Details</a>
+						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl-3 col-md-6">
+				<div class="card bg-success text-white mb-4">
+					<div class="card-body">
+						<h6>Thống kê danh mục</h6>
+						<p class="mb-0">Số lượng: @ViewBag.CountCategory</p>
+					</div>
+					<div class="card-footer d-flex align-items-center justify-content-between">
+						<a class="small text-white stretched-link" href="#">View Details</a>
+						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="row my-4">
+			<div class="col-md-4">
+				<h6>Lọc dữ liệu</h6>
+				<select class="form-select form-select-sm filter-select" aria-label="Small select example">
+					<option selected> --- Lọc dữ liệu --- </option>
+					<option value="7">7 ngày trước</option>
+					<option value="30">tháng trước</option>
+					<option value="90">3 tháng trước</option>
+					<option value="365">1 năm trước</option>
+				</select>
+			</div>
+			<div class="col-md-8">
+				<span class="h6">Tuỳ chọn: </span>
+				<div class="form-group">
+					<label class="form-label">Từ ngày</label>
+					<input type="date" class="form-control-sm" id="date_form" asp-for="@Model.CreatedDate" />
+					<label class="form-label">Đến ngày</label>
+					<input type="date" class="form-control-sm" id="date_to" asp-for="@Model.CreatedDate" />
+					<button id="btnFilter" class="ms-2 btn btn-sm btn-primary">Filter</button>
+				</div>
+			</div>
+		</div>
+		<div>
+			<h6>Thống kê biểu đồ</h6>
+			<div id="myfirstchart" style="height: 250px;"></div>
+		</div>
+	</div>
+</main>
+
+@section Scripts {
+	<script>
+		$(document).ready(function(){
+			var ChartMorris = new Morris.Line({
+				// ID of the element in which to draw the chart.
+				element: 'myfirstchart',
+				// Chart data records -- each entry in this array corresponds to a point on
+				// the chart.
+				data: [],
+				// The name of the data record attribute that contains x-values.
+				xkey: 'date',
+				// A list of names of data record attributes that contain y-values.
+				ykeys: ['sold', 'quantity', 'revenue', 'profit'],
+				// Labels for the ykeys -- will be displayed when you hover over the
+				// chart.
+				labels: ["Số lượng bán", 'Đơn hàng', 'Doanh thu', 'Lợi nhuận']
+			});
+
+			$.ajax({
+				url:"@Url.Action("GetData", "Dashboard")",
+				type: 'POST',
+				dataType: 'json',
+				success:function(data){
+					if(data){
+						ChartMorris.setData(data.map(function(item){
+							return {
+								date:item.date,
+								sold:item.sold,
+								quantity:item.quantity,
+								revenue:item.revenue,
+								profit:item.profit
+							};
+						}));
+					} else {
+						ChartMorris.setData([]);
+					}
+				},
+				error: function(error){
+					console.error(error);
+				}
+			});
+
+			$('.filter-select').on('change', function(){
+				var days = $(this).val();
+				var endDate = new Date();
+				var startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
+
+				$.ajax({
+					url:"@Url.Action("GetDataByDate", "Dashboard")",
+					type:"POST",
+					dataType: 'json',
+					data:{
+						startDate: startDate.toISOString().split('T')[0],
+						endDate: endDate.toISOString().split('T')[0],
+					},
+					success:function(data){
+						if(data){
+							ChartMorris.setData(data.map(function(item){
+								return {
+									date:item.date,
+									sold:item.sold,
+									quantity:item.quantity,
+									revenue:item.revenue,
+									profit:item.profit
+								};
+							}));
+						} else {
+							ChartMorris.setData([]);
+						}
+					},
+					error: function(error){
+						console.error(error);
+					}
+				})
+			});
+
+			$('#btnFilter').click(function(){
+				var fromDate = $('#date_form').val();
+				var toDate = $('#date_to').val();
+				$.ajax({
+					url:"@Url.Action("FilterDate", "Dashboard")",
+					type:"POST",
+					dataType: 'json',
+					data:{
+						fromDate: fromDate,
+						toDate: toDate
+					},
+					success:function(data){
+						if(data){
+							ChartMorris.setData(data.map(function(item){
+								return {
+									date:item.date,
+									sold:item.sold,
+									quantity:item.quantity,
+									revenue:item.revenue,
+									profit:item.profit
+								};
+							}));
+						} else {
+							ChartMorris.setData([]);
+						}
+					},
+					error: function(error){
+						console.error(error);
+					}
+				})
+			});
+		});
+
+	</script>
+}

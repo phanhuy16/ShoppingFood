@@ -168,7 +168,7 @@ namespace ShoppingFood.Controllers
             try
             {
                 var order = await _dataContext.Orders.Where(x => x.OrderCode == code).FirstAsync();
-                order.Status = 3;
+                order.Status = 2;
                 await _dataContext.SaveChangesAsync();
                 _notyf.Success("Cancel order successfully!");
             }

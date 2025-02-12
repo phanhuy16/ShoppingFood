@@ -140,6 +140,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existProduct.Price = model.Price;
                 existProduct.CategoryId = model.CategoryId;
                 existProduct.BrandId = model.BrandId;
+                existProduct.CapitalPrice = model.CapitalPrice;
 
                 _dataContext.Products.Update(existProduct);
                 await _dataContext.SaveChangesAsync();

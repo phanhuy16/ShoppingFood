@@ -31,6 +31,11 @@ namespace ShoppingFood.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
+        [Required(ErrorMessage = "Yêu cầu nhập giá vốn sản phẩm")]
+        [Range(0.01, double.MaxValue)]
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal CapitalPrice { get; set; }
+
         [Required, Range(1, int.MaxValue, ErrorMessage = "Yêu cầu chọn danh mục")]
         public int CategoryId { get; set; }
 
