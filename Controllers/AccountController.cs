@@ -306,6 +306,10 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> GoogleResponse()
         {
             var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            if (!result.Succeeded)
+            {
+                return RedirectToAction("Login");
+            }
             var claims = result.Principal.Identities.FirstOrDefault().Claims.Select(claims => new
             {
                 claims.Issuer,
@@ -313,8 +317,36 @@ namespace ShoppingFood.Controllers
                 claims.Type,
                 claims.Value
             });
-            _notyf.Success("Login with google successfully!");
-            return RedirectToAction("Index", "Home");
+            var email = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
+            string name = email.Split('@')[0];
+            // check user có tồn tại không
+            var exitsUser = await _userManager.FindByEmailAsync(email);
+            // nếu không tồn tại trong db thì tạo user mới với password hashed mặc địng 1-9
+            if (exitsUser == null)
+            {
+                var password = new PasswordHasher<AppUserModel>();
+                var passwordHasher = password.HashPassword(null, "123456789");
+
+                var newUser = new AppUserModel { UserName = name, Email = email, };
+                newUser.PasswordHash = passwordHasher;
+
+                var createUser = await _userManager.CreateAsync(newUser);
+                if (!createUser.Succeeded)
+                {
+                    _notyf.Error("Đăng ký tài khoản thất bại. Vui lòng thử lại sau");
+                    return RedirectToAction("Login", "Account");
+                }
+                else
+                {
+                    await _signInManager.SignInAsync(newUser, isPersistent: false);
+                    _notyf.Success("Đăng ký tài khoản thành công");
+                    return RedirectToAction("Index", "Home");
+                }
+            } else
+            {
+                await _signInManager.SignInAsync(exitsUser, isPersistent: false);
+            }
+            return RedirectToAction("Login", "Account");
         }
     }
 }

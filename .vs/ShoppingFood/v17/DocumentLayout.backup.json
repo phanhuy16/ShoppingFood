@@ -3,8 +3,12 @@
   "WorkspaceRootPath": "D:\\Projects\\DotNet\\ShoppingFood\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}",
-      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:.gitignore||{3B902123-F8A7-4915-9F01-361F908088D0}"
+      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:program.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
+      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:controllers\\accountcontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
     }
   ],
   "DocumentGroupContainers": [
@@ -14,19 +18,32 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
+              "DocumentIndex": 1,
+              "Title": "AccountController.cs",
+              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Controllers\\AccountController.cs",
+              "RelativeDocumentMoniker": "Controllers\\AccountController.cs",
+              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Controllers\\AccountController.cs",
+              "RelativeToolTip": "Controllers\\AccountController.cs",
+              "ViewState": "AgIAADwBAAAAAAAAAAAAAFwBAAAqAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-12T01:49:34.638Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
               "DocumentIndex": 0,
-              "Title": ".gitignore",
-              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\.gitignore",
-              "RelativeDocumentMoniker": ".gitignore",
-              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\.gitignore",
-              "RelativeToolTip": ".gitignore",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAAAAAAQAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.001001|",
-              "WhenOpened": "2025-02-12T01:26:01.633Z",
+              "Title": "Program.cs",
+              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Program.cs",
+              "RelativeDocumentMoniker": "Program.cs",
+              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Program.cs",
+              "RelativeToolTip": "Program.cs",
+              "ViewState": "AgIAAB4AAAAAAAAAAAAAACkAAAAtAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
+              "WhenOpened": "2025-02-12T01:46:06.115Z",
               "EditorCaption": ""
             }
           ]
