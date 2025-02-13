@@ -149,12 +149,18 @@
 					{
 						@if (Model.ShippingCost <= 0)
 						{
-							<button disabled="disabled" asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</button>
+							<button disabled="disabled" asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-3 py-2 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</button>
 							<p class="px-3 pb-3 text-danger">Vui lòng tính phí vẫn chuyển trước khi đặt hàng</p>
 						}
 						else
 						{
-							<a asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-4 py-3 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</a>
+							<a asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-3 py-2 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</a>
+							<form asp-action="PaymentMomo" asp-controller="Payment" method="post">
+								<input type="hidden" name="Amount" value="@Model.GrandTotal" />
+								<input type="hidden" name="OrderInfo" value="Thanh toán Momo cho đơn hàng tại ShoppingFood" />
+								<input type="hidden" name="FullName" value="@User.Identity.Name" />
+								<button type="submit" name="PayUrl" class="btn border-secondary rounded-pill px-2 py-1 text-primary mb-4 ms-4">Payment Momo</button>
+							</form>
 						}
 					}
 				</div>
@@ -168,10 +174,10 @@
 		$(document).ready(function() {
 			$('.btn-coupon').click(function(){
 				var coupon_value = $('.coupon-value').val();
-				
+
 				$.ajax({
 					type:'POST',
-					url:"@Url.Action("Coupon","Cart")",
+					url:"@Url.Action("Coupon", "Cart")",
 					data:{value:coupon_value},
 					success:function(response){
 						if(response.success)

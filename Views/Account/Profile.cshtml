@@ -119,11 +119,19 @@
 								}
 								else if (item.Status == 0)
 								{
-									<p class="m-0 pb-3 text-primary">Đã xử lý</p>
+									<p class="m-0 pb-3 text-primary">Đã hoàn thành đơn hàng</p>
 								}
 								else
 								{
 									<p class="m-0 pb-3 text-danger">Đã huỷ</p>
+								}
+								@if (item.PaymentMethod == "COD" || item.PaymentMethod == null)
+								{
+									<p class="m-0 pb-3 text-success">@item.PaymentMethod</p>
+								}
+								else
+								{
+									<p class="m-0 pb-3 text-success">Qua Momo @item.PaymentMethod</p>
 								}
 								<span> Shipping: </span> <span class="m-0 pb-3 h6"> @item.ShippingCode.ToString("#,##0 VND") </span>
 							</div>

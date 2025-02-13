@@ -119,5 +119,17 @@ namespace ShoppingFood.Areas.Admin.Controllers
             _notyf.Error("Order not found!");
             return View(order);
         }
+
+        public async Task<IActionResult> PaymentInfo (string orderId)
+        {
+            var momo = await _dataContext.MomoInfos.FirstOrDefaultAsync(x => x.OrderId == orderId);
+
+            if(momo == null)
+            {
+                _notyf.Error("Momo not found");
+            }
+
+            return View(momo);
+        }
     }
 }

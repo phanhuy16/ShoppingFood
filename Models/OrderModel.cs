@@ -19,5 +19,6 @@ namespace ShoppingFood.Models
 
         public decimal ShippingCode { get; set; }
         public string CouponCode { get; set; }
+        public string PaymentMethod { get; set; }
     }
-}
+}   

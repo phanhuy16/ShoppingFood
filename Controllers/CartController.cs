@@ -5,8 +5,10 @@ using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Models;
+using ShoppingFood.Models.Order;
 using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
+using ShoppingFood.Services.Momo;
 using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
@@ -16,12 +18,14 @@ namespace ShoppingFood.Controllers
         private readonly DataContext _dataContext;
         private readonly IEmailSender _emailSender;
         private readonly INotyfService _notyf;
+        private IMomoService _momoService;
 
-        public CartController(DataContext context, INotyfService notyf, IEmailSender email)
+        public CartController(DataContext context, INotyfService notyf, IEmailSender email, IMomoService momoService)
         {
             _dataContext = context;
             _notyf = notyf;
             _emailSender = email;
+            _momoService = momoService;
         }
         public IActionResult Index()
         {
@@ -178,7 +182,7 @@ namespace ShoppingFood.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> CheckOut()
+        public async Task<IActionResult> CheckOut(string orderId)
         {
             var email = User.FindFirstValue(ClaimTypes.Email);
             if (email == null)
@@ -192,6 +196,15 @@ namespace ShoppingFood.Controllers
 
                 orderItem.OrderCode = orderCode;
                 orderItem.UserName = email;
+
+                if (orderId != null)
+                {
+                    orderItem.PaymentMethod = orderId;
+                }
+                else
+                {
+                    orderItem.PaymentMethod = "COD";
+                }
 
                 var shippingPriceCookie = Request.Cookies["ShippingPrice"];
                 decimal shippingPrice = 0;
@@ -317,7 +330,8 @@ namespace ShoppingFood.Controllers
                         StatusCode(500, ex.Message);
                         return Ok(new { success = false, message = "Coupon applied failed" });
                     }
-                }else
+                }
+                else
                 {
                     return Ok(new { success = false, message = "Coupon has expired" });
                 }
@@ -326,6 +340,32 @@ namespace ShoppingFood.Controllers
             {
                 return Ok(new { success = false, message = "Coupon not expired" });
             }
+        }
+
+        public async Task<IActionResult> PaymentCallBack(MomoInfoModel model)
+        {
+            var response = _momoService.PaymentExecuteAsync(HttpContext.Request.Query);
+            var request = HttpContext.Request.Query;
+            if (request["resultCode"] != 0)
+            {
+                var newMomoInsert = new MomoInfoModel
+                {
+                    OrderId = request["orderId"],
+                    FullName = User.FindFirstValue(ClaimTypes.Email),
+                    Amount = decimal.Parse(request["Amount"]),
+                    OrderInfo = request["orderInfo"],
+                    DatePaid = DateTime.Now,
+                };
+                await _dataContext.MomoInfos.AddAsync(newMomoInsert);
+                await _dataContext.SaveChangesAsync();
+                await CheckOut(request["orderId"]);
+            }
+            else
+            {
+                _notyf.Warning("Giao dịch không thành công.");
+                return RedirectToAction("Index", "Cart");
+            }
+            return View(response);
         }
     }
 }

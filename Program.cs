@@ -5,9 +5,15 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Models;
+using ShoppingFood.Models.Momo;
 using ShoppingFood.Repository;
+using ShoppingFood.Services.Momo;
 
 var builder = WebApplication.CreateBuilder(args);
+
+// Connect momo
+builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+builder.Services.AddScoped<IMomoService, MomoService>();
 
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));

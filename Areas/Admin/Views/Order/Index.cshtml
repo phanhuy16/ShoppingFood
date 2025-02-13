@@ -25,6 +25,7 @@
 							<th>Coupon Code</th>
 							<th>Shipping cost</th>
 							<th>Create date</th>
+							<th>Payment</th>
 							<th>Status</th>
 							<th>Actions</th>
 						</tr>
@@ -43,14 +44,26 @@
 									<td>@item.ShippingCode.ToString("#,##0 VND")</td>
 									<td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
 									<td>
+										@if (item.PaymentMethod == "COD" || item.PaymentMethod == null)
+										{
+											<span class="badge bg-secondary"> @item.PaymentMethod </span>
+										}
+										else
+										{
+											<span class="badge bg-warning"> Qua Momo <a asp-route-orderId="@item.PaymentMethod" asp-action="PaymentInfo" asp-controller="Order">@item.PaymentMethod</a> </span>
+										}
+									</td>
+									<td>
 										@if (item.Status == 1)
 										{
 											<span class="badge bg-success"> Đơn hàng mới </span>
 										}
-										else if (item.Status == 2)
+										else if (item.Status == 0)
 										{
-											<span class="badge bg-primary"> Đã xử lý </span>
-										} else {
+											<span class="badge bg-primary"> Đã hoàn thành đơn hàng </span>
+										}
+										else
+										{
 											<span class="badge bg-danger"> Đã huỷ </span>
 										}
 									</td>
