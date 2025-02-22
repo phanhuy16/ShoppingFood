@@ -82,12 +82,15 @@ namespace ShoppingFood.Controllers
 
             ViewBag.Related = related;
 
-            var ratings = new ProductRatingViewModel
+            var ratings = await _dataContext.Ratings.Where(x => x.ProductId == id).ToListAsync();
+
+            var rating = new ProductRatingViewModel
             {
                 Product = productById,
+                Rating = ratings.Count > 0 ? ratings[0] : null
             };
 
-            return View(ratings);
+            return View(rating);
         }
 
         [HttpPost]
@@ -103,7 +106,8 @@ namespace ShoppingFood.Controllers
                     Email = model.Email,
                     Star = model.Star,
                     ModifierDate = DateTime.Now,
-                    ModifierBy = User.Identity.Name
+                    ModifierBy = User.Identity.Name,
+                    CreatedDate = DateTime.Now
                 };
                 await _dataContext.Ratings.AddAsync(ratings);
                 await _dataContext.SaveChangesAsync();
@@ -123,15 +127,6 @@ namespace ShoppingFood.Controllers
                 string errorMessage = string.Join("\n", errors);
                 return BadRequest(errorMessage);
             }
-        }
-
-        public async Task<IActionResult> Rating(int id)
-        {
-            var ratings = await _dataContext.Ratings.Where(x => x.ProductId == id).ToListAsync();
-
-            ViewBag.Ratings = ratings;
-
-            return PartialView("_Rating");
         }
     }
 }

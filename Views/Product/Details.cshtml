@@ -129,7 +129,33 @@
 								</div>
 							</div>
 							<div class="tab-pane" id="nav-mission" role="tabpanel" aria-labelledby="nav-mission-tab">
-								@await Html.PartialAsync("_Rating")
+								@if(Model.Rating !=null)
+								{
+									@* @foreach (var item in Model.Rating as IEnumerable<RatingModel>) *@
+									@* { *@
+										<div class="d-flex">
+											<img src="~/img/avatar.jpg" class="img-fluid rounded-circle p-3" style="width: 100px; height: 100px;" alt="">
+											<div class="">
+												<p class="mb-2" style="font-size: 14px;">@Model.Rating.CreatedDate.ToString("dd/MM/yyyy")</p>
+												<div class="d-flex justify-content-between">
+													<h5>@Model.Rating.Customer</h5>
+													<div class="d-flex mb-3">
+														<i class="fa fa-star text-secondary"></i>
+														<i class="fa fa-star text-secondary"></i>
+														<i class="fa fa-star text-secondary"></i>
+														<i class="fa fa-star text-secondary"></i>
+														<i class="fa fa-star"></i>
+													</div>
+												</div>
+												<p>
+												@Model.Rating.Comment
+												</p>
+											</div>
+										</div>
+									@* } *@
+								} else {
+									<p>Sản phẩm này chưa có bài đánh giá nào.</p>
+								}
 							</div>
 							<div class="tab-pane" id="nav-vision" role="tabpanel">
 								<p class="text-dark">

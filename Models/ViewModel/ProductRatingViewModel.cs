@@ -5,7 +5,7 @@ namespace ShoppingFood.Models.ViewModel
     public class ProductRatingViewModel
     {
         public virtual ProductModel Product { get; set; }
-
+        public virtual RatingModel Rating { get; set; }
 
         [Required(ErrorMessage = "Vui lòng nhập ý kiến của bạn")]
         public string Comment { get; set; }
