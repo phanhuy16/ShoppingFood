@@ -125,13 +125,13 @@
 								{
 									<p class="m-0 pb-3 text-danger">Đã huỷ</p>
 								}
-								@if (item.PaymentMethod == "COD" || item.PaymentMethod == null)
+								@if (item.PaymentMethod == "COD" )
 								{
 									<p class="m-0 pb-3 text-success">@item.PaymentMethod</p>
 								}
 								else
 								{
-									<p class="m-0 pb-3 text-success">Qua Momo @item.PaymentMethod</p>
+									<p class="m-0 pb-3 text-success"> @item.PaymentMethod</p>
 								}
 								<span> Shipping: </span> <span class="m-0 pb-3 h6"> @item.ShippingCode.ToString("#,##0 VND") </span>
 							</div>

@@ -66,6 +66,9 @@ namespace ShoppingFood.Areas.Admin.Controllers
                     }
                 }
                 model.Status = 1;
+                model.CreatedBy = User.Identity.Name;
+                model.CreatedDate = DateTime.Now;
+
                 _dataContext.Products.Add(model);
                 await _dataContext.SaveChangesAsync();
                 _notyf.Success("Thêm sản phẩm thành công!");
@@ -141,6 +144,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existProduct.CategoryId = model.CategoryId;
                 existProduct.BrandId = model.BrandId;
                 existProduct.CapitalPrice = model.CapitalPrice;
+                existProduct.ModifierDate = DateTime.Now;
+                existProduct.ModifierBy = User.Identity.Name;
 
                 _dataContext.Products.Update(existProduct);
                 await _dataContext.SaveChangesAsync();

@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace ShoppingFood.Models
 {
-    public class BrandModel
+    public class BrandModel : CommonAbstract
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

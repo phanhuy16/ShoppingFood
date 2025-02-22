@@ -77,7 +77,7 @@
 							<td class="text-center">@item.City</td> 
 							<td class="text-center">@item.District</td> 
 							<td class="text-center">@item.Ward</td> 
-							<td class="text-center">@item.Price</td> 
+							<td class="text-center">@item.Price.ToString("#,##0 VND")</td> 
 							<td class="text-center">
 								<a class="btn btn-sm btn-danger confirmDeletion" asp-action="Delete" asp-controller="Shipping" asp-route-Id="@item.Id"><i class="fa-regular fa-circle-xmark"></i></a>
 							</td> 

@@ -34,6 +34,9 @@ namespace ShoppingFood.Areas.Admin.Controllers
         {
             if (ModelState.IsValid)
             {
+                model.CreatedDate = DateTime.Now;
+                model.CreatedBy = User.Identity.Name;
+
                 await _dataContext.Coupons.AddAsync(model);
                 await _dataContext.SaveChangesAsync();
                 _notyf.Success("Coupon Created Successfully");

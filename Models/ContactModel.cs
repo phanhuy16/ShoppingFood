@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ShoppingFood.Models
 {
-    public class ContactModel
+    public class ContactModel : CommonAbstract
     {
         [Key]
         [Required(ErrorMessage = "Name is required")]

@@ -1,0 +1,59 @@
+﻿@model PaymentResponseModel
+
+@{
+    ViewData["Title"] = "Thanh toán thành công";
+}
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+	<h1 class="text-center text-white display-6">Payment</h1>
+	<ol class="breadcrumb justify-content-center mb-0">
+		<li class="breadcrumb-item"><a href="#">Home</a></li>
+		<li class="breadcrumb-item"><a href="#">Pages</a></li>
+		<li class="breadcrumb-item active text-white">Payment</li>
+	</ol>
+</div>
+<!-- Single Page Header End -->
+
+<main class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg border-0">
+                <div class="card-header bg-success text-white text-center py-4">
+                    <h3 class="mb-0"><i class="bi bi-check-circle-fill me-2"></i>Thanh toán thành công</h3>
+                </div>
+                <div class="card-body text-center">
+                    <p class="text-muted">Cảm ơn bạn đã sử dụng dịch vụ của chúng tôi! Dưới đây là thông tin thanh toán:</p>
+                    <table class="table table-hover">
+                        <tbody>
+                            <tr>
+                                <th class="text-end">Mã đơn hàng:</th>
+                                <td class="text-start fw-bold">@Model.OrderId</td>
+                            </tr>
+                            <tr>
+                                <th class="text-end">Thông tin đơn hàng:</th>
+                                <td class="text-start">@Model.OrderDescription</td>
+                            </tr>
+                            <tr>
+                                <th class="text-end">Mã giao dịch:</th>
+                                <td class="text-start">@Model.TransactionId</td>
+                            </tr>
+                            <tr>
+                                <th class="text-end">Mã thanh toán:</th>
+                                <td class="text-start text-danger fw-bold">@Model.PaymentId</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-center">
+                    <a asp-controller="Account" asp-action="Profile" class="btn btn-outline-primary">
+                        <i class="bi bi-clock-history me-2"></i>Xem lịch sử đơn hàng
+                    </a>
+                    <a asp-controller="Home" asp-action="Index" class="btn btn-success ms-2">
+                        <i class="bi bi-house-door-fill me-2"></i>Về trang chủ
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

@@ -1,15 +1,20 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ShoppingFood.Models.Order;
+using ShoppingFood.Models.Vnpay;
 using ShoppingFood.Services.Momo;
+using ShoppingFood.Services.Vnpay;
 
 namespace ShoppingFood.Controllers
 {
     public class PaymentController : Controller
     {
-        private IMomoService _momoService;
-        public PaymentController(IMomoService momoService)
+        private readonly IMomoService _momoService;
+        private readonly IVnPayService _vnPayService;
+
+        public PaymentController(IMomoService momoService, IVnPayService vnPayService)
         {
             _momoService = momoService;
+            _vnPayService = vnPayService;
         }
 
         [HttpPost]
@@ -23,6 +28,14 @@ namespace ShoppingFood.Controllers
         {
             var response = _momoService.PaymentExecuteAsync(HttpContext.Request.Query);
             return View(response);
+        }
+
+        [HttpPost]
+        public IActionResult PaymentVnPay(PaymentInformationModel model)
+        {
+            var url = _vnPayService.CreatePaymentUrl(model, HttpContext);
+
+            return Redirect(url);
         }
     }
 }

@@ -8,10 +8,11 @@ using ShoppingFood.Models;
 using ShoppingFood.Models.Momo;
 using ShoppingFood.Repository;
 using ShoppingFood.Services.Momo;
+using ShoppingFood.Services.Vnpay;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Connect momo
+// Connect momo api
 builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
 builder.Services.AddScoped<IMomoService, MomoService>();
 
@@ -58,21 +59,34 @@ builder.Services.Configure<IdentityOptions>(options =>
 });
 
 //Configuration login google account
-builder.Services.AddAuthentication(options =>
-{
-    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-}).AddCookie().AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+builder.Services.AddAuthentication().AddCookie().AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
     options.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
 });
 
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(
+        builder =>
+        {
+            builder.WithOrigins("https://localhost:7234")
+                .AllowAnyHeader()
+                .WithMethods("GET", "POST")
+                .AllowCredentials();
+        });
+});
+
+builder.Services.AddSignalR();
+
+// Connect vnpay api
+builder.Services.AddScoped<IVnPayService, VnPayService>();
 var app = builder.Build();
 
 app.UseStatusCodePagesWithRedirects("/Home/Error?statuscode={0}");
+
 app.UseSession();
+
 app.UseCookiePolicy();
 
 // Configure the HTTP request pipeline.
@@ -102,5 +116,4 @@ app.MapControllerRoute(
 
 //var context = app.Services.CreateScope().ServiceProvider.GetRequiredService<DataContext>();
 //SeedData.SeedingData(context);
-
 app.Run();

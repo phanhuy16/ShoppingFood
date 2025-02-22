@@ -44,23 +44,33 @@
 									<td>@item.ShippingCode.ToString("#,##0 VND")</td>
 									<td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
 									<td>
-										@if (item.PaymentMethod == "COD" || item.PaymentMethod == null)
+										@if (item.PaymentMethod == "COD")
 										{
 											<span class="badge bg-secondary"> @item.PaymentMethod </span>
 										}
 										else
 										{
-											<span class="badge bg-warning"> Qua Momo <a asp-route-orderId="@item.PaymentMethod" asp-action="PaymentInfo" asp-controller="Order">@item.PaymentMethod</a> </span>
+											string text = item.PaymentMethod;
+											string payment = text.Split(" ")[1];
+											string paymentCode = text.Split(" ")[0];
+											if (payment == "Momo")
+											{
+												<span class="badge bg-warning"> <a asp-route-orderId="@paymentCode" asp-action="PaymentMomoInfo" asp-controller="Order">@payment</a> </span>
+											}
+											else
+											{
+												<span class="badge bg-info"> <a asp-route-orderId="@paymentCode" asp-action="PaymentVnpayInfo" asp-controller="Order">@payment</a> </span>
+											}
 										}
 									</td>
 									<td>
 										@if (item.Status == 1)
 										{
-											<span class="badge bg-success"> Đơn hàng mới </span>
+											<span class="badge bg-primary"> Đơn hàng mới </span>
 										}
 										else if (item.Status == 0)
 										{
-											<span class="badge bg-primary"> Đã hoàn thành đơn hàng </span>
+											<span class="badge bg-success"> Đã hoàn thành đơn hàng </span>
 										}
 										else
 										{

@@ -34,6 +34,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
             model.District = quan;
             model.City = tinh;
             model.Price = price;
+            model.CreatedBy = User.Identity.Name;
+            model.CreatedDate = DateTime.Now;
 
             try
             {

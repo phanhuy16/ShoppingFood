@@ -73,6 +73,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 exitsContact.Map = model.Map;
                 exitsContact.Address = model.Address;
                 exitsContact.Phone = model.Phone;
+                exitsContact.ModifierBy = User.Identity.Name;
+                exitsContact.ModifierDate = DateTime.Now;
 
                 _dataContext.Contacts.Update(exitsContact);
                 await _dataContext.SaveChangesAsync();

@@ -62,6 +62,10 @@ namespace ShoppingFood.Areas.Admin.Controllers
                     ModelState.AddModelError("Name", "Category Name Already Exist");
                     return View(model);
                 }
+
+                model.CreatedBy = User.Identity.Name;
+                model.CreatedDate = DateTime.Now;
+
                 await _dataContext.Categories.AddAsync(model);
                 await _dataContext.SaveChangesAsync();
                 _notyf.Success("Category Created Successfully");
@@ -103,6 +107,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existCategory.Name = model.Name;
                 existCategory.Description = model.Description;
                 existCategory.Status = model.Status;
+                existCategory.ModifierBy = User.Identity.Name;
+                existCategory.ModifierDate = DateTime.Now;
 
                 _dataContext.Categories.Update(existCategory);
                 await _dataContext.SaveChangesAsync();

@@ -4,7 +4,7 @@ using ShoppingFood.Repository.Validation;
 
 namespace ShoppingFood.Models
 {
-    public class ProductModel
+    public class ProductModel : CommonAbstract
     {
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

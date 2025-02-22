@@ -1,5 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.CookiePolicy;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -9,23 +10,28 @@ using ShoppingFood.Models.Order;
 using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
 using ShoppingFood.Services.Momo;
+using ShoppingFood.Services.Vnpay;
 using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
 {
     public class CartController : Controller
     {
+        private readonly UserManager<AppUserModel> _userManager;
         private readonly DataContext _dataContext;
         private readonly IEmailSender _emailSender;
         private readonly INotyfService _notyf;
         private IMomoService _momoService;
+        private readonly IVnPayService _vnPayService;
 
-        public CartController(DataContext context, INotyfService notyf, IEmailSender email, IMomoService momoService)
+        public CartController(UserManager<AppUserModel> userManager, DataContext context, INotyfService notyf, IEmailSender email, IMomoService momoService, IVnPayService vnPayService)
         {
             _dataContext = context;
             _notyf = notyf;
             _emailSender = email;
             _momoService = momoService;
+            _userManager = userManager;
+            _vnPayService = vnPayService;
         }
         public IActionResult Index()
         {
@@ -182,7 +188,42 @@ namespace ShoppingFood.Controllers
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> CheckOut(string orderId)
+        public async Task<IActionResult> CheckOut()
+        {
+            List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+
+            var shippingPriceCookie = Request.Cookies["ShippingPrice"];
+            decimal shippingPrice = 0;
+
+            if (shippingPriceCookie != null)
+            {
+                var shippingPriceJson = shippingPriceCookie;
+                shippingPrice = JsonConvert.DeserializeObject<decimal>(shippingPriceJson);
+            }
+
+            // nhận coupon từ cookie
+            var coupon = Request.Cookies["CouponTitle"];
+
+            CartItemViewModel cartItemViewModel = new CartItemViewModel()
+            {
+                CartItems = cartItems,
+                GrandTotal = cartItems.Sum(x => x.Quantity * x.Price),
+                ShippingCost = shippingPrice,
+                CouponCode = coupon,
+            };
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+
+            ViewBag.User = user;
+
+            return View(cartItemViewModel);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> CheckOut(string paymentMethod, string paymentId)
         {
             var email = User.FindFirstValue(ClaimTypes.Email);
             if (email == null)
@@ -197,13 +238,13 @@ namespace ShoppingFood.Controllers
                 orderItem.OrderCode = orderCode;
                 orderItem.UserName = email;
 
-                if (orderId != null)
+                if (paymentId == null || paymentMethod == null)
                 {
-                    orderItem.PaymentMethod = orderId;
+                    orderItem.PaymentMethod = "COD";
                 }
                 else
                 {
-                    orderItem.PaymentMethod = "COD";
+                    orderItem.PaymentMethod = paymentMethod + " " + paymentId;
                 }
 
                 var shippingPriceCookie = Request.Cookies["ShippingPrice"];
@@ -342,7 +383,7 @@ namespace ShoppingFood.Controllers
             }
         }
 
-        public async Task<IActionResult> PaymentCallBack(MomoInfoModel model)
+        public async Task<IActionResult> PaymentCallBack()
         {
             var response = _momoService.PaymentExecuteAsync(HttpContext.Request.Query);
             var request = HttpContext.Request.Query;
@@ -358,13 +399,47 @@ namespace ShoppingFood.Controllers
                 };
                 await _dataContext.MomoInfos.AddAsync(newMomoInsert);
                 await _dataContext.SaveChangesAsync();
-                await CheckOut(request["orderId"]);
+                var paymentMethod = "Momo";
+                await CheckOut(request["orderId"], paymentMethod);
             }
             else
             {
                 _notyf.Warning("Giao dịch không thành công.");
                 return RedirectToAction("Index", "Cart");
             }
+            return View(response);
+        }
+
+        public async Task<IActionResult> PaymentCallbackVnpay()
+        {
+            var response = _vnPayService.PaymentExecute(Request.Query);
+
+            if (response.VnPayResponseCode == "00")
+            {
+                var newVnpayInsert = new VnpayModel
+                {
+                    OrderId = response.OrderId,
+                    PaymentMethod = response.PaymentMethod,
+                    OrderDescription = response.OrderDescription,
+                    TransactionId = response.TransactionId,
+                    PaymentId = response.PaymentId,
+                    CreateDate = DateTime.Now,
+
+                };
+                await _dataContext.Vnpays.AddAsync(newVnpayInsert);
+                await _dataContext.SaveChangesAsync();
+
+                var paymentMethod = response.PaymentMethod;
+                var paymentId = response.PaymentId;
+
+                await CheckOut(paymentId, paymentMethod);
+            }
+            else
+            {
+                _notyf.Warning("Giao dịch không thành công.");
+                return RedirectToAction("Index", "Cart");
+            }
+
             return View(response);
         }
     }

@@ -38,6 +38,8 @@
 							<th>Name</th>
 							<th>Slug</th>
 							<th>Description</th>
+							<th>CreatedDate</th>
+							<th>ModifierDate</th>
 							<th>Status</th>
 							<th>Actions</th>
 						</tr>
@@ -53,6 +55,8 @@
 									<td>@item.Name</td>
 									<td>@item.Slug</td>
 									<td>@item.Description</td>
+									<td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
+									<td>@item.ModifierDate.ToString("dd/MM/yyyy")</td>
 									<td>
 										@if (item.Status == 1)
 										{

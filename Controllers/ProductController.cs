@@ -101,9 +101,11 @@ namespace ShoppingFood.Controllers
                     Comment = model.Comment,
                     Customer = model.Customer,
                     Email = model.Email,
-                    Star = model.Star
+                    Star = model.Star,
+                    ModifierDate = DateTime.Now,
+                    ModifierBy = User.Identity.Name
                 };
-                await _dataContext.Ratings.AddAsync(model);
+                await _dataContext.Ratings.AddAsync(ratings);
                 await _dataContext.SaveChangesAsync();
                 _notyf.Success("Comment successfully!");
                 return Redirect(Request.Headers["Referer"]);
@@ -119,9 +121,17 @@ namespace ShoppingFood.Controllers
                     }
                 }
                 string errorMessage = string.Join("\n", errors);
-                //return RedirectToAction("Details", new { id = model.ProductId });
                 return BadRequest(errorMessage);
             }
+        }
+
+        public async Task<IActionResult> Rating(int id)
+        {
+            var ratings = await _dataContext.Ratings.Where(x => x.ProductId == id).ToListAsync();
+
+            ViewBag.Ratings = ratings;
+
+            return PartialView("_Rating");
         }
     }
 }

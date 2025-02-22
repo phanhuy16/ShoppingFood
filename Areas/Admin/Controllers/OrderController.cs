@@ -120,7 +120,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
             return View(order);
         }
 
-        public async Task<IActionResult> PaymentInfo (string orderId)
+        public async Task<IActionResult> PaymentMomoInfo (string orderId)
         {
             var momo = await _dataContext.MomoInfos.FirstOrDefaultAsync(x => x.OrderId == orderId);
 
@@ -130,6 +130,18 @@ namespace ShoppingFood.Areas.Admin.Controllers
             }
 
             return View(momo);
+        }
+
+        public async Task<IActionResult> PaymentVnpayInfo(string orderId)
+        {
+            var vnpay = await _dataContext.Vnpays.FirstOrDefaultAsync(x => x.PaymentId == orderId);
+
+            if (vnpay == null)
+            {
+                _notyf.Error("Momo not found");
+            }
+
+            return View(vnpay);
         }
     }
 }

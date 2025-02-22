@@ -1,0 +1,42 @@
+﻿@model MomoInfoModel
+
+@{
+    ViewData["Title"] = "Thông tin thanh toán đơn hàng";
+}
+
+<main class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-lg">
+                <div class="card-header bg-success text-white text-center">
+                    <h5 class="mb-0">Thanh toán Momo thành công</h5>
+                </div>
+                <div class="card-body">
+                    <table class="table table-bordered">
+                        <tbody>
+                            <tr>
+                                <th>Mã đơn hàng</th>
+                                <td>@Model.OrderId</td>
+                            </tr>
+                            <tr>
+                                <th>Họ và tên</th>
+                                <td>@Model.FullName</td>
+                            </tr>
+                            <tr>
+                                <th>Thông tin đơn hàng</th>
+                                <td>@Model.OrderInfo</td>
+                            </tr>
+                            <tr>
+                                <th>Tổng tiền</th>
+                                <td class="text-danger fw-bold">@Model.Amount.ToString("#,##0 VND")</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div class="card-footer text-center">
+                    <a asp-action="Index" asp-controller="Order" class="btn btn-primary me-2">Quay về trang chủ</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>

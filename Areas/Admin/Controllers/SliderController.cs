@@ -53,6 +53,10 @@ namespace ShoppingFood.Areas.Admin.Controllers
                     fileStream.Close();
                     model.Image = imageName;
                 }
+
+                model.CreatedDate = DateTime.Now;
+                model.CreatedBy = User.Identity.Name;
+
                 await _dataContext.Sliders.AddAsync(model);
                 await _dataContext.SaveChangesAsync();
                 _notyf.Success("Slider Created Successfully!");
@@ -117,6 +121,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existSlider.Title = model.Title;
                 existSlider.Description = model.Description;
                 existSlider.Status = model.Status;
+                existSlider.ModifierDate = DateTime.Now;
+                existSlider.ModifierBy = User.Identity.Name;
 
                 _dataContext.Sliders.Update(existSlider);
                 await _dataContext.SaveChangesAsync();
