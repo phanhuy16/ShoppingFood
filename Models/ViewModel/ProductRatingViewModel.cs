@@ -5,15 +5,10 @@ namespace ShoppingFood.Models.ViewModel
     public class ProductRatingViewModel
     {
         public virtual ProductModel Product { get; set; }
-        public virtual RatingModel Rating { get; set; }
+        public virtual ICollection<ReviewModel> Reviews { get; set; } = new HashSet<ReviewModel>();
 
         [Required(ErrorMessage = "Vui lòng nhập ý kiến của bạn")]
         public string Comment { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng nhập tên của bạn")]
-        public string Customer { get; set; }
-
-        [Required(ErrorMessage = "Vui lòng nhập email của bạn")]
-        public string Email { get; set; }
+        public int Star { get; set; }
     }
 }

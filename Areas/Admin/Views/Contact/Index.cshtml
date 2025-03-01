@@ -42,7 +42,9 @@
 									<td><img src="~/media/contacts/@item.Logo" alt="@item.Name" width="80" /></td>
 									<td>@item.Name</td>
 									<td>@item.Email</td>
-									<td>@item.Message</td>
+									<td>
+										<textarea class="form-control" rows="2" readonly>@item.Message</textarea>
+									</td>
 									<td>@Html.Raw(item.Map)</td>
 									<td>
 										<a class="btn btn-sm btn-info" asp-action="Edit" asp-controller="Contact"><i class="fa-regular fa-pen-to-square"></i></a>

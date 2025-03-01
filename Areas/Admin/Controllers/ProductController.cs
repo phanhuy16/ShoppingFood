@@ -33,6 +33,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
         {
             ViewBag.Categories = new SelectList(_dataContext.Categories, "Id", "Name");
             ViewBag.Brands = new SelectList(_dataContext.Brands, "Id", "Name");
+            ViewBag.ProductCategories = new SelectList(_dataContext.ProductCategories, "Id", "Name");
+
             return View();
         }
 
@@ -42,6 +44,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
         {
             ViewBag.Categories = new SelectList(_dataContext.Categories, "Id", "Name", model.CategoryId);
             ViewBag.Brands = new SelectList(_dataContext.Brands, "Id", "Name", model.BrandId);
+            ViewBag.ProductCategories = new SelectList(_dataContext.ProductCategories, "Id", "Name", model.ProductCategoryId);
             if (ModelState.IsValid)
             {
                 model.Slug = SlugHelper.GenerateSlug(model.Name);
@@ -65,7 +68,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
                         model.Image = imageName;
                     }
                 }
-                model.Status = 1;
+
                 model.CreatedBy = User.Identity.Name;
                 model.CreatedDate = DateTime.Now;
 
@@ -94,10 +97,11 @@ namespace ShoppingFood.Areas.Admin.Controllers
             var product = await _dataContext.Products.FindAsync(id);
             if (product == null)
             {
-                return NotFound();
+                _notyf.Error("Product Not Found");
             }
             ViewBag.Categories = new SelectList(_dataContext.Categories, "Id", "Name", product.CategoryId);
             ViewBag.Brands = new SelectList(_dataContext.Brands, "Id", "Name", product.BrandId);
+            ViewBag.ProductCategories = new SelectList(_dataContext.ProductCategories, "Id", "Name", product.ProductCategoryId);
             return View(product);
         }
 
@@ -107,6 +111,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
         {
             ViewBag.Categories = new SelectList(_dataContext.Categories, "Id", "Name", model.CategoryId);
             ViewBag.Brands = new SelectList(_dataContext.Brands, "Id", "Name", model.BrandId);
+            ViewBag.ProductCategories = new SelectList(_dataContext.ProductCategories, "Id", "Name", model.ProductCategoryId);
 
             var existProduct = await _dataContext.Products.FindAsync(model.Id);
 
@@ -120,9 +125,9 @@ namespace ShoppingFood.Areas.Admin.Controllers
                     string oldFilePath = Path.Combine(uploadsDir, existProduct.Image);
                     try
                     {
-                        if (System.IO.File.Exists(filePath))
+                        if (System.IO.File.Exists(oldFilePath))
                         {
-                            System.IO.File.Delete(filePath);
+                            System.IO.File.Delete(oldFilePath);
                         }
                     }
                     catch (Exception ex)
@@ -143,13 +148,17 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existProduct.Price = model.Price;
                 existProduct.CategoryId = model.CategoryId;
                 existProduct.BrandId = model.BrandId;
+                existProduct.ProductCategoryId = model.ProductCategoryId;
                 existProduct.CapitalPrice = model.CapitalPrice;
+                existProduct.PriceSale = model.PriceSale;
                 existProduct.ModifierDate = DateTime.Now;
                 existProduct.ModifierBy = User.Identity.Name;
+                existProduct.Status = model.Status;
 
                 _dataContext.Products.Update(existProduct);
                 await _dataContext.SaveChangesAsync();
                 _notyf.Success("Cập nhật sản phẩm thành công!");
+
                 return RedirectToAction("Index");
             }
             else
@@ -173,7 +182,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
 
             if (product == null)
             {
-                return NotFound();
+                _notyf.Error("Product Not Found");
             }
 
             string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/products");

@@ -19,7 +19,7 @@
 							foreach (var item in ViewBag.Sliders)
 							{
 								<div class="carousel-item bg-secondary @(index == 0 ? "active" : "") rounded">
-									<img src="/media/sliders/@item.Image" class="img-fluid w-100 h-100 rounded" alt="@item.Title">
+									<img src="~/media/sliders/@item.Image" class="img-fluid w-100 h-100 rounded" alt="@item.Title">
 									<a href="#" class="btn px-4 py-2 text-white rounded">@item.Title</a>
 								</div>
 								index++;

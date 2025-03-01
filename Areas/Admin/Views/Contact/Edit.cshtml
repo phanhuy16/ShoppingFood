@@ -13,6 +13,7 @@
 		</ol>
 		<form asp-action="Edit" method="post" enctype="multipart/form-data">
 			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input asp-for="@Model.Name" type="hidden" />
 			<div class="row">
 				<div class="col-md">
 					<div class="form-group">

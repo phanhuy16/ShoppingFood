@@ -34,9 +34,22 @@
 					</div>
 					<div class="form-group">
 						<label class="form-label">Capital Price</label>
-						<input asp-for="CapitalPrice" pattern="[0-9.,]+" class="form-control typing-price" type="number" />
+						<input asp-for="CapitalPrice" pattern="[0-9.,]+" class="form-control typing-capitalPrice" type="number" />
 						<span id="capitalPrice-convert" class="my-3 d-block"></span>
 						<span asp-validation-for="CapitalPrice" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label class="form-label">PriceSale</label>
+						<input asp-for="PriceSale" pattern="[0-9.,]+" class="form-control typing-priceSale" type="number" />
+						<span id="priceSale-convert" class="my-3 d-block"></span>
+						<span asp-validation-for="PriceSale" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label class="form-label">ProductCategory</label>
+						<select asp-for="ProductCategoryId" class="form-select" asp-items="ViewBag.ProductCategories">
+							<option>-- Choose a productcategory --</option>
+						</select>
+						<span asp-validation-for="ProductCategoryId" class="text-danger"></span>
 					</div>
 				</div>
 				<div class="col-md">
@@ -101,8 +114,17 @@
 
 		$('.typing-price').on('keyup', function(){
 			var current = $(this).val();
-				  $('#price-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
+				$('#price-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
+		})
+
+		$('.typing-capitalPrice').on('keyup', function(){
+			var current = $(this).val();
 				$('#capitalPrice-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
+		})
+
+		$('.typing-priceSale').on('keyup', function(){
+			var current = $(this).val();
+				$('#priceSale-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
 		})
 	</script>
 }

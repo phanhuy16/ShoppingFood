@@ -54,7 +54,9 @@
 									<td scope="col">@i</td>
 									<td>@item.Name</td>
 									<td>@item.Slug</td>
-									<td>@item.Description</td>
+									<td>
+										<textarea class="form-control" rows="2" readonly>@item.Description</textarea>
+									</td>
 									<td>@item.CreatedDate.ToString("dd/MM/yyyy")</td>
 									<td>@item.ModifierDate.ToString("dd/MM/yyyy")</td>
 									<td>

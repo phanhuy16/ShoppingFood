@@ -16,14 +16,17 @@
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-percent"></i></div>
                     Coupon
                 </a>
-                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
-                    <div class="sb-nav-link-icon"><i class="fas fa-columns"></i></div>
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseProducts" aria-expanded="false" aria-controls="collapseProducts">
+                    <div class="sb-nav-link-icon"><i class="fa-solid fa-list"></i></div>
                     Products
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
-                <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                <div class="collapse" id="collapseProducts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                     <nav class="sb-sidenav-menu-nested nav">
-                        <a class="nav-link" asp-action="Index" asp-controller="Product">Product list</a>
+                        <a class="nav-link" asp-action="Index" asp-controller="Product">List Product</a>
+                    </nav>
+                    <nav class="sb-sidenav-menu-nested nav">
+                        <a class="nav-link" asp-action="Index" asp-controller="ProductCategory">Product Category</a>
                     </nav>
                 </div>
                 <a class="nav-link" asp-action="Index" asp-controller="Category">
@@ -35,17 +38,15 @@
                     <div class="sb-nav-link-icon"><i class="fas fa-chart-area"></i></div>
                     Order
                 </a>
-                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseLayouts" aria-expanded="false" aria-controls="collapseLayouts">
+                <a class="nav-link collapsed" href="#" data-bs-toggle="collapse" data-bs-target="#collapseMangers" aria-expanded="false" aria-controls="collapseMangers">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-users"></i></div>
                     Mangers
                     <div class="sb-sidenav-collapse-arrow"><i class="fas fa-angle-down"></i></div>
                 </a>
-                <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
+                <div class="collapse" id="collapseMangers" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                     <nav class="sb-sidenav-menu-nested nav">
                         <a class="nav-link" asp-action="Index" asp-controller="User">Users</a>
                     </nav>
-                </div>
-                <div class="collapse" id="collapseLayouts" aria-labelledby="headingOne" data-bs-parent="#sidenavAccordion">
                     <nav class="sb-sidenav-menu-nested nav">
                         <a class="nav-link" asp-action="Index" asp-controller="Role">Roles</a>
                     </nav>
@@ -57,6 +58,18 @@
                 <a class="nav-link" asp-action="Index" asp-controller="Contact">
                     <div class="sb-nav-link-icon"><i class="fa-solid fa-phone"></i></div>
                     Contact
+                </a>
+                <a class="nav-link" asp-action="Index" asp-controller="Menu">
+                    <div class="sb-nav-link-icon"><i class="fa-solid fa-compass"></i></div>
+                    Menu
+                </a>
+                <a class="nav-link" asp-action="Index" asp-controller="Brand">
+                    <div class="sb-nav-link-icon"><i class="fa-brands fa-viadeo"></i></div>
+                    Brand
+                </a>  
+                <a class="nav-link" asp-action="Index" asp-controller="Banner">
+                    <div class="sb-nav-link-icon"><i class="fa-solid fa-images"></i></div>
+                    Banner
                 </a>
             </div>
         </div>

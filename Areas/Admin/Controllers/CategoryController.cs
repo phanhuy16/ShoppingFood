@@ -91,7 +91,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
             var category = await _dataContext.Categories.FindAsync(id);
             if (category == null)
             {
-                return NotFound();
+                _notyf.Error("Category Not Found");
             }
             return View(category);
         }
@@ -136,7 +136,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
             var category = await _dataContext.Categories.FindAsync(id);
             if (category == null)
             {
-                return NotFound();
+                _notyf.Error("Category Not Found");
             }
             _dataContext.Categories.Remove(category);
             await _dataContext.SaveChangesAsync();

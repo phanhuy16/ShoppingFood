@@ -1,9 +1,13 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Models;
 using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
+using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
 {
@@ -11,11 +15,13 @@ namespace ShoppingFood.Controllers
     {
         private readonly DataContext _dataContext;
         private readonly INotyfService _notyf;
+        private readonly UserManager<AppUserModel> _userManager;
 
-        public ProductController(DataContext context, INotyfService notyf)
+        public ProductController(DataContext context, INotyfService notyf, UserManager<AppUserModel> userManager)
         {
             _dataContext = context;
             _notyf = notyf;
+            _userManager = userManager;
         }
 
         public async Task<IActionResult> Index(string sort_by = "", string startprice = "", string endprice = "")
@@ -76,40 +82,49 @@ namespace ShoppingFood.Controllers
                 return RedirectToAction("Index");
             }
 
-            var productById = await _dataContext.Products.Include(x => x.Category).Include(x => x.Rating).Where(x => x.Id == id && x.Slug == slug).FirstOrDefaultAsync();
+            var productById = await _dataContext.Products.Include(x => x.Category).Where(x => x.Id == id && x.Slug == slug).FirstOrDefaultAsync();
+
+            if (productById == null)
+            {
+                _notyf.Error("Product not found!");
+            }
 
             var related = await _dataContext.Products.Where(x => x.CategoryId == productById.CategoryId && x.Id != productById.Id).Include(x => x.Category).Take(4).ToListAsync();
 
             ViewBag.Related = related;
 
-            var ratings = await _dataContext.Ratings.Where(x => x.ProductId == id).ToListAsync();
+            var reviews = await _dataContext.Reviews.Where(x => x.ProductId == id).Include(x => x.Users).ToListAsync();
 
-            var rating = new ProductRatingViewModel
+            var review = new ProductRatingViewModel
             {
                 Product = productById,
-                Rating = ratings.Count > 0 ? ratings[0] : null
+                Reviews = reviews
             };
 
-            return View(rating);
+            return View(review);
         }
 
         [HttpPost]
-        public async Task<IActionResult> Comment(RatingModel model)
+        [Authorize]
+        public async Task<IActionResult> Comment(ReviewModel model)
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
+            if (user == null)
+                return Unauthorized();
+
             if (ModelState.IsValid)
             {
-                var ratings = new RatingModel
+                var reviews = new ReviewModel
                 {
+                    UserId = user.Id,
                     ProductId = model.ProductId,
                     Comment = model.Comment,
-                    Customer = model.Customer,
-                    Email = model.Email,
                     Star = model.Star,
-                    ModifierDate = DateTime.Now,
-                    ModifierBy = User.Identity.Name,
                     CreatedDate = DateTime.Now
                 };
-                await _dataContext.Ratings.AddAsync(ratings);
+                await _dataContext.Reviews.AddAsync(reviews);
                 await _dataContext.SaveChangesAsync();
                 _notyf.Success("Comment successfully!");
                 return Redirect(Request.Headers["Referer"]);

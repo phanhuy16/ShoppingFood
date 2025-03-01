@@ -226,6 +226,49 @@ namespace ShoppingFood.Migrations
                     b.ToTable("AspNetUsers", (string)null);
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.BannerModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Description")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Image")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("ModifierBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifierDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.Property<string>("SubTitle")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Title")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Banners");
+                });
+
             modelBuilder.Entity("ShoppingFood.Models.BrandModel", b =>
                 {
                     b.Property<int>("Id")
@@ -415,6 +458,32 @@ namespace ShoppingFood.Migrations
                     b.ToTable("Coupons");
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.MenuModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Position")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Menus");
+                });
+
             modelBuilder.Entity("ShoppingFood.Models.MomoInfoModel", b =>
                 {
                     b.Property<int>("Id")
@@ -507,6 +576,41 @@ namespace ShoppingFood.Migrations
                     b.ToTable("Orders");
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.ProductCategoryModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("CreatedBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ModifierBy")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("ModifierDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Slug")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ProductCategories");
+                });
+
             modelBuilder.Entity("ShoppingFood.Models.ProductModel", b =>
                 {
                     b.Property<int>("Id")
@@ -554,7 +658,16 @@ namespace ShoppingFood.Migrations
                     b.Property<decimal>("Price")
                         .HasColumnType("decimal(18, 2)");
 
+                    b.Property<decimal>("PriceSale")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("ProductCategoryId")
+                        .HasColumnType("int");
+
                     b.Property<int>("Quantity")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("ReviewId")
                         .HasColumnType("int");
 
                     b.Property<string>("Slug")
@@ -571,6 +684,10 @@ namespace ShoppingFood.Migrations
                     b.HasIndex("BrandId");
 
                     b.HasIndex("CategoryId");
+
+                    b.HasIndex("ProductCategoryId");
+
+                    b.HasIndex("ReviewId");
 
                     b.ToTable("Products");
                 });
@@ -599,7 +716,7 @@ namespace ShoppingFood.Migrations
                     b.ToTable("ProductQuantities");
                 });
 
-            modelBuilder.Entity("ShoppingFood.Models.RatingModel", b =>
+            modelBuilder.Entity("ShoppingFood.Models.ReviewModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -617,14 +734,6 @@ namespace ShoppingFood.Migrations
                     b.Property<DateTime>("CreatedDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<string>("Customer")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Email")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
                     b.Property<string>("ModifierBy")
                         .HasColumnType("nvarchar(max)");
 
@@ -634,15 +743,21 @@ namespace ShoppingFood.Migrations
                     b.Property<int>("ProductId")
                         .HasColumnType("int");
 
-                    b.Property<string>("Star")
-                        .HasColumnType("nvarchar(max)");
+                    b.Property<int>("Star")
+                        .HasColumnType("int");
+
+                    b.Property<string>("UserId")
+                        .HasMaxLength(450)
+                        .HasColumnType("nvarchar(450)");
+
+                    b.Property<string>("UsersId")
+                        .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("ProductId")
-                        .IsUnique();
+                    b.HasIndex("UsersId");
 
-                    b.ToTable("Ratings");
+                    b.ToTable("Reviews");
                 });
 
             modelBuilder.Entity("ShoppingFood.Models.ShippingModel", b =>
@@ -888,9 +1003,23 @@ namespace ShoppingFood.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ShoppingFood.Models.ProductCategoryModel", "ProductCategory")
+                        .WithMany("Products")
+                        .HasForeignKey("ProductCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ShoppingFood.Models.ReviewModel", "Review")
+                        .WithMany("Products")
+                        .HasForeignKey("ReviewId");
+
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
+
+                    b.Navigation("ProductCategory");
+
+                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("ShoppingFood.Models.ProductQuantityModel", b =>
@@ -904,15 +1033,13 @@ namespace ShoppingFood.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("ShoppingFood.Models.RatingModel", b =>
+            modelBuilder.Entity("ShoppingFood.Models.ReviewModel", b =>
                 {
-                    b.HasOne("ShoppingFood.Models.ProductModel", "Product")
-                        .WithOne("Rating")
-                        .HasForeignKey("ShoppingFood.Models.RatingModel", "ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                    b.HasOne("ShoppingFood.Models.AppUserModel", "Users")
+                        .WithMany()
+                        .HasForeignKey("UsersId");
 
-                    b.Navigation("Product");
+                    b.Navigation("Users");
                 });
 
             modelBuilder.Entity("ShoppingFood.Models.WishlistModel", b =>
@@ -926,9 +1053,14 @@ namespace ShoppingFood.Migrations
                     b.Navigation("Product");
                 });
 
-            modelBuilder.Entity("ShoppingFood.Models.ProductModel", b =>
+            modelBuilder.Entity("ShoppingFood.Models.ProductCategoryModel", b =>
                 {
-                    b.Navigation("Rating");
+                    b.Navigation("Products");
+                });
+
+            modelBuilder.Entity("ShoppingFood.Models.ReviewModel", b =>
+                {
+                    b.Navigation("Products");
                 });
 #pragma warning restore 612, 618
         }

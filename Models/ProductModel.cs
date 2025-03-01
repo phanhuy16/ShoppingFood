@@ -1,6 +1,7 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using ShoppingFood.Repository.Validation;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace ShoppingFood.Models
 {
@@ -31,6 +32,11 @@ namespace ShoppingFood.Models
         [Column(TypeName = "decimal(18, 2)")]
         public decimal Price { get; set; }
 
+        [Required(ErrorMessage = "Yêu cầu nhập giá khuyến mãi sản phẩm")]
+        [Range(0.01, double.MaxValue)]
+        [Column(TypeName = "decimal(18, 2)")]
+        public decimal PriceSale { get; set; }
+
         [Required(ErrorMessage = "Yêu cầu nhập giá vốn sản phẩm")]
         [Range(0.01, double.MaxValue)]
         [Column(TypeName = "decimal(18, 2)")]
@@ -42,14 +48,18 @@ namespace ShoppingFood.Models
         [Required, Range(1, int.MaxValue, ErrorMessage = "Yêu cầu chọn thương hiệu")]
         public int BrandId { get; set; }
 
+        [ForeignKey(nameof(ProductCategory))]
+        public int ProductCategoryId { get; set; }
+
         public int Quantity { get; set; }
         public int Sold { get; set; }
 
         public virtual CategoryModel Category { get; set; } = null!;
         public virtual BrandModel Brand { get; set; } = null!;
-        public virtual RatingModel Rating { get; set; } = null!;
+        public virtual ReviewModel Review { get; set; } = null!;
+        public virtual ProductCategoryModel ProductCategory { get; set; }
 
-        [NotMapped]
+        [NotMapped] 
         [FileExtension]
         public IFormFile ImageUpload { get; set; } = null!;
     }

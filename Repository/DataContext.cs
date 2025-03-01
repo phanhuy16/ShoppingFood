@@ -14,7 +14,7 @@ namespace ShoppingFood.Repository
         public DbSet<ProductModel> Products { get; set; }
         public DbSet<OrderModel> Orders { get; set; }
         public DbSet<OrderDetailModel> OrderDetails { get; set; }
-        public DbSet<RatingModel> Ratings { get; set; }
+        public DbSet<ReviewModel> Reviews { get; set; }
         public DbSet<SliderModel> Sliders { get; set; }
         public DbSet<ContactModel> Contacts { get; set; }
         public DbSet<WishlistModel> Wishlists { get; set; }
@@ -25,5 +25,8 @@ namespace ShoppingFood.Repository
         public DbSet<StatisticalModel> Statisticals { get; set; }
         public DbSet<MomoInfoModel> MomoInfos { get; set; }
         public DbSet<VnpayModel> Vnpays { get; set; }
+        public DbSet<ProductCategoryModel> ProductCategories { get; set; }
+        public DbSet<MenuModel> Menus { get; set; }
+        public DbSet<BannerModel> Banners { get; set; }
     }
 }

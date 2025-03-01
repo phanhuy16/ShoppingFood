@@ -1,0 +1,80 @@
+﻿@model IEnumerable<BrandModel>
+
+@{
+	ViewData["Title"] = "List Brand";
+}
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Brand</h1>
+		<div class="row mb-2">
+			<div class="col-md-6">
+				<ol class="breadcrumb">
+					<li class="breadcrumb-item active">Brand</li>
+				</ol>
+			</div>
+			<div class="col-md-6 text-end">
+				<a class="btn btn-sm btn-primary" asp-action="Create" asp-controller="Brand">Add Brand</a>
+			</div>
+		</div>
+		
+		<div class="card mb-4">
+			<div class="card-header">
+				<i class="fas fa-table me-1"></i>
+				DataTable @ViewData["Title"]
+			</div>
+			<div class="card-body">
+				<table id="datatablesSimple" class="display nowrap" style="width:100%">
+					<thead>
+						<tr>
+							<th scope="col">#</th>
+							<th>Image</th>
+							<th>Name</th>
+							<th>Slug</th>
+							<th>Descriptions</th>
+							<th>Status</th>
+							<th>Actions</th>
+						</tr>
+					</thead>
+					@if (Model != null && Model.Any())
+					{
+						var i = 1;
+						<tbody>
+							@foreach (var item in Model)
+							{
+								<tr>
+									<td scope="col">@i</td>
+									<td><img src="~/media/brands/@item.Image" alt="@item.Name" width="80" /></td>
+									<td>@item.Name</td>
+									<td>@item.Slug</td>
+									<td>
+										<textarea class="form-control" rows="2" readonly>@item.Description</textarea>
+									</td>
+									<td>
+										@if (item.Status == 1)
+										{
+											<span class="badge bg-success">Active</span>
+										}
+										else
+										{
+											<span class="badge bg-danger">Inactive</span>
+										}
+									</td>
+									<td>
+										<a class="btn btn-sm btn-info" asp-action="Edit" asp-controller="Brand" asp-route-id="@item.Id"><i class="fa-regular fa-pen-to-square"></i></a>
+										<a class="btn btn-sm btn-danger confirmDeletion" asp-action="Delete" asp-controller="Brand" asp-route-Id="@item.Id"><i class="fa-regular fa-circle-xmark"></i></a>
+									</td>
+								</tr>
+								i++;
+							}
+						</tbody>
+					}
+					else
+					{
+						<tbody>
+						</tbody>
+					}
+				</table>
+			</div>
+		</div>
+	</div>
+</main>

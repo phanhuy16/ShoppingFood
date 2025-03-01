@@ -103,9 +103,9 @@ namespace ShoppingFood.Areas.Admin.Controllers
                     string oldFilePath = Path.Combine(uploadsDir, existSlider.Image);
                     try
                     {
-                        if (System.IO.File.Exists(filePath))
+                        if (System.IO.File.Exists(oldFilePath))
                         {
-                            System.IO.File.Delete(filePath);
+                            System.IO.File.Delete(oldFilePath);
                         }
                     }
                     catch (Exception ex)

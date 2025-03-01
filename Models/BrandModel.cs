@@ -1,5 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
+using ShoppingFood.Repository.Validation;
 
 namespace ShoppingFood.Models
 {
@@ -15,5 +16,9 @@ namespace ShoppingFood.Models
         public string Description { get; set; } = null!;
         public string Image { get; set; } = null!;
         public int Status { get; set; }
+
+        [NotMapped]
+        [FileExtension]
+        public IFormFile ImageUpload { get; set; } = null!;
     }
 }

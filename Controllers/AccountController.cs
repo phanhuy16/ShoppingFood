@@ -325,7 +325,7 @@ namespace ShoppingFood.Controllers
             if (exitsUser == null)
             {
                 var password = new PasswordHasher<AppUserModel>();
-                var passwordHasher = password.HashPassword(null, "123456789");
+                var passwordHasher = password.HashPassword(null, "Abc@123");
 
                 var newUser = new AppUserModel { UserName = name, Email = email, };
                 newUser.PasswordHash = passwordHasher;
@@ -342,7 +342,8 @@ namespace ShoppingFood.Controllers
                     _notyf.Success("Đăng ký tài khoản thành công");
                     return RedirectToAction("Index", "Home");
                 }
-            } else
+            }
+            else
             {
                 await _signInManager.SignInAsync(exitsUser, isPersistent: false);
             }

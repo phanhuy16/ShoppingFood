@@ -1,0 +1,56 @@
+﻿@model MenuModel
+
+@{
+	ViewData["Title"] = "Edit Menu";
+}
+
+<main>
+	<div class="container-fluid px-4">
+		<h1 class="mt-4">Edit Menu</h1>
+		<ol class="breadcrumb mb-4">
+			<li class="breadcrumb-item"><a asp-action="Index" asp-controller="Dashboard">Dashboard</a></li>
+			<li class="breadcrumb-item active">Edit Menu</li>
+		</ol>
+		<form asp-action="Edit" asp-controller="Menu" method="post">
+			<div asp-validation-summary="ModelOnly" class="text-danger"></div>
+			<input asp-for="Id" type="hidden" />
+			<div class="row">
+				<div class="col-md">
+					<div class="form-group">
+						<label class="form-label">Name</label>
+						<input asp-for="Name" class="form-control" type="text" />
+						<span asp-validation-for="Name" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md">
+					<div class="form-group">
+						<label class="form-label">Position</label>
+						<input asp-for="Position" class="form-control" type="number" />
+						<span asp-validation-for="Position" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md">
+					<div class="form-group">
+						<label class="form-label">Status</label>
+						<select asp-for="Status" class="form-select">
+							<option>-- Choose a status --</option>
+							<option value="1"> Hiện </option>
+							<option value="0"> Ẩn </option>
+						</select>
+						<span asp-validation-for="Status" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+			<div class="my-3">
+				<button class="btn btn-sm btn-primary">Submit</button>
+				<button class="btn btn-sm btn-outline-secondary" asp-action="Index" formnovalidate>Cancel</button>
+			</div>
+		</form>
+	</div>
+</main>
+
+@section Scripts {
+	@{
+		await Html.RenderPartialAsync("_ValidationScriptsPartial");
+	}
+}

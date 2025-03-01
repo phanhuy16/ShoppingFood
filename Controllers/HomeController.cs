@@ -23,12 +23,37 @@ namespace ShoppingFood.Controllers
             _notyf = notyf;
         }
 
-        public async Task<IActionResult> Index()
+        public async Task<IActionResult> Index(string slug = "")
         {
-            var products = await _dataContext.Products.OrderByDescending(x => x.Id).ToListAsync();
+            var categories = await _dataContext.Categories.OrderBy(c => c.Name).ToListAsync();
+            ViewBag.Categories = categories;
+
+
+            IQueryable<ProductModel> query = _dataContext.Products.Include(x => x.Category);
+
+            if (!string.IsNullOrEmpty(slug))
+            {
+                var category = await _dataContext.Categories.FirstOrDefaultAsync(x => x.Slug == slug);
+                if (category == null)
+                {
+                    return RedirectToAction("Index");
+                }
+            }
+
+            if (!string.IsNullOrEmpty(slug))
+            {
+                query = query.Where(x => x.Category.Slug == slug);
+            }
+
+            var products = await query.OrderByDescending(x => x.Id).ToListAsync();
+
+            var productByCate = await _dataContext.Products.Include(x => x.Category).Where(x => x.Category.Name == "Vegetables").OrderByDescending(x => x.Id).ToListAsync();
+            ViewBag.ProductByCate = productByCate;
 
             var slirders = await _dataContext.Sliders.Where(x => x.Status == 1).ToListAsync();
             ViewBag.Sliders = slirders;
+
+            ViewBag.Slug = slug;
 
             return View(products);
         }
@@ -48,7 +73,7 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> AddWishlist(int id)
         {
             var user = await _userManager.GetUserAsync(User);
-          
+
             var wishlist = new WishlistModel
             {
                 ProductId = id,
@@ -67,12 +92,12 @@ namespace ShoppingFood.Controllers
                 return StatusCode(500, ex.Message);
             }
         }
-        
+
         [HttpPost]
         public async Task<IActionResult> AddCompare(int id)
         {
             var user = await _userManager.GetUserAsync(User);
-          
+
             var compare = new CompareModel
             {
                 ProductId = id,

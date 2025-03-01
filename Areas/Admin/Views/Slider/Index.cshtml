@@ -44,7 +44,9 @@
 									<td scope="col">@i</td>
 									<td>@item.Title</td>
 									<td><img src="~/media/sliders/@item.Image" width="80" alt="@item.Title" /></td>
-									<td>@item.Description</td>
+									<td>
+										<textarea class="form-control" rows="2" readonly>@item.Description</textarea>
+									</td>
 									<td>
 										@if (item.Status == 1)
 										{
