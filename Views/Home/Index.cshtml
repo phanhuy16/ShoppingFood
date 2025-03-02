@@ -2,6 +2,7 @@
 
 @{
 	ViewData["Title"] = "Home Page";
+	ViewBag.Menu = "Home";
 }
 
 @await Html.PartialAsync("_Slider")
@@ -100,36 +101,13 @@
 @await Html.PartialAsync("_Featurs")
 <!-- Featurs End -->
 <!-- Vesitable Shop Start-->
-<div class="container-fluid vesitable py-5">
-	<div class="container py-5">
-		<h1 class="mb-0">Fresh Organic Vegetables</h1>
-		@foreach (var item in ViewBag.ProductByCate)
-		{
-			<div class="owl-carousel vegetable-carousel justify-content-center">
-				<div class="border border-primary rounded position-relative vesitable-item">
-					<div class="vesitable-img">
-						<img src="/media/products/@item.Image" class="img-fluid w-100 rounded-top" alt="@item.Name">
-					</div>
-					<div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">@item.Category.Name</div>
-					<div class="p-4 rounded-bottom text-center">
-						<h4>@item.Name</h4>
-						<p>@item.Description</p>
-						<div class="d-flex justify-content-center flex-lg-wrap">
-							<p class="text-dark fs-5 fw-bold mb-2">@item.Price.ToString("#,##0 VND") / kg</p>
-							<a href="#" class="btn border border-secondary rounded-pill px-3 text-primary"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</a>
-						</div>
-					</div>
-				</div>
-			</div>
-		}
-	</div>
-</div>
+<vc:product-by-cate></vc:product-by-cate>
 <!-- Vesitable Shop End -->
 <!-- Banner Section Start-->
 @await Html.PartialAsync("_Banner")
 <!-- Banner Section End -->
 <!--  Product Start -->
-@await Html.PartialAsync("_Bestsaler")
+<vc:best-seller></vc:best-seller>
 <!-- Bestsaler Product End -->
 <!-- Fact Start -->
 @await Html.PartialAsync("_Fact")
@@ -191,7 +169,7 @@
 				});
 			});
 
-			 $(".nav-item a").click(function (event) {
+			 $(".nav-item .pre").click(function (event) {
 				event.preventDefault(); // Ngăn trang tải lại
 
 				let url = $(this).attr("href"); // Lấy URL từ thẻ <a>

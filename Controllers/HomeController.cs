@@ -25,10 +25,6 @@ namespace ShoppingFood.Controllers
 
         public async Task<IActionResult> Index(string slug = "")
         {
-            var categories = await _dataContext.Categories.OrderBy(c => c.Name).ToListAsync();
-            ViewBag.Categories = categories;
-
-
             IQueryable<ProductModel> query = _dataContext.Products.Include(x => x.Category);
 
             if (!string.IsNullOrEmpty(slug))
@@ -47,11 +43,11 @@ namespace ShoppingFood.Controllers
 
             var products = await query.OrderByDescending(x => x.Id).ToListAsync();
 
-            var productByCate = await _dataContext.Products.Include(x => x.Category).Where(x => x.Category.Name == "Vegetables").OrderByDescending(x => x.Id).ToListAsync();
-            ViewBag.ProductByCate = productByCate;
-
             var slirders = await _dataContext.Sliders.Where(x => x.Status == 1).ToListAsync();
             ViewBag.Sliders = slirders;
+
+            var categories = await _dataContext.Categories.OrderBy(c => c.Name).ToListAsync();
+            ViewBag.Categories = categories;
 
             ViewBag.Slug = slug;
 
@@ -61,12 +57,6 @@ namespace ShoppingFood.Controllers
         public IActionResult Privacy()
         {
             return View();
-        }
-
-        public async Task<IActionResult> Contact()
-        {
-            var contact = await _dataContext.Contacts.FirstAsync();
-            return View(contact);
         }
 
         [HttpPost]

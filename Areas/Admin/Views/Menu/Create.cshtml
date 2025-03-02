@@ -23,6 +23,27 @@
 				</div>
 				<div class="col-md">
 					<div class="form-group">
+						<label class="form-label">Action</label>
+						<input asp-for="Action" class="form-control" type="text" />
+						<span asp-validation-for="Action" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md">
+					<div class="form-group">
+						<label class="form-label">Controller</label>
+						<input asp-for="Controller" class="form-control" type="text" />
+						<span asp-validation-for="Controller" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md">
+					<div class="form-group">
+						<label class="form-label">Url</label>
+						<input asp-for="Url" class="form-control" type="text" />
+						<span asp-validation-for="Url" class="text-danger"></span>
+					</div>
+				</div>
+				<div class="col-md">
+					<div class="form-group">
 						<label class="form-label">Position</label>
 						<input asp-for="Position" class="form-control" type="number" />
 						<span asp-validation-for="Position" class="text-danger"></span>

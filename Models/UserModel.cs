@@ -15,6 +15,7 @@ namespace ShoppingFood.Models
 
         public string ReturnUrl { get; set; }
     }
+
     public class RegisterModel
     {
         public int Id { get; set; }
@@ -33,5 +34,7 @@ namespace ShoppingFood.Models
         [DataType(DataType.Password)]
         [Required(ErrorMessage = "Vui lòng nhập xác mật khẩu")]
         public string ConfirmPassword { get; set; }
+
+        public string ReturnUrl { get; set; }
     }
 }

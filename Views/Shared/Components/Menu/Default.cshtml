@@ -1,0 +1,13 @@
+﻿@model IEnumerable<MenuModel>
+
+@if (Model != null && Model.Any())
+{
+	@foreach (var item in Model)
+	{
+		<a asp-action="@item.Action" asp-controller="@item.Controller" class="nav-item nav-link @(ViewBag.Menu == item.Controller ? "active" : "")">@item.Name</a>
+	}
+}
+else
+{
+	<p>No menu items found.</p>
+}

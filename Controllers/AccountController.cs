@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
 {
+    [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly DataContext _dataContext;
@@ -29,6 +31,7 @@ namespace ShoppingFood.Controllers
             _emailSender = email;
         }
 
+        [HttpGet]
         public IActionResult Login(string returnUrl)
         {
             return View(new LoginModel { ReturnUrl = returnUrl });
@@ -52,9 +55,9 @@ namespace ShoppingFood.Controllers
             return View(model);
         }
 
-        public IActionResult Register()
+        public IActionResult Register(string returnUrl)
         {
-            return View();
+            return View(new RegisterModel { ReturnUrl = returnUrl });
         }
 
         [HttpPost]
@@ -69,20 +72,33 @@ namespace ShoppingFood.Controllers
                     Email = model.Email
                 };
 
-                var result = await _userManager.CreateAsync(newUser, model.Password);
+                IdentityResult result = await _userManager.CreateAsync(newUser, model.Password);
 
                 if (result.Succeeded)
                 {
+                    var roleAssign = await _userManager.AddToRoleAsync(newUser, "User");
+
+                    if(!roleAssign.Succeeded)
+                    {
+                        _notyf.Error("Register fail!");
+                        foreach (var error in roleAssign.Errors)
+                        {
+                            ModelState.AddModelError("", error.Description);
+                        }
+                        return View(model);
+                    }
+
                     await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
                     _notyf.Success("Register successfully!");
+
                     return RedirectToAction("Index", "Home");
                 }
 
-                _notyf.Error("Register fail!");
                 foreach (var error in result.Errors)
                 {
                     ModelState.AddModelError("", error.Description);
                 }
+                _notyf.Error("Register fail!");
             }
             return View(model);
         }
@@ -305,7 +321,7 @@ namespace ShoppingFood.Controllers
 
         public async Task<IActionResult> GoogleResponse()
         {
-            var result = await HttpContext.AuthenticateAsync(CookieAuthenticationDefaults.AuthenticationScheme);
+            var result = await HttpContext.AuthenticateAsync(GoogleDefaults.AuthenticationScheme);
             if (!result.Succeeded)
             {
                 return RedirectToAction("Login");
@@ -338,6 +354,20 @@ namespace ShoppingFood.Controllers
                 }
                 else
                 {
+                    // Assign the "Admin" role to the new user
+                    var roleExist = await _userManager.IsInRoleAsync(newUser, "User");
+                    if (!roleExist)
+                    {
+                        var roleAssignResult = await _userManager.AddToRoleAsync(newUser, "User");
+
+                        if (!roleAssignResult.Succeeded)
+                        {
+                            _notyf.Error("Đăng ký tài khoản thất bại. Vui lòng thử lại sau");
+                            return RedirectToAction("Login", "Account");
+                        }
+                    }
+
+
                     await _signInManager.SignInAsync(newUser, isPersistent: false);
                     _notyf.Success("Đăng ký tài khoản thành công");
                     return RedirectToAction("Index", "Home");
@@ -347,7 +377,7 @@ namespace ShoppingFood.Controllers
             {
                 await _signInManager.SignInAsync(exitsUser, isPersistent: false);
             }
-            return RedirectToAction("Login", "Account");
+            return RedirectToAction("Index", "Home");
         }
     }
 }

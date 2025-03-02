@@ -12,7 +12,7 @@ namespace ShoppingFood.Areas.Admin.Repository
             {
                 EnableSsl = true,
                 UseDefaultCredentials = false,
-                Credentials = new NetworkCredential("duythai7140@gmail.com", "vrsyuzzemtqhrgrp")
+                Credentials = new NetworkCredential("duythai7140@gmail.com", "nxodhrcurpjtupvl")
             };
 
             return client.SendMailAsync(new MailMessage(from: "duythai7140@gmail.com", to: email, subject, message));

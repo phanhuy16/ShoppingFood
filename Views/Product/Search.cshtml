@@ -40,7 +40,7 @@
 					</div>
 				</div>
 				<div class="row g-4">
-					@await Html.PartialAsync("_SideBar")
+					@await Html.PartialAsync("_SiderBar")
 					<div class="col-lg-9">
 						<div class="row g-4 justify-content-center">
 							@if (Model != null && Model.Any())
@@ -178,6 +178,41 @@
 					}
 				});
 			});
+
+
+			$('#sort_by').on('change', function(){
+				var url = $(this).val();
+				if(url){
+					window.location = url;
+				}
+				return false;
+			})
+			$(function() {
+			  $( "#slider-range" ).slider({
+				range: true,
+				step: 10000,
+				min: 10000,
+				max: 10000000,
+				values: [ 75, 300 ],
+				slide: function( event, ui ) {
+					$( "#amount" ).val(
+						new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(ui.values[ 0 ]) +
+						" - " +
+						new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(ui.values[ 1 ])
+					);
+				}
+			  });
+			  $( "#amount" ).val( new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format($( "#slider-range" ).slider( "values", 0 )) +
+				" - " + new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format($( "#slider-range" ).slider( "values", 1 )));
+			});
+
+			$('.btn-filter').on('click', function(){
+				var url = $(this).data('current_url');
+				if(url){
+					window.location = url + "?startprice=" + $( "#slider-range" ).slider( "values", 0 ) + "&endprice=" + $( "#slider-range" ).slider( "values", 1 );
+				}
+				return false;
+			})
 		});
 	</script>
 }

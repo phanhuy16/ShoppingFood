@@ -1,0 +1,87 @@
+﻿@model IEnumerable<ProductModel>
+
+@if (Model != null && Model.Any())
+{
+	<div class="container-fluid py-5">
+		<div class="container py-5">
+			<div class="text-center mx-auto mb-5" style="max-width: 700px;">
+				<h1 class="display-4">Bestseller Products</h1>
+				<p>Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable.</p>
+			</div>
+			<div class="row g-4">
+				@foreach (var item in Model)
+				{
+					<div class="col-lg-6 col-xl-4">
+						<div class="p-4 rounded bg-light">
+							<div class="row align-items-center">
+								<div class="col-6">
+									<a asp-action="Details" asp-controller="Product" asp-route-Slug="@item.Slug" asp-route-Id="@item.Id">
+										<img src="~/media/products/@item.Image" class="img-fluid rounded-circle w-100" alt="@item.Image">
+									</a>
+								</div>
+								<div class="col-6">
+									<a asp-action="Details" asp-controller="Product" asp-route-Slug="@item.Slug" asp-route-Id="@item.Id" class="h5">@item.Name</a>
+									<div class="d-flex my-3">
+										<i class="fas fa-star text-primary"></i>
+										<i class="fas fa-star text-primary"></i>
+										<i class="fas fa-star text-primary"></i>
+										<i class="fas fa-star text-primary"></i>
+										<i class="fas fa-star"></i>
+									</div>
+									<h4 class="mb-3">@item.PriceSale.ToString("#,##0 VND")</h4>
+									@if (item.Quantity > 0)
+									{
+										<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</button>
+
+									}
+									else
+									{
+										<button class="btn border border-secondary rounded-pill px-3 text-primary">
+											Hết hàng
+										</button>
+									}
+								</div>
+							</div>
+						</div>
+					</div>
+				}
+				@foreach (var item in Model)
+				{
+					<div class="col-md-6 col-lg-6 col-xl-3">
+						<div class="text-center">
+							<a asp-action="Details" asp-controller="Product" asp-route-Slug="@item.Slug" asp-route-Id="@item.Id">
+								<img src="~/media/products/@item.Image" class="img-fluid rounded" alt="@item.Image">
+							</a>
+							<div class="py-4">
+								<a asp-action="Details" asp-controller="Product" asp-route-Slug="@item.Slug" asp-route-Id="@item.Id" class="h5">@item.Name</a>
+								<div class="d-flex my-3 justify-content-center">
+									<i class="fas fa-star text-primary"></i>
+									<i class="fas fa-star text-primary"></i>
+									<i class="fas fa-star text-primary"></i>
+									<i class="fas fa-star text-primary"></i>
+									<i class="fas fa-star"></i>
+								</div>
+								<h4 class="mb-3">@item.PriceSale.ToString("#,##0 VND")</h4>
+								@if (item.Quantity > 0)
+								{
+									<button data-id="@item.Id" class="btn border border-secondary rounded-pill px-3 text-primary add-to-cart"><i class="fa fa-shopping-bag me-2 text-primary"></i> Add to cart</button>
+
+								}
+								else
+								{
+									<button class="btn border border-secondary rounded-pill px-3 text-primary">
+										Hết hàng
+									</button>
+								}
+							</div>
+						</div>
+					</div>
+				}
+			</div>
+		</div>
+	</div>
+}
+else
+{
+	<p>Product not found</p>
+}

@@ -3,12 +3,16 @@
   "WorkspaceRootPath": "D:\\Projects\\DotNet\\ShoppingFood\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\areas\\admin\\views\\banner\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
-      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:areas\\admin\\views\\banner\\edit.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\views\\shared\\_siderbar.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:views\\shared\\_siderbar.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     },
     {
-      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\areas\\admin\\controllers\\bannercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:areas\\admin\\controllers\\bannercontroller.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\views\\shared\\components\\productcategories\\default.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:views\\shared\\components\\productcategories\\default.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
+    },
+    {
+      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\views\\product\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:views\\product\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -18,32 +22,45 @@
       "DocumentGroups": [
         {
           "DockedWidth": 200,
-          "SelectedChildIndex": 0,
+          "SelectedChildIndex": 1,
           "Children": [
             {
               "$type": "Document",
-              "DocumentIndex": 0,
-              "Title": "Edit.cshtml",
-              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Areas\\Admin\\Views\\Banner\\Edit.cshtml",
-              "RelativeDocumentMoniker": "Areas\\Admin\\Views\\Banner\\Edit.cshtml",
-              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Areas\\Admin\\Views\\Banner\\Edit.cshtml",
-              "RelativeToolTip": "Areas\\Admin\\Views\\Banner\\Edit.cshtml",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAgAAAAXAAAAAAAAAA==",
+              "DocumentIndex": 1,
+              "Title": "Default.cshtml",
+              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Views\\Shared\\Components\\ProductCategories\\Default.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\Components\\ProductCategories\\Default.cshtml",
+              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Views\\Shared\\Components\\ProductCategories\\Default.cshtml",
+              "RelativeToolTip": "Views\\Shared\\Components\\ProductCategories\\Default.cshtml",
+              "ViewState": "AgIAAAAAAAAAAAAAAAAAAAcAAAAVAAAAAAAAAA==",
               "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
-              "WhenOpened": "2025-03-01T08:54:44.702Z",
+              "WhenOpened": "2025-03-02T13:23:56.967Z",
               "EditorCaption": ""
             },
             {
               "$type": "Document",
-              "DocumentIndex": 1,
-              "Title": "BannerController.cs",
-              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Areas\\Admin\\Controllers\\BannerController.cs",
-              "RelativeDocumentMoniker": "Areas\\Admin\\Controllers\\BannerController.cs",
-              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Areas\\Admin\\Controllers\\BannerController.cs",
-              "RelativeToolTip": "Areas\\Admin\\Controllers\\BannerController.cs",
-              "ViewState": "AgIAAEsAAAAAAAAAAAAQwFoAAAAJAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-01T08:29:11.206Z",
+              "DocumentIndex": 0,
+              "Title": "_SiderBar.cshtml",
+              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Views\\Shared\\_SiderBar.cshtml",
+              "RelativeDocumentMoniker": "Views\\Shared\\_SiderBar.cshtml",
+              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Views\\Shared\\_SiderBar.cshtml",
+              "RelativeToolTip": "Views\\Shared\\_SiderBar.cshtml",
+              "ViewState": "AgIAAAEAAAAAAAAAAAAAAAsAAAAVAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-02T13:21:18.379Z",
+              "EditorCaption": ""
+            },
+            {
+              "$type": "Document",
+              "DocumentIndex": 2,
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Views\\Product\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Product\\Index.cshtml",
+              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Views\\Product\\Index.cshtml",
+              "RelativeToolTip": "Views\\Product\\Index.cshtml",
+              "ViewState": "AgIAAAsAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-02T12:41:02.21Z",
               "EditorCaption": ""
             }
           ]

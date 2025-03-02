@@ -12,6 +12,12 @@ namespace ShoppingFood.Models
         public string Name { get; set; }
         public string Slug { get; set; }
         public int Status { get; set; }
+        [Required]
         public int Position { get; set; }
+        [Required]
+        public string Controller { get; set; }
+        [Required]
+        public string Action { get; set; }
+        public string Url { get; set; }
     }
 }

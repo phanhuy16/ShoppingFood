@@ -17,7 +17,7 @@
 						<p class="mb-0">Số lượng: @ViewBag.CountProduct</p>
 					</div>
 					<div class="card-footer d-flex align-items-center justify-content-between">
-						<a class="small text-white stretched-link" href="#">View Details</a>
+						<a class="small text-white stretched-link" asp-action="Index" asp-controller="Product">Xem chi tiết</a>
 						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
 					</div>
 				</div>
@@ -29,7 +29,7 @@
 						<p class="mb-0">Số lượng: @ViewBag.CountUser</p>
 					</div>
 					<div class="card-footer d-flex align-items-center justify-content-between">
-						<a class="small text-white stretched-link" href="#">View Details</a>
+						<a class="small text-white stretched-link" asp-action="Index" asp-controller="User">Xem chi tiết</a>
 						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
 					</div>
 				</div>
@@ -41,7 +41,7 @@
 						<p class="mb-0">Số lượng: @ViewBag.CountOrder</p>
 					</div>
 					<div class="card-footer d-flex align-items-center justify-content-between">
-						<a class="small text-white stretched-link" href="#">View Details</a>
+						<a class="small text-white stretched-link" asp-action="Index" asp-controller="Order">Xem chi tiết</a>
 						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
 					</div>
 				</div>
@@ -53,7 +53,7 @@
 						<p class="mb-0">Số lượng: @ViewBag.CountCategory</p>
 					</div>
 					<div class="card-footer d-flex align-items-center justify-content-between">
-						<a class="small text-white stretched-link" href="#">View Details</a>
+						<a class="small text-white stretched-link" asp-action="Index" asp-controller="Category">Xem chi tiết</a>
 						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
 					</div>
 				</div>
@@ -65,7 +65,7 @@
 				<select class="form-select form-select-sm filter-select" aria-label="Small select example">
 					<option selected> --- Lọc dữ liệu --- </option>
 					<option value="7">7 ngày trước</option>
-					<option value="30">tháng trước</option>
+					<option value="30">1 tháng trước</option>
 					<option value="90">3 tháng trước</option>
 					<option value="365">1 năm trước</option>
 				</select>

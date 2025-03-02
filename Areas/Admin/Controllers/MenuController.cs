@@ -87,6 +87,9 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existMenu.Name = model.Name;
                 existMenu.Status = model.Status;
                 existMenu.Position = model.Position;
+                existMenu.Controller = model.Controller;
+                existMenu.Action = model.Action;
+                existMenu.Url = model.Url;
 
                 _dataContext.Menus.Update(existMenu);
                 await _dataContext.SaveChangesAsync();

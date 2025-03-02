@@ -13,9 +13,8 @@ namespace ShoppingFood.Repository.Components
 
         public async Task<IViewComponentResult> InvokeAsync()
         {
-            var categories = await _dataContext.Categories.ToListAsync();
+            var categories = await _dataContext.Categories.OrderByDescending(x => x.CreatedDate).ToListAsync();
             return View(categories);
         }
-
     }
 }
