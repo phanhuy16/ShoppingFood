@@ -12,8 +12,6 @@ namespace ShoppingFood.Models
 
         [Required]
         public string Title { get; set; }
-
-        [Required]
         public string SubTitle { get; set; }
 
         [Required]
@@ -22,6 +20,8 @@ namespace ShoppingFood.Models
         public string Image { get; set; }
 
         public int Status { get; set; }
+
+        public string Position { get; set; }
 
         [NotMapped]
         [FileExtension]

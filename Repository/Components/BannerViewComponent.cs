@@ -11,6 +11,6 @@ namespace ShoppingFood.Repository.Components
             _dataContext = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync() => View(await _dataContext.Banners.FirstOrDefaultAsync());
+        public async Task<IViewComponentResult> InvokeAsync(string position) => View(await _dataContext.Banners.FirstOrDefaultAsync(x => x.Position == position));
     }
 }

@@ -1,0 +1,13 @@
+﻿@model BannerModel
+
+<div class="position-relative">
+	<img src="~/media/banners/@Model.Image" class="img-fluid w-100 rounded" alt="@Model.Image">
+	<div class="position-absolute" style="top: 50%; right: 10px; transform: translateY(-50%);">
+		@{
+			foreach (var title in Model.Title.Split(" "))
+			{
+				<h3 class="text-secondary fw-bold" style="white-space:pre-line;">@title</h3>
+			}
+		}
+	</div>
+</div>

@@ -28,6 +28,8 @@ namespace ShoppingFood.Controllers
         {
             var products = _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1);
 
+            var bestSellers = await _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1 && x.PriceSale < x.Price).OrderByDescending(x => x.Sold).Take(4).ToListAsync();
+
             if (sort_by == "price_increase")
             {
                 products = products.OrderBy(x => x.Price);
@@ -62,6 +64,8 @@ namespace ShoppingFood.Controllers
                 products = products.OrderByDescending(x => x.Id);
             }
 
+            ViewBag.BestSellers = bestSellers;
+
             return View(await products.ToListAsync());
         }
 
@@ -84,6 +88,8 @@ namespace ShoppingFood.Controllers
 
             var productById = await _dataContext.Products.Include(x => x.Category).Where(x => x.Id == id && x.Slug == slug).FirstOrDefaultAsync();
 
+            var bestSellers = await _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1 && x.PriceSale < x.Price).OrderByDescending(x => x.Sold).Take(4).ToListAsync();
+
             if (productById == null)
             {
                 _notyf.Error("Product not found!");
@@ -100,6 +106,8 @@ namespace ShoppingFood.Controllers
                 Product = productById,
                 Reviews = reviews
             };
+
+            ViewBag.BestSellers = bestSellers;
 
             return View(review);
         }

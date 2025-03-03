@@ -122,6 +122,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existBanner.ModifierDate = DateTime.Now;
                 existBanner.ModifierBy = User.Identity.Name;
                 existBanner.Status = model.Status;
+                existBanner.Position = model.Position;
 
                 _dataContext.Banners.Update(existBanner);
                 await _dataContext.SaveChangesAsync();

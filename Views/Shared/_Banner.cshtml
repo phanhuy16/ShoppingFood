@@ -1,5 +1,5 @@
 ﻿<div class="container-fluid banner bg-secondary my-5">
 	<div class="container py-5">
-		<vc:banner></vc:banner>
+		@await Component.InvokeAsync("Banner", new { position = "home" })
 	</div>
 </div>
