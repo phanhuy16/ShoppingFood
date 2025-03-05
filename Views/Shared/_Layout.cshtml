@@ -29,6 +29,22 @@
 
 	<!-- Template Stylesheet -->
 	<link href="~/css/style.css" rel="stylesheet">
+	<link href="~/css/site.css" rel="stylesheet" />
+
+	<style>
+		.back-message {
+			position: fixed;
+			right: 30px;
+			bottom: 80px;
+			display: flex;
+			width: 45px;
+			height: 45px;
+			align-items: center;
+			justify-content: center;
+			transition: 0.5s;
+			z-index: 99;
+		}
+	</style>
 </head>
 
 <body>
@@ -58,12 +74,14 @@
 	</div>
 	<!-- Modal Search End -->
 	@RenderBody()
-
 	@await Html.PartialAsync("_Footer")
 	<div id="fb-root"></div>
 	<!-- Back to Top -->
 	<a href="#" class="btn btn-primary border-3 border-primary rounded-circle back-to-top"><i class="fa fa-arrow-up"></i></a>
-
+	<!-- Nút Chat nổi -->
+	<a asp-action="Index" asp-controller="Realtime" class="btn btn-primary border-3 border-primary rounded-circle back-message">
+		<i class="far fa-comments"></i>
+	</a>
 
 	<!-- JavaScript Libraries -->
 	<script src="~/lib/jquery/dist/jquery.min.js" asp-append-version="true"></script>
@@ -74,9 +92,11 @@
 	<script src="~/lib/lightbox/js/lightbox.min.js" asp-append-version="true"></script>
 	<script src="~/lib/owlcarousel/owl.carousel.min.js" asp-append-version="true"></script>
 	<script src="https://code.jquery.com/ui/1.14.1/jquery-ui.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/microsoft-signalr/8.0.7/signalr.js"></script>
+
 	<!-- Template Javascript -->
 	<script src="~/js/main.js" asp-append-version="true"></script>
-	
+
 	<script async defer crossorigin="anonymous" src="https://connect.facebook.net/vi_VN/sdk.js#xfbml=1&version=v22.0"></script>
 	@await Component.InvokeAsync("Notyf")
 	@await RenderSectionAsync("Scripts", required: false)

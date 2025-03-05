@@ -17,6 +17,7 @@ namespace ShoppingFood.Models
 
         [Required(ErrorMessage = ("Vui lòng nhập số lượng coupon"))]
         public int Quantity { get; set; }
+        public string Image { get; set; }
         public DateTime DateStart { get; set; }
         public DateTime DateExpired { get; set; }
         public int Status { get; set; }

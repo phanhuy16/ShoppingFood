@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Areas.Admin.Repository;
+using ShoppingFood.Hubs;
 using ShoppingFood.Models;
 using ShoppingFood.Models.Momo;
 using ShoppingFood.Repository;
@@ -82,6 +83,8 @@ builder.Services.AddCors(options =>
         });
 });
 
+
+//Add SignalR
 builder.Services.AddSignalR();
 
 // Connect vnpay api
@@ -103,6 +106,10 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseWebSockets();
+// UseCors must be called before MapHub.
+app.UseCors();
+//Set Signal Hub
 app.UseStaticFiles();
 
 app.UseRouting();
@@ -118,5 +125,8 @@ app.MapControllerRoute(
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
+
+// UseCors must be called before MapHub.
+app.MapHub<SignalR>("/chathub");
 
 app.Run();
