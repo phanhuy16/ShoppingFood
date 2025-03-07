@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using ShoppingFood.Repository.Validation;
+using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ShoppingFood.Models
@@ -21,5 +22,9 @@ namespace ShoppingFood.Models
         public DateTime DateStart { get; set; }
         public DateTime DateExpired { get; set; }
         public int Status { get; set; }
+
+        [NotMapped]
+        [FileExtension]
+        public IFormFile ImageUpload { get; set; } = null!;
     }
 }

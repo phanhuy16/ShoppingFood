@@ -3,8 +3,8 @@
   "WorkspaceRootPath": "D:\\Projects\\DotNet\\ShoppingFood\\",
   "Documents": [
     {
-      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\models\\couponmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}",
-      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:models\\couponmodel.cs||{A6C744A8-0E4A-4FC6-886A-064283054674}"
+      "AbsoluteMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|d:\\projects\\dotnet\\shoppingfood\\views\\product\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}",
+      "RelativeMoniker": "D:0:0:{C12EBBE4-545E-49F3-B05E-E608A8EC29B9}|ShoppingFood.csproj|solutionrelative:views\\product\\index.cshtml||{40D31677-CBC0-4297-A9EF-89D907823A98}"
     }
   ],
   "DocumentGroupContainers": [
@@ -19,14 +19,14 @@
             {
               "$type": "Document",
               "DocumentIndex": 0,
-              "Title": "CouponModel.cs",
-              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Models\\CouponModel.cs",
-              "RelativeDocumentMoniker": "Models\\CouponModel.cs",
-              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Models\\CouponModel.cs",
-              "RelativeToolTip": "Models\\CouponModel.cs",
-              "ViewState": "AgIAAAAAAAAAAAAAAAAAABQAAAAvAAAAAAAAAA==",
-              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000738|",
-              "WhenOpened": "2025-03-05T13:43:26.384Z",
+              "Title": "Index.cshtml",
+              "DocumentMoniker": "D:\\Projects\\DotNet\\ShoppingFood\\Views\\Product\\Index.cshtml",
+              "RelativeDocumentMoniker": "Views\\Product\\Index.cshtml",
+              "ToolTip": "D:\\Projects\\DotNet\\ShoppingFood\\Views\\Product\\Index.cshtml",
+              "RelativeToolTip": "Views\\Product\\Index.cshtml",
+              "ViewState": "AgIAAE8AAAAAAAAAAAAAABMAAAAdAAAAAAAAAA==",
+              "Icon": "ae27a6b0-e345-4288-96df-5eaf394ee369.000759|",
+              "WhenOpened": "2025-03-07T02:08:36.97Z",
               "EditorCaption": ""
             }
           ]

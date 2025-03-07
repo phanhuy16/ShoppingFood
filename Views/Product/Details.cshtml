@@ -63,7 +63,7 @@
 							{
 								@for (int i = 1; i <= 5; i++)
 								{
-									if (i <= Model.Reviews.First().Star)
+									if (i <= ViewBag.AverageRating)
 									{
 										<i class="fa fa-star text-secondary"></i>
 									}
@@ -254,11 +254,24 @@
 											<a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id" asp-route-slug="@item.Slug">@item.Name</a>
 										</h6>
 										<div class="d-flex mb-2">
-											<i class="fa fa-star text-secondary"></i>
-											<i class="fa fa-star text-secondary"></i>
-											<i class="fa fa-star text-secondary"></i>
-											<i class="fa fa-star text-secondary"></i>
-											<i class="fa fa-star"></i>
+											@if (Model.Reviews != null && Model.Reviews.Any())
+											{
+												@for (int i = 1; i <= 5; i++)
+												{
+													if (i <= ViewBag.AverageRating)
+													{
+														<i class="fa fa-star text-secondary"></i>
+													}
+													else
+													{
+														<i class="fa fa-star"></i>
+													}
+												}
+											}
+											else
+											{
+												<p>Chưa có đánh giá</p>
+											}
 										</div>
 										<div class="d-flex mb-2 flex-wrap">
 											<h5 class="fw-bold me-2">@item.PriceSale.ToString("#,##0 VND")</h5>

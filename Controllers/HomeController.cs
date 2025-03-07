@@ -51,6 +51,12 @@ namespace ShoppingFood.Controllers
 
             ViewBag.Slug = slug;
 
+            var reviews = await _dataContext.Reviews.Where(x => x.ProductId == products.FirstOrDefault().Id).Include(x => x.Users).ToListAsync();
+
+            double averageRating = reviews.Any() ? reviews.Average(x => x.Star) : 0;
+
+            ViewBag.AverageRating = averageRating;
+
             return View(products);
         }
 

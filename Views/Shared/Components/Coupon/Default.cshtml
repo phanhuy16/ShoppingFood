@@ -1,0 +1,44 @@
+﻿@model IEnumerable<CouponModel>
+
+@if (Model != null && Model.Any())
+{
+	foreach(var item in Model)
+	{
+		if (item.DateExpired < DateTime.Now)
+		{
+			<div class="col-md-6 col-lg-4" data-toggle="tooltip" data-placement="top" title="Mã đã hết hạn">
+				<a href="#">
+					<div class="service-item bg-secondary rounded border border-secondary">
+						<img src="~/media/coupons/@item.Image" class="img-fluid rounded-top w-100" alt="@item.Image">
+						<div class="px-4 rounded-bottom">
+							<div class="service-content bg-primary text-center p-4 rounded">
+								<h5 class="text-white">@item.Description</h5>
+								<h3 class="mb-0">@item.Name</h3>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		}
+		else
+		{
+			<div class="col-md-6 col-lg-4">
+				<a asp-action="Index" asp-controller="Product">
+					<div class="service-item bg-secondary rounded border border-secondary">
+						<img src="~/media/coupons/@item.Image" class="img-fluid rounded-top w-100" alt="@item.Image">
+						<div class="px-4 rounded-bottom">
+							<div class="service-content bg-primary text-center p-4 rounded">
+								<h5 class="text-white">@item.Description</h5>
+								<h3 class="mb-0">@item.Name</h3>
+							</div>
+						</div>
+					</div>
+				</a>
+			</div>
+		}
+	}
+}
+else
+{
+	<div class="row g-4 justify-content-center"></div>
+}

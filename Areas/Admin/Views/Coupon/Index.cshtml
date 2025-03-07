@@ -13,7 +13,7 @@
 		</ol>
 		<div class="row">
 			<div class="col-md-8">
-				<form asp-action="Create" method="post">
+				<form asp-action="Create" method="post" enctype="multipart/form-data">
 					<div asp-validation-summary="ModelOnly" class="text-danger"></div>
 					<div class="form-group">
 						<label class="form-label">Name</label>
@@ -41,6 +41,12 @@
 						<input asp-for="DateExpired" class="form-control" type="datetime-local" placeholder="Select a date" />
 
 						<span asp-validation-for="DateExpired" class="text-danger"></span>
+					</div>
+					<div class="form-group">
+						<label class="form-label">Image</label>
+						<input asp-for="ImageUpload" class="form-control" type="file" />
+						<span asp-validation-for="ImageUpload" class="text-danger"></span>
+						<img id="imgpreview" class="mt-2" style="object-fit: cover; border: 1px solid #ccc; border-radius: 5px; padding: 2px;" />
 					</div>
 					<div class="form-group">
 						<label class="form-label">Status</label>
@@ -90,14 +96,14 @@
 							<td class="text-center">
 								@if (item.Status == 1)
 								{
-									<select name="Status">
+									<select name="Status" class="form-select">
 										<option selected value="1">Kích hoạt</option>
 										<option value="0">Ẩn</option>
 									</select>
 								}
 								else
 								{
-									<select name="Status">
+									<select name="Status" class="form-select">
 										<option value="1">Kích hoạt</option>
 										<option selected value="0">Ẩn</option>
 									</select>
@@ -143,4 +149,9 @@
 	@{
 		await Html.RenderPartialAsync("_ValidationScriptsPartial");
 	}
+	<script>
+		$('#ImageUpload').change(function(){
+			readURL(this);
+		});
+	</script>
 }

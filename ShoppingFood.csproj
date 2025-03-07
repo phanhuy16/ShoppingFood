@@ -30,6 +30,7 @@
     <Folder Include="wwwroot\media\contacts\" />
     <Folder Include="wwwroot\media\brands\" />
     <Folder Include="wwwroot\media\banners\" />
+    <Folder Include="wwwroot\media\coupons\" />
     <Folder Include="wwwroot\media\sliders\" />
     <Folder Include="wwwroot\media\products\" />
   </ItemGroup>
