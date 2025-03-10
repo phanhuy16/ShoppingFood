@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Models;
+using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
 
 namespace ShoppingFood.Controllers
@@ -105,6 +106,47 @@ namespace ShoppingFood.Controllers
             {
                 return StatusCode(500, ex.Message);
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Subscribe(FooterViewModel model)
+        {
+            if (ModelState.IsValid)
+            {
+                // Kiểm tra xem email đã tồn tại chưa
+                var emailExists = await _dataContext.Subscribes.FirstOrDefaultAsync(s => s.Email == model.Subscribe.Email);
+                if (emailExists != null)
+                {
+                    _notyf.Warning("Email đã được đăng ký.");
+                    return RedirectToAction("Index");
+                }
+                var subscribe = new SubscribeModel
+                {
+                    Email = model.Subscribe.Email,
+                    CreatedDate = DateTime.Now
+                };
+                await _dataContext.Subscribes.AddAsync(subscribe);
+                try
+                {
+                    await _dataContext.SaveChangesAsync();
+                    _notyf.Success("Subscribe successfully.");
+                    return RedirectToAction("Index");
+                }
+                catch (Exception)
+                {
+                    _notyf.Error("Subscribe failed.");
+                    return RedirectToAction("Index");
+                }
+            }
+            return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Search(string keyword)
+        {
+            var keys = await _dataContext.Products.Include(x => x.Category).Where(x => x.Name.Contains(keyword) || x.Description.Contains(keyword) || x.Slug.Contains(keyword)).ToListAsync();
+            ViewBag.Keyword = keyword;
+            return View(keys);
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]

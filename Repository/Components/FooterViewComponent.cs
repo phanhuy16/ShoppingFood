@@ -1,5 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using ShoppingFood.Models;
+using ShoppingFood.Models.ViewModel;
 
 namespace ShoppingFood.Repository.Components
 {
@@ -11,6 +13,10 @@ namespace ShoppingFood.Repository.Components
             _dataContext = context;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync() => View(await _dataContext.Contacts.FirstOrDefaultAsync());
+        public async Task<IViewComponentResult> InvokeAsync()
+        {
+            var contact = await _dataContext.Contacts.FirstOrDefaultAsync();
+            return View(new FooterViewModel { Contact = contact});
+        }
     }
 }
