@@ -9,6 +9,7 @@ using ShoppingFood.Models;
 using ShoppingFood.Models.Momo;
 using ShoppingFood.Repository;
 using ShoppingFood.Services.Momo;
+using ShoppingFood.Services.Paypal;
 using ShoppingFood.Services.Vnpay;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -89,7 +90,18 @@ builder.Services.AddSignalR();
 
 // Connect vnpay api
 builder.Services.AddScoped<IVnPayService, VnPayService>();
+
+// conntect paypal api
+builder.Services.AddSingleton(x =>
+    new PaypalClient(
+        builder.Configuration["Paypal:ClientId"],
+        builder.Configuration["Paypal:ClientSecret"],
+        builder.Configuration["Paypal:Mode"]
+    )
+);
+
 var app = builder.Build();
+
 
 app.UseStatusCodePagesWithRedirects("/Home/Error?statuscode={0}");
 

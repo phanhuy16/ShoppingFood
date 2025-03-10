@@ -1,4 +1,4 @@
-using System.Diagnostics;
+﻿using System.Diagnostics;
 using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
@@ -50,12 +50,6 @@ namespace ShoppingFood.Controllers
             ViewBag.Categories = categories;
 
             ViewBag.Slug = slug;
-
-            var reviews = await _dataContext.Reviews.Where(x => x.ProductId == products.FirstOrDefault().Id).Include(x => x.Users).ToListAsync();
-
-            double averageRating = reviews.Any() ? reviews.Average(x => x.Star) : 0;
-
-            ViewBag.AverageRating = averageRating;
 
             return View(products);
         }

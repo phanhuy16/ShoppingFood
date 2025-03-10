@@ -58,25 +58,26 @@
 						<h4 class="fw-bold mb-3">@Model.Product.Name</h4>
 						<p class="mb-3">Category: @Model.Product.Category.Name</p>
 						<h5 class="fw-bold mb-3">@Model.Product.Price.ToString("#,##0 VND")</h5>
-						<div class="d-flex mb-4">
-							@if (Model.Reviews != null && Model.Reviews.Any())
+						<div class="d-flex mb-4 align-items-center">
+							@{
+								double averageRating = ViewBag.AverageRating ?? 0; // Default to 0 if null
+							}
+							@for (int i = 1; i <= 5; i++)
 							{
-								@for (int i = 1; i <= 5; i++)
+								if (i <= Math.Floor(averageRating))
 								{
-									if (i <= ViewBag.AverageRating)
-									{
-										<i class="fa fa-star text-secondary"></i>
-									}
-									else
-									{
-										<i class="fa fa-star"></i>
-									}
+									<i class="fas fa-star text-secondary"></i> <!-- Sao đầy -->
+								}
+								else if (i == Math.Ceiling(averageRating) && (averageRating % 1 != 0))
+								{
+									<i class="fas fa-star-half-alt text-secondary"></i> <!-- Sao nửa -->
+								}
+								else
+								{
+									<i class="fas fa-star"></i> <!-- Sao rỗng -->
 								}
 							}
-							else
-							{
-								<p>Chưa có đánh giá</p>
-							}
+							<span class="ms-2">(@averageRating.ToString("0.0") / 5)</span> <!-- Hiển thị số trung bình -->
 						</div>
 						<p class="mb-4">@Model.Product.Description.</p>
 						<div class="input-group quantity mb-5" style="width: 100px;">
@@ -254,23 +255,24 @@
 											<a asp-action="Details" asp-controller="Product" asp-route-id="@item.Id" asp-route-slug="@item.Slug">@item.Name</a>
 										</h6>
 										<div class="d-flex mb-2">
-											@if (Model.Reviews != null && Model.Reviews.Any())
-											{
-												@for (int i = 1; i <= 5; i++)
-												{
-													if (i <= ViewBag.AverageRating)
-													{
-														<i class="fa fa-star text-secondary"></i>
-													}
-													else
-													{
-														<i class="fa fa-star"></i>
-													}
-												}
+											@{
+												double avgRating = ViewBag.ProductRatings.ContainsKey(item.Id) ? ViewBag.ProductRatings[item.Id] : 0;
 											}
-											else
+
+											@for (int i = 1; i <= 5; i++)
 											{
-												<p>Chưa có đánh giá</p>
+												if (i <= avgRating)
+												{
+													<i class="fas fa-star text-secondary"></i>
+												}
+												else if (i == Math.Ceiling(avgRating) && (avgRating % 1 != 0))
+												{
+													<i class="fas fa-star-half-alt text-secondary"></i> <!-- Sao nửa -->
+												}
+												else
+												{
+													<i class="fas fa-star"></i>
+												}
 											}
 										</div>
 										<div class="d-flex mb-2 flex-wrap">

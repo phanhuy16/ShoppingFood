@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Models;
 using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
+using System.Globalization;
 using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
@@ -24,7 +25,7 @@ namespace ShoppingFood.Controllers
             _userManager = userManager;
         }
 
-        public async Task<IActionResult> Index(string sort_by = "", string startprice = "", string endprice = "")
+        public async Task<IActionResult> Index(string sort_by = "", string startprice = "", string endprice = "", int page = 1)
         {
             var products = _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1);
 
@@ -62,23 +63,65 @@ namespace ShoppingFood.Controllers
                 products = products.OrderByDescending(x => x.Id);
             }
 
+            const int pageSize = 10; //10 items/trang
+
+            if (page < 1) //page < 1;
+            {
+                page = 1; //page ==1
+            }
+            int recsCount = products.Count(); //33 items;
+
+            var pager = new Paginate(recsCount, page, pageSize);
+
+            int recSkip = (page - 1) * pageSize; //(3 - 1) * 10; 
+
+            var data = await products.Skip(recSkip).Take(pager.PageSize).ToListAsync();
+
+            ViewBag.Page = pager;
+
             var bestSellers = await _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1 && x.PriceSale < x.Price).OrderByDescending(x => x.Sold).Take(4).ToListAsync();
 
             ViewBag.BestSellers = bestSellers;
 
-            var reviews = await _dataContext.Reviews.Where(x => x.ProductId == products.FirstOrDefault().Id).Include(x => x.Users).ToListAsync();
+            // Dictionary để lưu trung bình sao cho từng sản phẩm best-seller
+            var productRatings = new Dictionary<int, double>();
+            foreach (var product in bestSellers)
+            {
+                var starList = await _dataContext.Reviews
+                    .Where(x => x.ProductId == product.Id)
+                    .ToListAsync();
+                double avgRating = starList.Any() ? starList.Average(x => x.Star) : 0;
+                productRatings[product.Id] = avgRating;
+            }
 
-            double averageRating = reviews.Any() ? reviews.Average(x => x.Star) : 0;
+            // Truyền dictionary vào ViewBag
+            ViewBag.ProductRatings = productRatings;
 
-            ViewBag.AverageRating = averageRating;
-
-            return View(await products.ToListAsync());
+            return View(data);
         }
 
         [HttpPost]
         public async Task<IActionResult> Search(string keyword)
         {
             var keys = await _dataContext.Products.Include(x => x.Category).Where(x => x.Name.Contains(keyword) || x.Description.Contains(keyword) || x.Slug.Contains(keyword)).ToListAsync();
+
+            var bestSellers = await _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1 && x.PriceSale < x.Price).OrderByDescending(x => x.Sold).Take(4).ToListAsync();
+
+            ViewBag.BestSellers = bestSellers;
+
+            // Dictionary để lưu trung bình sao cho từng sản phẩm best-seller
+            var productRatings = new Dictionary<int, double>();
+            foreach (var product in bestSellers)
+            {
+                var starList = await _dataContext.Reviews
+                    .Where(x => x.ProductId == product.Id)
+                    .ToListAsync();
+                double avgRating = starList.Any() ? starList.Average(x => x.Star) : 0;
+                productRatings[product.Id] = avgRating;
+            }
+
+            // Truyền dictionary vào ViewBag
+            ViewBag.ProductRatings = productRatings;
 
             ViewBag.Keyword = keyword;
 
@@ -113,7 +156,23 @@ namespace ShoppingFood.Controllers
 
             var reviews = await _dataContext.Reviews.Where(x => x.ProductId == id).Include(x => x.Users).ToListAsync();
 
+            // Tính trung bình sao cho sản phẩm chính
             double averageRating = reviews.Any() ? reviews.Average(x => x.Star) : 0;
+            ViewBag.AverageRating = averageRating;
+
+            // Dictionary để lưu trung bình sao cho từng sản phẩm best-seller
+            var productRatings = new Dictionary<int, double>();
+            foreach (var product in bestSellers)
+            {
+                var starList = await _dataContext.Reviews
+                    .Where(x => x.ProductId == product.Id)
+                    .ToListAsync();
+                double avgRating = starList.Any() ? starList.Average(x => x.Star) : 0;
+                productRatings[product.Id] = avgRating;
+            }
+
+            // Truyền dictionary vào ViewBag
+            ViewBag.ProductRatings = productRatings;
 
             var review = new ProductRatingViewModel
             {
@@ -122,8 +181,6 @@ namespace ShoppingFood.Controllers
             };
 
             ViewBag.BestSellers = bestSellers;
-
-            ViewBag.AverageRating = averageRating;
 
             return View(review);
         }

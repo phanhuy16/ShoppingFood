@@ -22,23 +22,23 @@
 								<div class="col-6">
 									<a asp-action="Details" asp-controller="Product" asp-route-Slug="@item.Slug" asp-route-Id="@item.Id" class="h5">@item.Name</a>
 									<div class="d-flex my-3">
-										@if (ViewBag.AverageRating != null)
-										{
-											@for (int i = 1; i <= 5; i++)
-											{
-												if (i <= ViewBag.AverageRating)
-												{
-													<i class="fa fa-star text-secondary"></i>
-												}
-												else
-												{
-													<i class="fa fa-star"></i>
-												}
-											}
+										@{
+											double avgRating = ViewBag.ProductRatings.ContainsKey(item.Id) ? ViewBag.ProductRatings[item.Id] : 0;
 										}
-										else
+										@for (int i = 1; i <= 5; i++)
 										{
-											<p>Chưa có đánh giá</p>
+											if (i <= avgRating)
+											{
+												<i class="fas fa-star text-secondary"></i>
+											}
+											else if (i == Math.Ceiling(avgRating) && (avgRating % 1 != 0))
+											{
+												<i class="fas fa-star-half-alt text-secondary"></i> <!-- Sao nửa -->
+											}
+											else
+											{
+												<i class="fas fa-star"></i>
+											}
 										}
 									</div>
 									<h4 class="mb-3">@item.PriceSale.ToString("#,##0 VND")</h4>
@@ -68,23 +68,23 @@
 							<div class="py-4">
 								<a asp-action="Details" asp-controller="Product" asp-route-Slug="@item.Slug" asp-route-Id="@item.Id" class="h5">@item.Name</a>
 								<div class="d-flex my-3 justify-content-center">
-									@if (ViewBag.AverageRating != null)
-									{
-										@for (int i = 1; i <= 5; i++)
-										{
-											if (i <= ViewBag.AverageRating)
-											{
-												<i class="fa fa-star text-secondary"></i>
-											}
-											else
-											{
-												<i class="fa fa-star"></i>
-											}
-										}
+									@{
+										double avgRating = ViewBag.ProductRatings.ContainsKey(item.Id) ? ViewBag.ProductRatings[item.Id] : 0;
 									}
-									else
+									@for (int i = 1; i <= 5; i++)
 									{
-										<p>Chưa có đánh giá</p>
+										if (i <= avgRating)
+										{
+											<i class="fas fa-star text-secondary"></i>
+										}
+										else if (i == Math.Ceiling(avgRating) && (avgRating % 1 != 0))
+										{
+											<i class="fas fa-star-half-alt text-secondary"></i> <!-- Sao nửa -->
+										}
+										else
+										{
+											<i class="fas fa-star"></i>
+										}
 									}
 								</div>
 								<h4 class="mb-3">@item.PriceSale.ToString("#,##0 VND")</h4>

@@ -147,5 +147,18 @@
         button.parent().parent().find('input').val(newVal);
     });
 
+    showCount();
+
 })(jQuery);
 
+function showCount() {
+    $.ajax({
+        url: '/Cart/ShowCount',
+        type: 'GET',
+        success: function (result) {
+            if (result.success) {
+                $('#checkout-items').html(result.count);
+            }
+        }
+    })
+}

@@ -5,9 +5,9 @@
 	<div class="container-fluid vesitable py-5">
 		<div class="container py-5">
 			<h1 class="mb-0">Fresh Organic Vegetables</h1>
-			@foreach (var item in Model)
-			{
-				<div class="owl-carousel vegetable-carousel justify-content-center">
+			<div class="owl-carousel vegetable-carousel justify-content-center">
+				@foreach (var item in Model)
+				{
 					<div class="border border-primary rounded position-relative vesitable-item">
 						<a asp-action="Details" asp-controller="Product" asp-route-Slug="@item.Slug" asp-route-Id="@item.Id">
 							<div class="vesitable-img">
@@ -58,8 +58,8 @@
 							</div>
 						</div>
 					</div>
-				</div>
-			}
+				}
+			</div>
 		</div>
 
 	</div>

@@ -10,6 +10,7 @@ using ShoppingFood.Models.Order;
 using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
 using ShoppingFood.Services.Momo;
+using ShoppingFood.Services.Paypal;
 using ShoppingFood.Services.Vnpay;
 using System.Security.Claims;
 
@@ -23,8 +24,9 @@ namespace ShoppingFood.Controllers
         private readonly INotyfService _notyf;
         private IMomoService _momoService;
         private readonly IVnPayService _vnPayService;
+        private readonly PaypalClient _paypalClient;
 
-        public CartController(UserManager<AppUserModel> userManager, DataContext context, INotyfService notyf, IEmailSender email, IMomoService momoService, IVnPayService vnPayService)
+        public CartController(UserManager<AppUserModel> userManager, DataContext context, INotyfService notyf, IEmailSender email, IMomoService momoService, IVnPayService vnPayService, PaypalClient paypalClient)
         {
             _dataContext = context;
             _notyf = notyf;
@@ -32,6 +34,7 @@ namespace ShoppingFood.Controllers
             _momoService = momoService;
             _userManager = userManager;
             _vnPayService = vnPayService;
+            _paypalClient = paypalClient;
         }
         public IActionResult Index()
         {
@@ -217,6 +220,8 @@ namespace ShoppingFood.Controllers
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
             ViewBag.User = user;
+
+            ViewBag.PaypalClientId = _paypalClient.ClientId;
 
             return View(cartItemViewModel);
         }
@@ -441,6 +446,18 @@ namespace ShoppingFood.Controllers
             }
 
             return View(response);
+        }
+
+        public IActionResult ShowCount()
+        {
+            List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+
+            if (cartItems != null)
+            {
+                return Json(new { success = true, count = cartItems.Count });
+            }
+
+            return Json(new { success = false, count = 0 });
         }
     }
 }
