@@ -13,7 +13,6 @@ using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
 {
-    [AllowAnonymous]
     public class AccountController : Controller
     {
         private readonly DataContext _dataContext;

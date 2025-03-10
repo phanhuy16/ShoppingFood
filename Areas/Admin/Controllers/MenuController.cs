@@ -9,7 +9,7 @@ using ShoppingFood.Repository;
 namespace ShoppingFood.Areas.Admin.Controllers
 {
     [Area("Admin")]
-    [Authorize(Roles = "Admin")]
+    [Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
     public class MenuController : Controller
     {
         private readonly DataContext _dataContext;

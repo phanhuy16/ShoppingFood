@@ -1,4 +1,4 @@
-using AspNetCoreHero.ToastNotification;
+﻿using AspNetCoreHero.ToastNotification;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Identity;
@@ -66,6 +66,15 @@ builder.Services.AddAuthentication(options =>
     //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
     //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+}).AddCookie("ClientScheme", options =>
+{
+    options.LoginPath = "/account/login"; // Trang đăng nhập client
+    options.AccessDeniedPath = "/client/accessdenied";
+})
+.AddCookie("AdminScheme", options =>
+{
+    options.LoginPath = "/admin/account/login"; // Trang đăng nhập admin
+    options.AccessDeniedPath = "/admin/accessdenied";
 }).AddCookie().AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
@@ -131,7 +140,7 @@ app.UseAuthorization();
 
 app.MapControllerRoute(
     name: "areas",
-    pattern: "{area:exists}/{controller=Home}/{action=Index}/{id?}"
+    pattern: "{area:exists}/{controller=Dashboard}/{action=Index}/{id?}"
 );
 
 app.MapControllerRoute(
