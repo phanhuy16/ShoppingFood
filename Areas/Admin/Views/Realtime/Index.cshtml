@@ -1,0 +1,104 @@
+﻿@{
+    ViewData["Title"] = "Message";
+}
+
+<main>
+	<div class="container-fluid px-4">
+        <h1 class="mt-4">Message</h1>
+		<div class="row mb-2">
+			<div class="col-md-6">
+				<ol class="breadcrumb">
+                    <li class="breadcrumb-item active">Message</li>
+				</ol>
+			</div>
+		</div>
+		<div class="card mb-4">
+            <div class="card-body">
+                <select id="userIdInput" class="form-control mb-3">
+                    <option value="">-- Chọn người dùng --</option>
+                </select>
+
+                <div class="input-group mb-3">
+                    <input type="text" id="messageInput" class="form-control" placeholder="Nhập tin nhắn..." />
+                    <button id="sendButton" class="btn btn-danger">Gửi</button>
+                </div>
+                <div id="messagesList" class="border p-3" style="height: 300px; overflow-y: auto;"></div>
+            </div>
+		</div>
+	</div>
+</main>
+
+@section Scripts {
+    <script>
+        "use strict";
+
+        const connection = new signalR.HubConnectionBuilder()
+            .withUrl("/chatHub")
+            .build();
+
+        let selectedUser = "";
+
+        // Nhận danh sách user online
+        connection.on("UpdateUserList", function (users) {
+            const userList = document.getElementById("userIdInput");
+            userList.innerHTML = '<option value="">-- Chọn người dùng --</option>';  // Xóa danh sách cũ
+            users.forEach(user => {
+                const option = document.createElement("option");
+                option.value = user;
+                option.textContent = user;
+                userList.appendChild(option);
+            });
+        });
+
+        // Nhận tin nhắn từ client (Hiển thị userId)
+        connection.on("ReceiveMessage", function (userId, message) {
+            const msg = document.createElement("div");
+            msg.textContent = `User ${userId}: ${message}`;
+            msg.classList.add("alert", "alert-secondary");
+            document.getElementById("messagesList").appendChild(msg);
+
+            // Tự động cập nhật userId vào dropdown
+            const userList = document.getElementById("userIdInput");
+            if (!document.querySelector(`#userIdInput option[value="${userId}"]`)) {
+                const option = document.createElement("option");
+                option.value = userId;
+                option.textContent = userId;
+                userList.appendChild(option);
+            }
+        });
+
+        // Kết nối và thêm vào group Admin
+        connection.start().then(function () {
+            connection.invoke("AddToAdminGroup");
+            document.getElementById("sendButton").disabled = false;
+        }).catch(function (err) {
+            return console.error(err.toString());
+        });
+
+        // Chọn user để nhắn tin
+        document.getElementById("userIdInput").addEventListener("change", function () {
+            selectedUser = this.value;
+        });
+
+        document.getElementById("sendButton").addEventListener("click", function (event) {
+            const message = document.getElementById("messageInput").value;
+            if (!selectedUser || !message.trim()) {
+                console.log("No user selected or empty message!");
+                return;
+            }
+
+            connection.invoke("SendMessageToClient", selectedUser, message)
+                .catch(function (err) {
+                    return console.error(err.toString());
+                });
+
+            const msg = document.createElement("div");
+            msg.textContent = `Me to ${selectedUser}: ${message}`;
+            msg.classList.add("alert", "alert-success");
+            document.getElementById("messagesList").appendChild(msg);
+
+            document.getElementById("messageInput").value = ""; 
+            event.preventDefault();
+        });
+    </script>
+}

@@ -75,6 +75,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.LoginPath = "/admin/account/login"; // Trang đăng nhập admin
     options.AccessDeniedPath = "/admin/accessdenied";
+    options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
 }).AddCookie().AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
@@ -93,6 +94,11 @@ builder.Services.AddCors(options =>
         });
 });
 
+builder.Services.Configure<CookiePolicyOptions>(options =>
+{
+    options.CheckConsentNeeded = context => true;
+    options.MinimumSameSitePolicy = SameSiteMode.None;
+});
 
 //Add SignalR
 builder.Services.AddSignalR();
@@ -148,6 +154,6 @@ app.MapControllerRoute(
     pattern: "{controller=Home}/{action=Index}/{id?}");
 
 // UseCors must be called before MapHub.
-app.MapHub<SignalR>("/chathub");
+app.MapHub<ChatHub>("/chathub");
 
 app.Run();
