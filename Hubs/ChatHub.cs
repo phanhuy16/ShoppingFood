@@ -20,12 +20,9 @@ namespace ShoppingFood.Hubs
 
         public override async Task OnConnectedAsync()
         {
-            var user = await _userManager.GetUserAsync(Context.User);
-            string userId = user.Id ?? Context.ConnectionId;
-            string userName = user.UserName ?? Context.ConnectionId;
+            string userId = Context.User.FindFirst(ClaimTypes.NameIdentifier).Value ?? Context.ConnectionId;
 
             _userConnections[userId] = Context.ConnectionId;
-            _userIdsToUserNames[userId] = userName;
 
             await Clients.Caller.SendAsync("SetUserId", userId);
             await Clients.Group("Admin").SendAsync("UpdateUserList", _userIdsToUserNames.Values);
@@ -35,8 +32,7 @@ namespace ShoppingFood.Hubs
 
         public override async Task OnDisconnectedAsync(Exception exception)
         {
-            var user = await _userManager.GetUserAsync(Context.User);
-            string userId = user.Id ?? Context.ConnectionId;
+            string userId = Context.User.FindFirst(ClaimTypes.Name).Value ?? Context.ConnectionId;
 
             _userConnections.TryRemove(userId, out _);
 
@@ -53,17 +49,15 @@ namespace ShoppingFood.Hubs
         }
 
         // Gửi tin nhắn từ admin đến client
-        public async Task SendMessageToClient(string identifier, string message)
+        public async Task SendMessageToClient(string userId, string message)
         {
-            string userId = _userIdsToUserNames.FirstOrDefault(x => x.Value == identifier).Key ?? identifier;
-
             if (_userConnections.TryGetValue(userId, out string connectionId))
             {
                 await Clients.Client(connectionId).SendAsync("ReceiveAdminMessage", message);
             }
             else
             {
-                Console.WriteLine($"User {identifier} not found in connections.");
+                Console.WriteLine($"User {userId} not found in connections.");
             }
         }
 

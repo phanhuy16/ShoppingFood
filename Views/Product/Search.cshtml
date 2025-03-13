@@ -118,6 +118,7 @@
 					success: function (response) {
 						if (response.success) {
 							notyf.success(response.message);
+							showCount();
 						} else {
 							notyf.error(response.message);
 						}

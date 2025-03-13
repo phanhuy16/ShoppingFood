@@ -7,7 +7,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
     [Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
     public class RealtimeController : Controller
     {
-        public IActionResult Index()
+        public IActionResult ChatAdmin()
         {
             return View();
         }

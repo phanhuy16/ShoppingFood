@@ -1,6 +1,7 @@
 ﻿using AspNetCoreHero.ToastNotification;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
+using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Areas.Admin.Repository;
@@ -29,11 +30,11 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDistributedMemoryCache();
 
-builder.Services.AddSession(options =>
-{
-    options.IOTimeout = TimeSpan.FromMinutes(30);
-    options.Cookie.IsEssential = true;
-});
+//builder.Services.AddSession(options =>
+//{
+//    options.IOTimeout = TimeSpan.FromMinutes(30);
+//    options.Cookie.IsEssential = true;
+//});
 
 builder.Services.AddNotyf(config =>
 {
@@ -75,6 +76,7 @@ builder.Services.AddAuthentication(options =>
 {
     options.LoginPath = "/admin/account/login"; // Trang đăng nhập admin
     options.AccessDeniedPath = "/admin/accessdenied";
+    options.SlidingExpiration = false;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
 }).AddCookie().AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
@@ -122,7 +124,12 @@ app.UseStatusCodePagesWithRedirects("/Home/Error?statuscode={0}");
 
 app.UseSession();
 
-app.UseCookiePolicy();
+app.UseCookiePolicy(new CookiePolicyOptions
+{
+    MinimumSameSitePolicy = SameSiteMode.Strict,
+    HttpOnly = HttpOnlyPolicy.Always,
+    Secure = CookieSecurePolicy.Always
+});
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

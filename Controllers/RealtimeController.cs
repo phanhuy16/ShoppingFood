@@ -4,7 +4,7 @@ namespace ShoppingFood.Controllers
 {
     public class RealtimeController : Controller
     {
-        public IActionResult Index()
+        public IActionResult Chat()
         {
             return View();
         }

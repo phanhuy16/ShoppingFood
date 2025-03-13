@@ -1,12 +1,10 @@
 ﻿using AspNetCoreHero.ToastNotification.Abstractions;
-using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Models;
-using ShoppingFood.Models.Order;
 using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
 using ShoppingFood.Services.Momo;
@@ -38,7 +36,8 @@ namespace ShoppingFood.Controllers
         }
         public IActionResult Index()
         {
-            List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            //List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            List<CartItemModel> cartItems = GetCartFromCookie();
 
             var shippingPriceCookie = Request.Cookies["ShippingPrice"];
             decimal shippingPrice = 0;
@@ -69,11 +68,11 @@ namespace ShoppingFood.Controllers
 
             if (product == null)
             {
-                // You could return an error view, a redirect, or a not found status
-                return NotFound("Product not found.");
+                _notyf.Error("Product not found!");
             }
 
-            List<CartItemModel> cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            //List<CartItemModel> cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            List<CartItemModel> cart = GetCartFromCookie();
             var cartItem = cart.Where(x => x.ProductId == id).FirstOrDefault();
             if (cartItem == null)
             {
@@ -84,7 +83,8 @@ namespace ShoppingFood.Controllers
                 cartItem.Quantity += 1;
             }
 
-            HttpContext.Session.SetJson("Cart", cart);
+            //HttpContext.Session.SetJson("Cart", cart);
+            SaveCartToCookie(cart);
 
             _notyf.Success("Add item to cart successfully!");
 
@@ -94,18 +94,19 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> Decrease(int id)
         {
             await Task.CompletedTask;
-            var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
+            //var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
+            List<CartItemModel> cart = GetCartFromCookie();
 
             if (cart == null)
             {
-                return NotFound("Cart not found.");
+                _notyf.Error("Product not found!");
             }
 
             var cartItem = cart.Where(x => x.ProductId == id).FirstOrDefault();
 
             if (cartItem == null)
             {
-                return NotFound("Cart not found.");
+                _notyf.Error("Product not found!");
             }
 
             if (cartItem.Quantity > 1)
@@ -119,11 +120,13 @@ namespace ShoppingFood.Controllers
 
             if (cart.Count == 0)
             {
-                HttpContext.Session.Remove("Cart");
+                //HttpContext.Session.Remove("Cart");
+                ClearCartCookie();
             }
             else
             {
-                HttpContext.Session.SetJson("Cart", cart);
+                //HttpContext.Session.SetJson("Cart", cart);
+                SaveCartToCookie(cart);
             }
 
             _notyf.Success("Decrease item quantity to cart successfully!");
@@ -134,18 +137,19 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> Increase(int id)
         {
             var product = await _dataContext.Products.Where(x => x.Id == id).FirstOrDefaultAsync();
-            var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
+            //var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
+            List<CartItemModel> cart = GetCartFromCookie();
 
             if (cart == null)
             {
-                return NotFound("Cart is empty or not found.");
+                _notyf.Error("Cart is empty or not found.");
             }
 
             var cartItem = cart.Where(x => x.ProductId == id).FirstOrDefault();
 
             if (cartItem == null)
             {
-                return NotFound($"Product with ID {id} not found in the cart.");
+                _notyf.Error($"Product with ID {id} not found in the cart.");
             }
 
             if (cartItem.Quantity >= 1 && product.Quantity > cartItem.Quantity)
@@ -159,7 +163,8 @@ namespace ShoppingFood.Controllers
                 _notyf.Warning("Maximum Quantity in Product");
             }
 
-            HttpContext.Session.SetJson("Cart", cart);
+            //HttpContext.Session.SetJson("Cart", cart);
+            SaveCartToCookie(cart);
 
             return RedirectToAction("Index");
         }
@@ -167,17 +172,20 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> Remove(int id)
         {
             await Task.CompletedTask;
-            var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
+            //var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
+            List<CartItemModel> cart = GetCartFromCookie();
             if (cart != null)
             {
                 cart.RemoveAll(x => x.ProductId == id);
                 if (cart.Count == 0)
                 {
-                    HttpContext.Session.Remove("Cart");
+                    //HttpContext.Session.Remove("Cart");
+                    ClearCartCookie();
                 }
                 else
                 {
-                    HttpContext.Session.SetJson("Cart", cart);
+                    //HttpContext.Session.SetJson("Cart", cart);
+                    SaveCartToCookie(cart);
                 }
                 _notyf.Success("Remove item of cart successfully!");
             }
@@ -187,13 +195,15 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> Clear()
         {
             await Task.CompletedTask;
-            HttpContext.Session.Remove("Cart");
+            //HttpContext.Session.Remove("Cart");
+            ClearCartCookie();
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> CheckOut()
         {
-            List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            //List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            List<CartItemModel> cartItems = GetCartFromCookie();
 
             var shippingPriceCookie = Request.Cookies["ShippingPrice"];
             decimal shippingPrice = 0;
@@ -272,7 +282,8 @@ namespace ShoppingFood.Controllers
                 await _dataContext.Orders.AddAsync(orderItem);
                 await _dataContext.SaveChangesAsync();
 
-                List<CartItemModel> cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+                //List<CartItemModel> cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+                List<CartItemModel> cart = GetCartFromCookie();
                 foreach (var item in cart)
                 {
                     var orderDetail = new OrderDetailModel();
@@ -292,7 +303,8 @@ namespace ShoppingFood.Controllers
                     await _dataContext.SaveChangesAsync();
                 }
 
-                HttpContext.Session.Remove("Cart");
+                //HttpContext.Session.Remove("Cart");
+                ClearCartCookie();
                 Response.Cookies.Delete("ShippingPrice");
 
                 // Send email
@@ -450,7 +462,8 @@ namespace ShoppingFood.Controllers
 
         public IActionResult ShowCount()
         {
-            List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            //List<CartItemModel> cartItems = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            List<CartItemModel> cartItems = GetCartFromCookie();
 
             if (cartItems != null)
             {
@@ -459,5 +472,47 @@ namespace ShoppingFood.Controllers
 
             return Json(new { success = false, count = 0 });
         }
+
+        private List<CartItemModel> GetCartFromCookie()
+        {
+            var cartCookie = Request.Cookies["Cart"];
+            if (!string.IsNullOrEmpty(cartCookie))
+            {
+                return JsonConvert.DeserializeObject<List<CartItemModel>>(cartCookie);
+            }
+            Console.WriteLine("Cart Cookie: " + cartCookie);
+            return new List<CartItemModel>();
+        }
+
+        private void SaveCartToCookie(List<CartItemModel> cart)
+        {
+            var options = new CookieOptions
+            {
+                HttpOnly = true,
+                Expires = DateTimeOffset.UtcNow.AddMinutes(30),
+                Secure = true,
+                SameSite = SameSiteMode.Strict
+            };
+            try
+            {
+                var cartJson = JsonConvert.SerializeObject(cart);
+                if (string.IsNullOrEmpty(cartJson))
+                {
+                    Console.WriteLine("Error: Cart JSON is empty or null.");
+                    return;
+                }
+                Response.Cookies.Append("Cart", cartJson, options);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine("Error saving cookie: " + ex.Message);
+            }
+        }
+
+        private void ClearCartCookie()
+        {
+            Response.Cookies.Delete("Cart");
+        }
+
     }
 }

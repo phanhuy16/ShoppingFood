@@ -168,8 +168,8 @@
 	</div>
 </div>
 <!-- Checkout Page End -->
+<script src="https://www.paypal.com/sdk/js?client-id=@ViewBag.PaypalClientId"></script>
 @section Scripts {
-	<script src="https://www.paypal.com/sdk/js?client-id=@ViewBag.PaypalClientId"></script>
 	<script>
 		$(document).ready(function () {
 			function updatePaymentMethod(selected) {
