@@ -9,7 +9,7 @@
 				<p>Latin words, combined with a handful of model sentence structures, to generate Lorem Ipsum which looks reasonable.</p>
 			</div>
 			<div class="row g-4">
-				@foreach (var item in Model)
+				@foreach (var item in Model.Take(6))
 				{
 					<div class="col-lg-6 col-xl-4">
 						<div class="p-4 rounded bg-light">
@@ -58,7 +58,7 @@
 						</div>
 					</div>
 				}
-				@foreach (var item in Model)
+				@foreach (var item in Model.Skip(6).Take(4))
 				{
 					<div class="col-md-6 col-lg-6 col-xl-3">
 						<div class="text-center">

@@ -26,11 +26,13 @@ namespace ShoppingFood.Areas.Admin.Controllers
             var count_order = _dataContext.Orders.Count();
             var count_category = _dataContext.Categories.Count();
             var count_user = _dataContext.Users.Count();
+            var count_procate = _dataContext.ProductCategories.Count();
 
             ViewBag.CountProduct = count_product;
             ViewBag.CountOrder = count_order;
             ViewBag.CountCategory = count_category;
             ViewBag.CountUser = count_user;
+            ViewBag.CountProCate = count_procate;
             return View();
         }
 

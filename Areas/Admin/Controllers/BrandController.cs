@@ -108,17 +108,20 @@ namespace ShoppingFood.Areas.Admin.Controllers
                     string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/brands");
                     string imageName = Guid.NewGuid().ToString() + "_" + model.ImageUpload.FileName;
                     string filePath = Path.Combine(uploadsDir, imageName);
-                    string oldFilePath = Path.Combine(uploadsDir, existBrand.Image);
-                    try
+                    if (!string.IsNullOrEmpty(existBrand.Image))
                     {
+                        string oldFilePath = Path.Combine(uploadsDir, existBrand.Image);
                         if (System.IO.File.Exists(oldFilePath))
                         {
-                            System.IO.File.Delete(oldFilePath);
+                            try
+                            {
+                                System.IO.File.Delete(oldFilePath);
+                            }
+                            catch (Exception ex)
+                            {
+                                ModelState.AddModelError("", "Không thể xóa ảnh cũ: " + ex.Message);
+                            }
                         }
-                    }
-                    catch (Exception ex)
-                    {
-                        ModelState.AddModelError("Error", ex.Message);
                     }
                     FileStream fileStream = new FileStream(filePath, FileMode.Create);
                     await model.ImageUpload.CopyToAsync(fileStream);

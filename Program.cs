@@ -35,6 +35,7 @@ builder.Services.AddDistributedMemoryCache();
 //    options.IOTimeout = TimeSpan.FromMinutes(30);
 //    options.Cookie.IsEssential = true;
 //});
+builder.Services.AddSession();
 
 builder.Services.AddNotyf(config =>
 {

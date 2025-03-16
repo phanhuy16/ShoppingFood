@@ -22,7 +22,7 @@
 					<ul class="nav nav-pills d-inline-flex text-center mb-5">
 						<li class="nav-item">
 
-							<a class="d-flex m-2 py-2 bg-light rounded-pill @(string.IsNullOrEmpty(ViewBag.Slug) ? "active" : "")" data-bs-toggle="pill" href="#tab-1">
+							<a class="d-flex m-2 py-2 bg-light rounded-pill all @(string.IsNullOrEmpty(ViewBag.Slug) ? "active" : "")" href="@Url.Action("Index", "Home")">
 								<span class="text-dark" style="width: 130px;">All Products</span>
 							</a>
 						</li>
@@ -171,6 +171,33 @@
 			});
 
 			 $(".nav-item .pre").click(function (event) {
+				event.preventDefault(); // Ngăn trang tải lại
+
+				let url = $(this).attr("href"); // Lấy URL từ thẻ <a>
+
+				// Cập nhật URL trên trình duyệt
+				history.pushState(null, "", url);
+
+				// Xóa class 'active' của tất cả danh mục, rồi thêm lại cho cái đang được chọn
+				$(".nav-item a").removeClass("active");
+				$(this).addClass("active");
+
+				// Gọi AJAX để lấy nội dung mới
+				$.ajax({
+					url: url,
+					type: "GET",
+					dataType: "html",
+					success: function (data) {
+						let newContent = $(data).find(".tab-content").html();
+						$(".tab-content").html(newContent);
+					},
+					error: function () {
+						alert("Có lỗi xảy ra! Vui lòng thử lại.");
+					}
+				});
+			});
+
+			$(".all").click(function (event) {
 				event.preventDefault(); // Ngăn trang tải lại
 
 				let url = $(this).attr("href"); // Lấy URL từ thẻ <a>

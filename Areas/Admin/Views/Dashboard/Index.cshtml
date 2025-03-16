@@ -10,10 +10,10 @@
 			<li class="breadcrumb-item active">Dashboard</li>
 		</ol>
 		<div class="row">
-			<div class="col-xl-3 col-md-6">
+			<div class="col-xl col-md">
 				<div class="card bg-primary text-white mb-4">
 					<div class="card-body">
-						<h6>Thống kê sản phẩm</h6>
+						<h6>Sản phẩm</h6>
 						<p class="mb-0">Số lượng: @ViewBag.CountProduct</p>
 					</div>
 					<div class="card-footer d-flex align-items-center justify-content-between">
@@ -22,10 +22,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-xl-3 col-md-6">
+			<div class="col-xl col-md">
 				<div class="card bg-warning text-white mb-4">
 					<div class="card-body">
-						<h6>Thống kê người dùng</h6>
+						<h6>Người dùng</h6>
 						<p class="mb-0">Số lượng: @ViewBag.CountUser</p>
 					</div>
 					<div class="card-footer d-flex align-items-center justify-content-between">
@@ -34,10 +34,10 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-xl-3 col-md-6">
+			<div class="col-xl col-md">
 				<div class="card bg-info text-white mb-4">
 					<div class="card-body">
-						<h6>Thống kê đơn hàng</h6>
+						<h6>Đơn hàng</h6>
 						<p class="mb-0">Số lượng: @ViewBag.CountOrder</p>
 					</div>
 					<div class="card-footer d-flex align-items-center justify-content-between">
@@ -46,14 +46,26 @@
 					</div>
 				</div>
 			</div>
-			<div class="col-xl-3 col-md-6">
+			<div class="col-xl col-md">
 				<div class="card bg-success text-white mb-4">
 					<div class="card-body">
-						<h6>Thống kê danh mục</h6>
+						<h6>Danh mục</h6>
 						<p class="mb-0">Số lượng: @ViewBag.CountCategory</p>
 					</div>
 					<div class="card-footer d-flex align-items-center justify-content-between">
 						<a class="small text-white stretched-link" asp-action="Index" asp-controller="Category">Xem chi tiết</a>
+						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
+					</div>
+				</div>
+			</div>
+			<div class="col-xl col-md">
+				<div class="card bg-success text-white mb-4">
+					<div class="card-body">
+						<h6>Danh mục sản phẩm</h6>
+						<p class="mb-0">Số lượng: @ViewBag.CountProCate</p>
+					</div>
+					<div class="card-footer d-flex align-items-center justify-content-between">
+						<a class="small text-white stretched-link" asp-action="Index" asp-controller="ProductCategory">Xem chi tiết</a>
 						<div class="small text-white"><i class="fas fa-angle-right"></i></div>
 					</div>
 				</div>

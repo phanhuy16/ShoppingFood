@@ -63,7 +63,7 @@ namespace ShoppingFood.Controllers
                 products = products.OrderByDescending(x => x.Id);
             }
 
-            const int pageSize = 10; //10 items/trang
+            const int pageSize = 6; //10 items/trang
 
             if (page < 1) //page < 1;
             {
