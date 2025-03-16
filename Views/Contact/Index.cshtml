@@ -24,7 +24,7 @@
 				<div class="col-12">
 					<div class="text-center mx-auto" style="max-width: 700px;">
 						<h1 class="text-primary">Get in touch</h1>
-						<p class="mb-4">The contact form is currently inactive. Get a functional and working contact form with Ajax & PHP in a few minutes. Just copy and paste the files, add a little code and you're done. <a href="https://htmlcodex.com/contact-form">Download Now</a>.</p>
+						<p class="mb-4">The contact form is currently inactive. Get a functional and working contact form with Ajax & PHP in a few minutes. Just copy and paste the files, add a little code and you're done.</p>
 					</div>
 				</div>
 				<div class="col-lg-12">
@@ -33,10 +33,10 @@
 					</div>
 				</div>
 				<div class="col-lg-4">
-					<form action="" class="">
-						<input type="text" class="w-100 form-control border-0 py-3 mb-4" placeholder="Your Name">
-						<input type="email" class="w-100 form-control border-0 py-3 mb-4" placeholder="Enter Your Email">
-						<textarea class="w-100 form-control border-0 mb-4" rows="5" cols="10" placeholder="Your Message"></textarea>
+					<form asp-action="Add" asp-controller="Contact">
+						<input type="text" class="w-100 form-control border-0 py-3 mb-4" asp-for="Name" placeholder="Your Name">
+						<input type="email" class="w-100 form-control border-0 py-3 mb-4" asp-for="Email" placeholder="Enter Your Email">
+						<textarea class="w-100 form-control border-0 mb-4" rows="5" cols="10" asp-for="Message" placeholder="Your Message"></textarea>
 						<button class="w-100 btn form-control border-secondary py-3 bg-white text-primary " type="submit">Submit</button>
 					</form>
 				</div>
