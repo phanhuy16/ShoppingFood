@@ -30,12 +30,12 @@ builder.Services.AddControllersWithViews();
 
 builder.Services.AddDistributedMemoryCache();
 
-//builder.Services.AddSession(options =>
-//{
-//    options.IOTimeout = TimeSpan.FromMinutes(30);
-//    options.Cookie.IsEssential = true;
-//});
-builder.Services.AddSession();
+builder.Services.AddSession(options =>
+{
+    options.IOTimeout = TimeSpan.FromMinutes(30);
+    options.Cookie.IsEssential = true;
+});
+//builder.Services.AddSession();
 
 builder.Services.AddNotyf(config =>
 {
@@ -65,9 +65,9 @@ builder.Services.Configure<IdentityOptions>(options =>
 //Configuration login google account
 builder.Services.AddAuthentication(options =>
 {
-    //options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    //options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
 }).AddCookie("ClientScheme", options =>
 {
     options.LoginPath = "/account/login"; // Trang đăng nhập client
@@ -79,7 +79,9 @@ builder.Services.AddAuthentication(options =>
     options.AccessDeniedPath = "/admin/accessdenied";
     options.SlidingExpiration = false;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
-}).AddCookie().AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
+})
+.AddCookie()
+.AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
     options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
     options.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
@@ -90,7 +92,7 @@ builder.Services.AddCors(options =>
     options.AddDefaultPolicy(
         builder =>
         {
-            builder.WithOrigins("https://localhost:7234")
+            builder.WithOrigins("https://localhost:5064", "http://localhost:7234")
                 .AllowAnyHeader()
                 .WithMethods("GET", "POST")
                 .AllowCredentials();
@@ -99,8 +101,8 @@ builder.Services.AddCors(options =>
 
 builder.Services.Configure<CookiePolicyOptions>(options =>
 {
-    options.CheckConsentNeeded = context => true;
-    options.MinimumSameSitePolicy = SameSiteMode.None;
+    options.CheckConsentNeeded = context => false; // Disabled to ensure auth cookies aren't blocked
+    options.MinimumSameSitePolicy = SameSiteMode.Lax;
 });
 
 //Add SignalR
@@ -127,9 +129,9 @@ app.UseSession();
 
 app.UseCookiePolicy(new CookiePolicyOptions
 {
-    MinimumSameSitePolicy = SameSiteMode.Strict,
+    MinimumSameSitePolicy = SameSiteMode.Lax,
     HttpOnly = HttpOnlyPolicy.Always,
-    Secure = CookieSecurePolicy.Always
+    Secure = CookieSecurePolicy.SameAsRequest
 });
 
 // Configure the HTTP request pipeline.
