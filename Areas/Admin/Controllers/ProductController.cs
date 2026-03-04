@@ -1,8 +1,9 @@
-﻿using AspNetCoreHero.ToastNotification.Abstractions;
+﻿#nullable enable
+using AspNetCoreHero.ToastNotification.Abstractions;
+using ShoppingFood.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Helper;
 using ShoppingFood.Models;
 using ShoppingFood.Repository;
@@ -13,27 +14,43 @@ namespace ShoppingFood.Areas.Admin.Controllers
     [Authorize(AuthenticationSchemes = "AdminScheme", Roles = "Admin")]
     public class ProductController : Controller
     {
-        private readonly DataContext _dataContext;
+        private readonly IGenericRepository<ProductModel> _productRepo;
+        private readonly IGenericRepository<CategoryModel> _categoryRepo;
+        private readonly IGenericRepository<BrandModel> _brandRepo;
+        private readonly IGenericRepository<ProductCategoryModel> _productCategoryRepo;
+        private readonly IGenericRepository<ProductQuantityModel> _quantityRepo;
+        private readonly IFileService _fileService;
         private readonly INotyfService _notyf;
-        private readonly IWebHostEnvironment _webHostEnvironment;
 
-        public ProductController(DataContext context, INotyfService notyf, IWebHostEnvironment environment)
+        public ProductController(
+            IGenericRepository<ProductModel> productRepo,
+            IGenericRepository<CategoryModel> categoryRepo,
+            IGenericRepository<BrandModel> brandRepo,
+            IGenericRepository<ProductCategoryModel> productCategoryRepo,
+            IGenericRepository<ProductQuantityModel> quantityRepo,
+            IFileService fileService,
+            INotyfService notyf)
         {
-            _dataContext = context;
+            _productRepo = productRepo;
+            _categoryRepo = categoryRepo;
+            _brandRepo = brandRepo;
+            _productCategoryRepo = productCategoryRepo;
+            _quantityRepo = quantityRepo;
+            _fileService = fileService;
             _notyf = notyf;
-            _webHostEnvironment = environment;
         }
+
         public async Task<IActionResult> Index()
         {
-            var products = await _dataContext.Products.OrderByDescending(x => x.Id).Include(x => x.Category).ToListAsync();
+            var products = await _productRepo.GetAllAsync(includeProperties: "Category", orderBy: q => q.OrderByDescending(x => x.Id));
             return View(products);
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create()
         {
-            ViewBag.Categories = new SelectList(_dataContext.Categories, "Id", "Name");
-            ViewBag.Brands = new SelectList(_dataContext.Brands, "Id", "Name");
-            ViewBag.ProductCategories = new SelectList(_dataContext.ProductCategories, "Id", "Name");
+            ViewBag.Categories = new SelectList(await _categoryRepo.GetAllAsync(), "Id", "Name");
+            ViewBag.Brands = new SelectList(await _brandRepo.GetAllAsync(), "Id", "Name");
+            ViewBag.ProductCategories = new SelectList(await _productCategoryRepo.GetAllAsync(), "Id", "Name");
 
             return View();
         }
@@ -42,66 +59,51 @@ namespace ShoppingFood.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Create(ProductModel model)
         {
-            ViewBag.Categories = new SelectList(_dataContext.Categories, "Id", "Name", model.CategoryId);
-            ViewBag.Brands = new SelectList(_dataContext.Brands, "Id", "Name", model.BrandId);
-            ViewBag.ProductCategories = new SelectList(_dataContext.ProductCategories, "Id", "Name", model.ProductCategoryId);
             if (ModelState.IsValid)
             {
                 model.Slug = SlugHelper.GenerateSlug(model.Name);
-                var slug = await _dataContext.Products.FirstOrDefaultAsync(x => x.Slug == model.Slug);
-                if (slug != null)
+                var existing = await _productRepo.GetFirstOrDefaultAsync(x => x.Slug == model.Slug);
+                if (existing != null)
                 {
                     ModelState.AddModelError("Name", "Tên sản phẩm đã tồn tại");
+                    await LoadCreateLists(model);
                     return View(model);
                 }
-                else
-                {
-                    if (model.ImageUpload != null)
-                    {
-                        string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/products");
-                        string imageName = Guid.NewGuid().ToString() + "_" + model.ImageUpload.FileName;
-                        string filePath = Path.Combine(uploadsDir, imageName);
 
-                        FileStream fileStream = new FileStream(filePath, FileMode.Create);
-                        await model.ImageUpload.CopyToAsync(fileStream);
-                        fileStream.Close();
-                        model.Image = imageName;
-                    }
+                if (model.ImageUpload != null)
+                {
+                    model.Image = await _fileService.UploadFileAsync(model.ImageUpload, "media/products");
                 }
 
-                model.CreatedBy = User.Identity.Name;
+                model.CreatedBy = User.Identity?.Name ?? "Unknown";
                 model.CreatedDate = DateTime.Now;
 
-                _dataContext.Products.Add(model);
-                await _dataContext.SaveChangesAsync();
+                await _productRepo.AddAsync(model);
                 _notyf.Success("Thêm sản phẩm thành công!");
                 return RedirectToAction("Index");
             }
-            else
-            {
-                List<string> errors = new List<string>();
-                foreach (var modelState in ModelState.Values)
-                {
-                    foreach (var error in modelState.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
-            }
+
+            _notyf.Error("Dữ liệu không hợp lệ. Vui lòng kiểm tra lại.");
+            await LoadCreateLists(model);
+            return View(model);
+        }
+
+        private async Task LoadCreateLists(ProductModel? model = null)
+        {
+            ViewBag.Categories = new SelectList(await _categoryRepo.GetAllAsync(), "Id", "Name", model?.CategoryId);
+            ViewBag.Brands = new SelectList(await _brandRepo.GetAllAsync(), "Id", "Name", model?.BrandId);
+            ViewBag.ProductCategories = new SelectList(await _productCategoryRepo.GetAllAsync(), "Id", "Name", model?.ProductCategoryId);
         }
 
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _dataContext.Products.FindAsync(id);
+            var product = await _productRepo.GetFirstOrDefaultAsync(x => x.Id == id);
             if (product == null)
             {
                 _notyf.Error("Product Not Found");
+                return RedirectToAction("Index");
             }
-            ViewBag.Categories = new SelectList(_dataContext.Categories, "Id", "Name", product.CategoryId);
-            ViewBag.Brands = new SelectList(_dataContext.Brands, "Id", "Name", product.BrandId);
-            ViewBag.ProductCategories = new SelectList(_dataContext.ProductCategories, "Id", "Name", product.ProductCategoryId);
+            await LoadCreateLists(product);
             return View(product);
         }
 
@@ -109,43 +111,19 @@ namespace ShoppingFood.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Edit(ProductModel model)
         {
-            ViewBag.Categories = new SelectList(_dataContext.Categories, "Id", "Name", model.CategoryId);
-            ViewBag.Brands = new SelectList(_dataContext.Brands, "Id", "Name", model.BrandId);
-            ViewBag.ProductCategories = new SelectList(_dataContext.ProductCategories, "Id", "Name", model.ProductCategoryId);
-
-            var existProduct = await _dataContext.Products.FindAsync(model.Id);
-
-            if (existProduct == null)
-            {
-                _notyf.Error("Product Not Found");
-            }
-
             if (ModelState.IsValid)
             {
+                var existProduct = await _productRepo.GetFirstOrDefaultAsync(x => x.Id == model.Id);
+                if (existProduct == null)
+                {
+                    _notyf.Error("Product Not Found");
+                    return RedirectToAction("Index");
+                }
+
                 if (model.ImageUpload != null)
                 {
-                    string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/products");
-                    string imageName = Guid.NewGuid().ToString() + "_" + model.ImageUpload.FileName;
-                    string filePath = Path.Combine(uploadsDir, imageName);
-                    if (!string.IsNullOrEmpty(existProduct.Image))
-                    {
-                        string oldFilePath = Path.Combine(uploadsDir, existProduct.Image);
-                        if (System.IO.File.Exists(oldFilePath))
-                        {
-                            try
-                            {
-                                System.IO.File.Delete(oldFilePath);
-                            }
-                            catch (Exception ex)
-                            {
-                                ModelState.AddModelError("", "Không thể xóa ảnh cũ: " + ex.Message);
-                            }
-                        }
-                    }
-                    FileStream fileStream = new FileStream(filePath, FileMode.Create);
-                    await model.ImageUpload.CopyToAsync(fileStream);
-                    fileStream.Close();
-                    existProduct.Image = imageName;
+                    _fileService.DeleteFile(existProduct.Image, "media/products");
+                    existProduct.Image = await _fileService.UploadFileAsync(model.ImageUpload, "media/products");
                 }
 
                 existProduct.Name = model.Name;
@@ -160,65 +138,37 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existProduct.CapitalPrice = model.CapitalPrice;
                 existProduct.PriceSale = model.PriceSale;
                 existProduct.ModifierDate = DateTime.Now;
-                existProduct.ModifierBy = User.Identity.Name;
-                existProduct.Status = model.Status;
+                existProduct.ModifierBy = User.Identity?.Name ?? "System";
 
-                _dataContext.Products.Update(existProduct);
-                await _dataContext.SaveChangesAsync();
+                _productRepo.Update(existProduct);
                 _notyf.Success("Cập nhật sản phẩm thành công!");
-
                 return RedirectToAction("Index");
             }
-            else
-            {
-                List<string> errors = new List<string>();
-                foreach (var modelState in ModelState.Values)
-                {
-                    foreach (var error in modelState.Errors)
-                    {
-                        errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
-            }
+
+            await LoadCreateLists(model);
+            return View(model);
         }
 
         public async Task<IActionResult> Delete(int id)
         {
-            var product = await _dataContext.Products.FindAsync(id);
-
-            if (product == null)
+            var product = await _productRepo.GetFirstOrDefaultAsync(x => x.Id == id);
+            if (product != null)
             {
-                _notyf.Error("Product Not Found");
+                _fileService.DeleteFile(product.Image, "media/products");
+                _productRepo.Remove(product);
+                _notyf.Success("Xóa sản phẩm thành công!");
             }
-
-            string uploadsDir = Path.Combine(_webHostEnvironment.WebRootPath, "media/products");
-            string filePath = Path.Combine(uploadsDir, product.Image);
-
-            try
+            else
             {
-                if (System.IO.File.Exists(filePath))
-                {
-                    System.IO.File.Delete(filePath);
-                }
+                _notyf.Error("Không tìm thấy sản phẩm!");
             }
-            catch (Exception ex)
-            {
-                ModelState.AddModelError("Error", ex.Message);
-            }
-
-            _dataContext.Products.Remove(product);
-            await _dataContext.SaveChangesAsync();
-            _notyf.Success("Xóa sản phẩm thành công!");
             return RedirectToAction("Index");
         }
 
         public async Task<IActionResult> AddQuantity(int id)
         {
-            var quantity = await _dataContext.ProductQuantities.Where(x => x.ProductId == id).ToListAsync();
-
-            ViewBag.Quantity = quantity;
+            var quantities = await _quantityRepo.GetAllAsync(x => x.ProductId == id);
+            ViewBag.Quantity = quantities;
             ViewBag.Id = id;
             return View();
         }
@@ -227,12 +177,15 @@ namespace ShoppingFood.Areas.Admin.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddQuantity(ProductQuantityModel model)
         {
-            var product = await _dataContext.Products.FindAsync(model.ProductId);
+            var product = await _productRepo.GetFirstOrDefaultAsync(x => x.Id == model.ProductId);
             if (product == null)
             {
                 _notyf.Error("Product not found");
+                return RedirectToAction("Index");
             }
+
             product.Quantity += model.Quantity;
+            _productRepo.Update(product);
 
             var newQuantity = new ProductQuantityModel
             {
@@ -241,8 +194,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 CreateDate = DateTime.Now
             };
 
-            await _dataContext.ProductQuantities.AddAsync(newQuantity);
-            await _dataContext.SaveChangesAsync();
+            await _quantityRepo.AddAsync(newQuantity);
             _notyf.Success("Add quantity successfully!");
             return RedirectToAction("Index");
         }

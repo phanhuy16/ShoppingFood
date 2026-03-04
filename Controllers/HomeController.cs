@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Models;
 using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
+using Microsoft.AspNetCore.Authorization;
 
 namespace ShoppingFood.Controllers
 {
@@ -61,9 +62,14 @@ namespace ShoppingFood.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddWishlist(int id)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized(new { success = false, message = "Bạn cần đăng nhập để thêm vào danh sách yêu thích." });
+            }
 
             var wishlist = new WishlistModel
             {
@@ -85,9 +91,14 @@ namespace ShoppingFood.Controllers
         }
 
         [HttpPost]
+        [Authorize]
         public async Task<IActionResult> AddCompare(int id)
         {
             var user = await _userManager.GetUserAsync(User);
+            if (user == null)
+            {
+                return Unauthorized(new { success = false, message = "Bạn cần đăng nhập để so sánh sản phẩm." });
+            }
 
             var compare = new CompareModel
             {

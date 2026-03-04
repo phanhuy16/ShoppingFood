@@ -5,13 +5,14 @@ using ShoppingFood.Models.Momo;
 using ShoppingFood.Models.Order;
 using System.Security.Cryptography;
 using System.Text;
+using ShoppingFood.Models.Configuration;
 
 namespace ShoppingFood.Services.Momo
 {
     public class MomoService : IMomoService
     {
-        private readonly IOptions<MomoOptionModel> _options;
-        public MomoService(IOptions<MomoOptionModel> options)
+        private readonly IOptions<MomoSettings> _options;
+        public MomoService(IOptions<MomoSettings> options)
         {
             _options = options;
         }

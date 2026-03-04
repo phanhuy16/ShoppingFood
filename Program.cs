@@ -1,29 +1,40 @@
 ﻿using AspNetCoreHero.ToastNotification;
+using Microsoft.AspNetCore.Identity;
+using ShoppingFood.Middleware;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.CookiePolicy;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Hubs;
 using ShoppingFood.Models;
 using ShoppingFood.Models.Momo;
-using ShoppingFood.Repository;
+using ShoppingFood.Services;
 using ShoppingFood.Services.Momo;
 using ShoppingFood.Services.Paypal;
 using ShoppingFood.Services.Vnpay;
+using ShoppingFood.Repository;
+using ShoppingFood.Models.Configuration;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Connect momo api
-builder.Services.Configure<MomoOptionModel>(builder.Configuration.GetSection("MomoAPI"));
+// Connect momo service
 builder.Services.AddScoped<IMomoService, MomoService>();
 
 builder.Services.AddDbContext<DataContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
 
+// Configure Options Pattern
+builder.Services.Configure<GoogleSettings>(builder.Configuration.GetSection("GoogleKeys"));
+builder.Services.Configure<MomoSettings>(builder.Configuration.GetSection("MomoAPI"));
+builder.Services.Configure<VnpaySettings>(builder.Configuration.GetSection("Vnpay"));
+
 // Add Email Sender
 builder.Services.AddTransient<IEmailSender, EmailSender>();
+
+// Register Infrastructure
+builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
+builder.Services.AddScoped<IFileService, FileService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();
@@ -65,9 +76,7 @@ builder.Services.Configure<IdentityOptions>(options =>
 //Configuration login google account
 builder.Services.AddAuthentication(options =>
 {
-    options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
-    options.DefaultChallengeScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    // Keeping default schemes set by Identity (IdentityConstants.ApplicationScheme)
 }).AddCookie("ClientScheme", options =>
 {
     options.LoginPath = "/account/login"; // Trang đăng nhập client
@@ -80,11 +89,11 @@ builder.Services.AddAuthentication(options =>
     options.SlidingExpiration = false;
     options.ExpireTimeSpan = TimeSpan.FromMinutes(30);
 })
-.AddCookie()
 .AddGoogle(GoogleDefaults.AuthenticationScheme, options =>
 {
-    options.ClientId = builder.Configuration.GetSection("GoogleKeys:ClientId").Value;
-    options.ClientSecret = builder.Configuration.GetSection("GoogleKeys:ClientSecret").Value;
+    var googleSettings = builder.Configuration.GetSection("GoogleKeys").Get<GoogleSettings>();
+    options.ClientId = googleSettings?.ClientId ?? string.Empty;
+    options.ClientSecret = googleSettings?.ClientSecret ?? string.Empty;
 });
 
 builder.Services.AddCors(options =>
@@ -121,6 +130,8 @@ builder.Services.AddSingleton(x =>
 );
 
 var app = builder.Build();
+
+app.UseMiddleware<ExceptionMiddleware>();
 
 
 app.UseStatusCodePagesWithRedirects("/Home/Error?statuscode={0}");

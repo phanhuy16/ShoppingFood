@@ -1,14 +1,18 @@
 ﻿using ShoppingFood.Libraries;
 using ShoppingFood.Models.Vnpay;
+using Microsoft.Extensions.Options;
+using ShoppingFood.Models.Configuration;
 
 namespace ShoppingFood.Services.Vnpay
 {
     public class VnPayService : IVnPayService
     {
+        private readonly IOptions<VnpaySettings> _vnpaySettings;
         private readonly IConfiguration _configuration;
 
-        public VnPayService(IConfiguration configuration)
+        public VnPayService(IOptions<VnpaySettings> vnpaySettings, IConfiguration configuration)
         {
+            _vnpaySettings = vnpaySettings;
             _configuration = configuration;
         }
 
@@ -18,23 +22,23 @@ namespace ShoppingFood.Services.Vnpay
             var timeNow = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneById);
             var tick = DateTime.Now.Ticks.ToString();
             var pay = new VnPayLibrary();
-            var urlCallBack = _configuration["Vnpay:PaymentBackReturnUrl"];
+            var urlCallBack = _vnpaySettings.Value.PaymentBackReturnUrl;
 
-            pay.AddRequestData("vnp_Version", _configuration["Vnpay:Version"]);
-            pay.AddRequestData("vnp_Command", _configuration["Vnpay:Command"]);
-            pay.AddRequestData("vnp_TmnCode", _configuration["Vnpay:TmnCode"]);
+            pay.AddRequestData("vnp_Version", _vnpaySettings.Value.Version);
+            pay.AddRequestData("vnp_Command", _vnpaySettings.Value.Command);
+            pay.AddRequestData("vnp_TmnCode", _vnpaySettings.Value.TmnCode);
             pay.AddRequestData("vnp_Amount", ((int)model.Amount * 100).ToString());
             pay.AddRequestData("vnp_CreateDate", timeNow.ToString("yyyyMMddHHmmss"));
-            pay.AddRequestData("vnp_CurrCode", _configuration["Vnpay:CurrCode"]);
+            pay.AddRequestData("vnp_CurrCode", _vnpaySettings.Value.CurrCode);
             pay.AddRequestData("vnp_IpAddr", pay.GetIpAddress(context));
-            pay.AddRequestData("vnp_Locale", _configuration["Vnpay:Locale"]);
+            pay.AddRequestData("vnp_Locale", _vnpaySettings.Value.Locale);
             pay.AddRequestData("vnp_OrderInfo", $"{model.Name} {model.OrderDescription} {model.Amount}");
             pay.AddRequestData("vnp_OrderType", model.OrderType);
             pay.AddRequestData("vnp_ReturnUrl", urlCallBack);
             pay.AddRequestData("vnp_TxnRef", tick);
 
             var paymentUrl =
-                pay.CreateRequestUrl(_configuration["Vnpay:BaseUrl"], _configuration["Vnpay:HashSecret"]);
+                pay.CreateRequestUrl(_vnpaySettings.Value.BaseUrl, _vnpaySettings.Value.HashSecret);
 
             return paymentUrl;
         }
@@ -42,7 +46,7 @@ namespace ShoppingFood.Services.Vnpay
         public PaymentResponseModel PaymentExecute(IQueryCollection collections)
         {
             var pay = new VnPayLibrary();
-            var response = pay.GetFullResponseData(collections, _configuration["Vnpay:HashSecret"]);
+            var response = pay.GetFullResponseData(collections, _vnpaySettings.Value.HashSecret);
 
             return response;
         }
