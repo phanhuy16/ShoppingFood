@@ -1,12 +1,13 @@
 ﻿#nullable enable
 using AspNetCoreHero.ToastNotification.Abstractions;
-using ShoppingFood.Services;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using ShoppingFood.Helper;
 using ShoppingFood.Models;
 using ShoppingFood.Repository;
+using ShoppingFood.Services;
+using System.Text.Json;
 
 namespace ShoppingFood.Areas.Admin.Controllers
 {
@@ -19,6 +20,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
         private readonly IGenericRepository<BrandModel> _brandRepo;
         private readonly IGenericRepository<ProductCategoryModel> _productCategoryRepo;
         private readonly IGenericRepository<ProductQuantityModel> _quantityRepo;
+        private readonly IGenericRepository<ProductImageModel> _imageRepo;
+        private readonly IGenericRepository<ProductVariantModel> _variantRepo;
         private readonly IFileService _fileService;
         private readonly INotyfService _notyf;
 
@@ -28,6 +31,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
             IGenericRepository<BrandModel> brandRepo,
             IGenericRepository<ProductCategoryModel> productCategoryRepo,
             IGenericRepository<ProductQuantityModel> quantityRepo,
+            IGenericRepository<ProductImageModel> imageRepo,
+            IGenericRepository<ProductVariantModel> variantRepo,
             IFileService fileService,
             INotyfService notyf)
         {
@@ -36,6 +41,8 @@ namespace ShoppingFood.Areas.Admin.Controllers
             _brandRepo = brandRepo;
             _productCategoryRepo = productCategoryRepo;
             _quantityRepo = quantityRepo;
+            _imageRepo = imageRepo;
+            _variantRepo = variantRepo;
             _fileService = fileService;
             _notyf = notyf;
         }
@@ -74,11 +81,48 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 {
                     model.Image = await _fileService.UploadFileAsync(model.ImageUpload, "media/products");
                 }
+                else
+                {
+                    model.Image = "noimage.jpg"; // Default image name
+                }
 
                 model.CreatedBy = User.Identity?.Name ?? "Unknown";
                 model.CreatedDate = DateTime.Now;
 
                 await _productRepo.AddAsync(model);
+                await _productRepo.SaveAsync(); // Actually persist model to get ID
+
+                // Handle Gallery Images
+                if (model.ImageGalleryUpload != null && model.ImageGalleryUpload.Any())
+                {
+                    foreach (var imageFile in model.ImageGalleryUpload)
+                    {
+                        var imageName = await _fileService.UploadFileAsync(imageFile, "media/products");
+                        var productImage = new ProductImageModel
+                        {
+                            ProductId = model.Id,
+                            ImageUrl = imageName
+                        };
+                        await _imageRepo.AddAsync(productImage);
+                    }
+                    await _imageRepo.SaveAsync();
+                }
+
+                // Handle Variants
+                if (!string.IsNullOrEmpty(model.VariantJson))
+                {
+                    var variants = JsonSerializer.Deserialize<List<ProductVariantModel>>(model.VariantJson);
+                    if (variants != null)
+                    {
+                        foreach (var variant in variants)
+                        {
+                            variant.ProductId = model.Id;
+                            await _variantRepo.AddAsync(variant);
+                        }
+                        await _variantRepo.SaveAsync();
+                    }
+                }
+
                 _notyf.Success("Thêm sản phẩm thành công!");
                 return RedirectToAction("Index");
             }
@@ -97,7 +141,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
 
         public async Task<IActionResult> Edit(int id)
         {
-            var product = await _productRepo.GetFirstOrDefaultAsync(x => x.Id == id);
+            var product = await _productRepo.GetFirstOrDefaultAsync(x => x.Id == id, includeProperties: "ProductImages,ProductVariants");
             if (product == null)
             {
                 _notyf.Error("Product Not Found");
@@ -141,12 +185,63 @@ namespace ShoppingFood.Areas.Admin.Controllers
                 existProduct.ModifierBy = User.Identity?.Name ?? "System";
 
                 _productRepo.Update(existProduct);
+                await _productRepo.SaveAsync();
+
+                // Handle Gallery Images
+                if (model.ImageGalleryUpload != null && model.ImageGalleryUpload.Any())
+                {
+                    foreach (var imageFile in model.ImageGalleryUpload)
+                    {
+                        var imageName = await _fileService.UploadFileAsync(imageFile, "media/products");
+                        var productImage = new ProductImageModel
+                        {
+                            ProductId = model.Id,
+                            ImageUrl = imageName
+                        };
+                        await _imageRepo.AddAsync(productImage);
+                    }
+                    await _imageRepo.SaveAsync();
+                }
+
+                // Handle Variants (Refresh all)
+                if (!string.IsNullOrEmpty(model.VariantJson))
+                {
+                    var existingVariants = await _variantRepo.GetAllAsync(x => x.ProductId == model.Id);
+                    _variantRepo.RemoveRange(existingVariants);
+                    await _variantRepo.SaveAsync();
+
+                    var variants = JsonSerializer.Deserialize<List<ProductVariantModel>>(model.VariantJson);
+                    if (variants != null)
+                    {
+                        foreach (var variant in variants)
+                        {
+                            variant.ProductId = model.Id;
+                            await _variantRepo.AddAsync(variant);
+                        }
+                        await _variantRepo.SaveAsync();
+                    }
+                }
                 _notyf.Success("Cập nhật sản phẩm thành công!");
                 return RedirectToAction("Index");
             }
 
             await LoadCreateLists(model);
             return View(model);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> DeleteImage(int imageId)
+        {
+            var image = await _imageRepo.GetFirstOrDefaultAsync(x => x.Id == imageId);
+            if (image != null)
+            {
+                _fileService.DeleteFile(image.ImageUrl, "media/products");
+                _imageRepo.Remove(image);
+                await _imageRepo.SaveAsync();
+                return Ok(new { success = true });
+            }
+            return NotFound();
         }
 
         public async Task<IActionResult> Delete(int id)
@@ -156,6 +251,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
             {
                 _fileService.DeleteFile(product.Image, "media/products");
                 _productRepo.Remove(product);
+                await _productRepo.SaveAsync();
                 _notyf.Success("Xóa sản phẩm thành công!");
             }
             else
@@ -186,6 +282,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
 
             product.Quantity += model.Quantity;
             _productRepo.Update(product);
+            await _productRepo.SaveAsync();
 
             var newQuantity = new ProductQuantityModel
             {
@@ -195,6 +292,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
             };
 
             await _quantityRepo.AddAsync(newQuantity);
+            await _quantityRepo.SaveAsync();
             _notyf.Success("Add quantity successfully!");
             return RedirectToAction("Index");
         }

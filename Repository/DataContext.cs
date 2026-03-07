@@ -29,5 +29,7 @@ namespace ShoppingFood.Repository
         public DbSet<MenuModel> Menus { get; set; }
         public DbSet<BannerModel> Banners { get; set; }
         public DbSet<SubscribeModel> Subscribes { get; set; }
+        public DbSet<ProductImageModel> ProductImages { get; set; }
+        public DbSet<ProductVariantModel> ProductVariants { get; set; }
     }
 }

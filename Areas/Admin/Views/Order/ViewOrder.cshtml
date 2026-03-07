@@ -44,7 +44,14 @@
 									<td scope="col">@i</td>
 									<td>@item.UserName</td>
 									<td>@item.OrderCode</td>
-									<td>@item.Product.Name</td>
+									<td>
+										@item.Product.Name
+										@if (!string.IsNullOrEmpty(item.VariantName))
+										{
+											<br />
+											<small class="text-muted">Variant: @item.VariantName</small>
+										}
+									</td>
 									<td>@item.Price.ToString("#,##0 VND")</td>
 									<td>@item.Quantity</td>
 									<td>@subTotal.ToString("#,##0 VND")</td>

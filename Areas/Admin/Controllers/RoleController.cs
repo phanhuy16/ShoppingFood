@@ -3,7 +3,6 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
-using ShoppingFood.Models;
 using ShoppingFood.Repository;
 
 namespace ShoppingFood.Areas.Admin.Controllers

@@ -11,5 +11,6 @@ namespace ShoppingFood.Repository
     void Remove(T entity);
     void RemoveRange(IEnumerable<T> entities);
     void Update(T entity);
+    Task SaveAsync();
   }
 }

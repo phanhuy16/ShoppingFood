@@ -90,6 +90,59 @@
 						</select>
 						<span asp-validation-for="Status" class="text-danger"></span>
 					</div>
+
+					<div class="form-group mb-4">
+						<label class="form-label">Gallery Images</label>
+						<div class="row mb-2" id="gallery-container">
+							@if (Model.ProductImages != null)
+							{
+								foreach (var img in Model.ProductImages)
+								{
+									<div class="col-md-3 mb-2 text-center gallery-item">
+										<img src="~/media/products/@img.ImageUrl" class="img-thumbnail" style="width: 100px; height: 100px; object-fit: cover;" />
+										<button type="button" class="btn btn-danger btn-xs d-block mx-auto mt-1" onclick="removeGalleryImage(@img.Id, this)">Delete</button>
+									</div>
+								}
+							}
+						</div>
+						<input asp-for="ImageGalleryUpload" class="form-control" type="file" multiple id="ImageGalleryUpload" />
+						<div id="gallery-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
+						<span asp-validation-for="ImageGalleryUpload" class="text-danger"></span>
+					</div>
+				</div>
+			</div>
+
+			<div class="card my-4">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">Product Variants</h5>
+					<button type="button" class="btn btn-sm btn-success" onclick="addVariant()">+ Add Variant</button>
+				</div>
+				<div class="card-body">
+					<table class="table table-bordered" id="variants-table">
+						<thead>
+							<tr>
+								<th>Name</th>
+								<th>Value</th>
+								<th>Price Plus (VND)</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody id="variants-body">
+							@if (Model.ProductVariants != null)
+							{
+								foreach (var variant in Model.ProductVariants)
+								{
+									<tr>
+										<td><input type="text" class="form-control v-name" value="@variant.Name" /></td>
+										<td><input type="text" class="form-control v-value" value="@variant.Value" /></td>
+										<td><input type="number" class="form-control v-price" value="@variant.PricePlus" /></td>
+										<td><button type="button" class="btn btn-danger btn-sm" onclick="removeVariant(this)">Remove</button></td>
+									</tr>
+								}
+							}
+						</tbody>
+					</table>
+					<input type="hidden" asp-for="VariantJson" id="VariantJson" />
 				</div>
 			</div>
 			<div class="form-group">
@@ -120,6 +173,23 @@
 			readURL(this);
 		});
 
+		$('#ImageGalleryUpload').change(function(){
+			$('#gallery-preview').empty();
+			if (this.files) {
+				Array.from(this.files).forEach(file => {
+					const reader = new FileReader();
+					reader.onload = function(e) {
+						$('#gallery-preview').append(`
+							<div class="position-relative">
+								<img src="${e.target.result}" style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px;" />
+							</div>
+						`);
+					}
+					reader.readAsDataURL(file);
+				});
+			}
+		});
+
 		$('.typing-price').on('keyup', function(){
 			var current = $(this).val();
 				$('#price-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
@@ -134,5 +204,48 @@
 			var current = $(this).val();
 				$('#priceSale-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
 		})
+
+		function removeGalleryImage(id, btn) {
+			if (confirm('Are you sure you want to delete this image?')) {
+				$.post('/Admin/Product/DeleteImage', { imageId: id }, function (res) {
+					$(btn).closest('.gallery-item').remove();
+				}).fail(function() {
+					alert('Error deleting image');
+				});
+			}
+		}
+
+		function addVariant() {
+			const row = `
+				<tr>
+					<td><input type="text" class="form-control v-name" placeholder="Size" /></td>
+					<td><input type="text" class="form-control v-value" placeholder="L" /></td>
+					<td><input type="number" class="form-control v-price" value="0" /></td>
+					<td><button type="button" class="btn btn-danger btn-sm" onclick="removeVariant(this)">Remove</button></td>
+				</tr>
+			`;
+			$('#variants-body').append(row);
+		}
+
+		function removeVariant(btn) {
+			$(btn).closest('tr').remove();
+		}
+
+		$('form').submit(function () {
+			const variants = [];
+			$('#variants-body tr').each(function () {
+				const name = $(this).find('.v-name').val();
+				const value = $(this).find('.v-value').val();
+				const price = $(this).find('.v-price').val();
+				if (name && value) {
+					variants.push({
+						Name: name,
+						Value: value,
+						PricePlus: parseFloat(price) || 0
+					});
+				}
+			});
+			$('#VariantJson').val(JSON.stringify(variants));
+		});
 	</script>
 }

@@ -1,7 +1,9 @@
-﻿using System.ComponentModel.DataAnnotations.Schema;
-using System.ComponentModel.DataAnnotations;
-using ShoppingFood.Repository.Validation;
+﻿#nullable enable
+using Microsoft.AspNetCore.Mvc.ModelBinding.Validation;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using ShoppingFood.Repository.Validation;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace ShoppingFood.Models
 {
@@ -14,6 +16,7 @@ namespace ShoppingFood.Models
         [Required, MinLength(4, ErrorMessage = "Yêu cầu nhập tên sản phẩm")]
         public string Name { get; set; } = null!;
 
+        [ValidateNever]
         [RegularExpression("^[a-z0-9-]+$", ErrorMessage = "Slug chỉ được chứa chữ thường, số và dấu gạch ngang")]
         public string Slug { get; set; } = null!;
 
@@ -23,6 +26,7 @@ namespace ShoppingFood.Models
         [Required, MinLength(4, ErrorMessage = "Yêu cầu nhập mô tả sản phẩm")]
         public string Detail { get; set; } = null!;
 
+        [ValidateNever]
         public string Image { get; set; } = null!;
 
         public int Status { get; set; }
@@ -48,19 +52,33 @@ namespace ShoppingFood.Models
         [Required, Range(1, int.MaxValue, ErrorMessage = "Yêu cầu chọn thương hiệu")]
         public int BrandId { get; set; }
 
+        [Required, Range(1, int.MaxValue, ErrorMessage = "Yêu cầu chọn danh mục sản phẩm")]
         [ForeignKey(nameof(ProductCategory))]
         public int ProductCategoryId { get; set; }
 
         public int Quantity { get; set; }
         public int Sold { get; set; }
 
+        [ValidateNever]
         public virtual CategoryModel Category { get; set; } = null!;
+        [ValidateNever]
         public virtual BrandModel Brand { get; set; } = null!;
-        public virtual ReviewModel Review { get; set; } = null!;
-        public virtual ProductCategoryModel ProductCategory { get; set; }
+        [ValidateNever]
+        public virtual ICollection<ReviewModel> Reviews { get; set; } = new List<ReviewModel>();
+        [ValidateNever]
+        public virtual ProductCategoryModel ProductCategory { get; set; } = null!;
 
-        [NotMapped] 
+        public virtual ICollection<ProductImageModel> ProductImages { get; set; } = new List<ProductImageModel>();
+        public virtual ICollection<ProductVariantModel> ProductVariants { get; set; } = new List<ProductVariantModel>();
+
+        [NotMapped]
         [FileExtension]
-        public IFormFile ImageUpload { get; set; } = null!;
+        public IFormFile? ImageUpload { get; set; }
+
+        [NotMapped]
+        public List<IFormFile>? ImageGalleryUpload { get; set; }
+
+        [NotMapped]
+        public string? VariantJson { get; set; }
     }
 }

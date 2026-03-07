@@ -56,6 +56,10 @@
 								</th>
 								<td>
 									<p class="mb-0 mt-4">@item.ProductName</p>
+									@if (!string.IsNullOrEmpty(item.VariantName))
+									{
+										<small class="text-muted">@item.VariantName</small>
+									}
 								</td>
 								<td>
 									<p class="mb-0 mt-4">@item.Price.ToString("#,##0 VND")</p>
@@ -63,23 +67,23 @@
 								<td>
 									<div class="input-group quantity mt-4" style="width: 100px;">
 										<div class="input-group-btn">
-											<a class="btn btn-sm btn-minus rounded-circle bg-light border" asp-action="Decrease" asp-controller="Cart" asp-route-id="@item.ProductId">
+											<a class="btn btn-sm btn-minus rounded-circle bg-light border" asp-action="Decrease" asp-controller="Cart" asp-route-id="@item.ProductId" asp-route-variantId="@item.VariantId">
 												<i class="fa fa-minus"></i>
 											</a>
 										</div>
 										<input type="text" class="form-control form-control-sm text-center border-0" value="@item.Quantity">
 										<div class="input-group-btn">
-											<a class="btn btn-sm btn-plus rounded-circle bg-light border" asp-action="Increase" asp-controller="Cart" asp-route-id="@item.ProductId">
+											<a class="btn btn-sm btn-plus rounded-circle bg-light border" asp-action="Increase" asp-controller="Cart" asp-route-id="@item.ProductId" asp-route-variantId="@item.VariantId">
 												<i class="fa fa-plus"></i>
 											</a>
 										</div>
 									</div>
 								</td>
 								<td>
-									<p class="mb-0 mt-4">@Model.CartItems.Where(x => x.ProductId == item.ProductId).Sum(x => x.Quantity * x.Price).ToString("#,##0 VND")</p>
+									<p class="mb-0 mt-4">@item.Total.ToString("#,##0 VND")</p>
 								</td>
 								<td>
-									<a onclick="return confirm('Bạn có xác nhận muốn xoá không?')" class="btn btn-md rounded-circle bg-light border mt-4" asp-action="Remove" asp-controller="Cart" asp-route-id="@item.ProductId">
+									<a onclick="return confirm('Bạn có xác nhận muốn xoá không?')" class="btn btn-md rounded-circle bg-light border mt-4" asp-action="Remove" asp-controller="Cart" asp-route-id="@item.ProductId" asp-route-variantId="@item.VariantId">
 										<i class="fa fa-times text-danger"></i>
 									</a>
 								</td>
@@ -158,6 +162,10 @@
 								<a asp-action="CheckOut" asp-controller="Cart" class="btn border-secondary rounded-pill px-3 py-2 text-primary text-uppercase mb-4 ms-4">Proceed Checkout</a>
 							}
 						}
+					} 
+					else 
+					{
+						<a asp-action="Login" asp-controller="Account" class="btn border-secondary rounded-pill px-3 py-2 text-primary text-uppercase mb-4 ms-4">Login to Checkout</a>
 					}
 				</div>
 			</div>

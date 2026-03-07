@@ -54,7 +54,7 @@
 													<img src="~/media/products/@item.Image" class="img-fluid w-100 rounded-top" alt="@item.Name">
 												</div>
 											</a>
-											<div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">@item.Category.Name</div>
+											<div class="text-white bg-secondary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">@(item.Category?.Name ?? "N/A")</div>
 											@if (User.Identity.IsAuthenticated)
 											{
 												<button class="px-2 py-1 bg-transparent rounded border border-secondary position-absolute add-to-wishlist" style="top: 10px; right: 10px;" data-id="@item.Id"><i class="fas fa-heart text-primary"></i></button>

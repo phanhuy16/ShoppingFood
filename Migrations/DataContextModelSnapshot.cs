@@ -537,6 +537,7 @@ namespace ShoppingFood.Migrations
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
                     b.Property<string>("OrderCode")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal>("Price")
@@ -549,11 +550,20 @@ namespace ShoppingFood.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UserName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int?>("VariantId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("VariantName")
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("ProductId");
+
+                    b.HasIndex("VariantId");
 
                     b.ToTable("OrderDetails");
                 });
@@ -627,6 +637,27 @@ namespace ShoppingFood.Migrations
                     b.ToTable("ProductCategories");
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.ProductImageModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("ImageUrl")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductImages");
+                });
+
             modelBuilder.Entity("ShoppingFood.Models.ProductModel", b =>
                 {
                     b.Property<int>("Id")
@@ -659,6 +690,7 @@ namespace ShoppingFood.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Image")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("ModifierBy")
@@ -683,10 +715,8 @@ namespace ShoppingFood.Migrations
                     b.Property<int>("Quantity")
                         .HasColumnType("int");
 
-                    b.Property<int?>("ReviewId")
-                        .HasColumnType("int");
-
                     b.Property<string>("Slug")
+                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("Sold")
@@ -702,8 +732,6 @@ namespace ShoppingFood.Migrations
                     b.HasIndex("CategoryId");
 
                     b.HasIndex("ProductCategoryId");
-
-                    b.HasIndex("ReviewId");
 
                     b.ToTable("Products");
                 });
@@ -730,6 +758,35 @@ namespace ShoppingFood.Migrations
                     b.HasIndex("ProductId");
 
                     b.ToTable("ProductQuantities");
+                });
+
+            modelBuilder.Entity("ShoppingFood.Models.ProductVariantModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("Name")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<decimal>("PricePlus")
+                        .HasColumnType("decimal(18, 2)");
+
+                    b.Property<int>("ProductId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Value")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ProductId");
+
+                    b.ToTable("ProductVariants");
                 });
 
             modelBuilder.Entity("ShoppingFood.Models.ReviewModel", b =>
@@ -763,15 +820,15 @@ namespace ShoppingFood.Migrations
                         .HasColumnType("int");
 
                     b.Property<string>("UserId")
+                        .IsRequired()
                         .HasMaxLength(450)
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("UsersId")
                         .HasColumnType("nvarchar(450)");
 
                     b.HasKey("Id");
 
-                    b.HasIndex("UsersId");
+                    b.HasIndex("ProductId");
+
+                    b.HasIndex("UserId");
 
                     b.ToTable("Reviews");
                 });
@@ -1021,6 +1078,23 @@ namespace ShoppingFood.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
+                    b.HasOne("ShoppingFood.Models.ProductVariantModel", "Variant")
+                        .WithMany()
+                        .HasForeignKey("VariantId");
+
+                    b.Navigation("Product");
+
+                    b.Navigation("Variant");
+                });
+
+            modelBuilder.Entity("ShoppingFood.Models.ProductImageModel", b =>
+                {
+                    b.HasOne("ShoppingFood.Models.ProductModel", "Product")
+                        .WithMany("ProductImages")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
                     b.Navigation("Product");
                 });
 
@@ -1044,17 +1118,11 @@ namespace ShoppingFood.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ShoppingFood.Models.ReviewModel", "Review")
-                        .WithMany("Products")
-                        .HasForeignKey("ReviewId");
-
                     b.Navigation("Brand");
 
                     b.Navigation("Category");
 
                     b.Navigation("ProductCategory");
-
-                    b.Navigation("Review");
                 });
 
             modelBuilder.Entity("ShoppingFood.Models.ProductQuantityModel", b =>
@@ -1068,13 +1136,34 @@ namespace ShoppingFood.Migrations
                     b.Navigation("Product");
                 });
 
+            modelBuilder.Entity("ShoppingFood.Models.ProductVariantModel", b =>
+                {
+                    b.HasOne("ShoppingFood.Models.ProductModel", "Product")
+                        .WithMany("ProductVariants")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+                });
+
             modelBuilder.Entity("ShoppingFood.Models.ReviewModel", b =>
                 {
-                    b.HasOne("ShoppingFood.Models.AppUserModel", "Users")
-                        .WithMany()
-                        .HasForeignKey("UsersId");
+                    b.HasOne("ShoppingFood.Models.ProductModel", "Product")
+                        .WithMany("Reviews")
+                        .HasForeignKey("ProductId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.Navigation("Users");
+                    b.HasOne("ShoppingFood.Models.AppUserModel", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Product");
+
+                    b.Navigation("User");
                 });
 
             modelBuilder.Entity("ShoppingFood.Models.WishlistModel", b =>
@@ -1093,9 +1182,13 @@ namespace ShoppingFood.Migrations
                     b.Navigation("Products");
                 });
 
-            modelBuilder.Entity("ShoppingFood.Models.ReviewModel", b =>
+            modelBuilder.Entity("ShoppingFood.Models.ProductModel", b =>
                 {
-                    b.Navigation("Products");
+                    b.Navigation("ProductImages");
+
+                    b.Navigation("ProductVariants");
+
+                    b.Navigation("Reviews");
                 });
 #pragma warning restore 612, 618
         }

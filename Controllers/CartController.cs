@@ -1,4 +1,5 @@
-﻿using AspNetCoreHero.ToastNotification.Abstractions;
+﻿#nullable enable
+using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -62,51 +63,53 @@ namespace ShoppingFood.Controllers
             return View(cartItemViewModel);
         }
 
-        public async Task<IActionResult> Add(int id)
+        public async Task<IActionResult> Add(int id, int? variantId)
         {
             var product = await _dataContext.Products.FindAsync(id);
 
             if (product == null)
             {
-                _notyf.Error("Product not found!");
+                return NotFound();
             }
 
-            //List<CartItemModel> cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart") ?? new List<CartItemModel>();
+            ProductVariantModel? variant = null;
+            if (variantId.HasValue)
+            {
+                variant = await _dataContext.ProductVariants.FindAsync(variantId.Value);
+            }
+
             List<CartItemModel> cart = GetCartFromCookie();
-            var cartItem = cart.Where(x => x.ProductId == id).FirstOrDefault();
+            var cartItem = cart.Where(x => x.ProductId == id && x.VariantId == variantId).FirstOrDefault();
+
             if (cartItem == null)
             {
-                cart.Add(new CartItemModel(product));
+                cart.Add(new CartItemModel(product, variant));
             }
             else
             {
                 cartItem.Quantity += 1;
             }
 
-            //HttpContext.Session.SetJson("Cart", cart);
             SaveCartToCookie(cart);
-
-            _notyf.Success("Add item to cart successfully!");
 
             return Ok(new { success = true, message = "Add item to cart successfully!" });
         }
 
-        public async Task<IActionResult> Decrease(int id)
+        public async Task<IActionResult> Decrease(int id, int? variantId)
         {
             await Task.CompletedTask;
-            //var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
             List<CartItemModel> cart = GetCartFromCookie();
 
             if (cart == null)
             {
-                _notyf.Error("Product not found!");
+                return RedirectToAction("Index");
             }
 
-            var cartItem = cart.Where(x => x.ProductId == id).FirstOrDefault();
+            var cartItem = cart.Where(x => x.ProductId == id && x.VariantId == variantId).FirstOrDefault();
 
             if (cartItem == null)
             {
-                _notyf.Error("Product not found!");
+                return RedirectToAction("Index");
             }
 
             if (cartItem.Quantity > 1)
@@ -115,47 +118,44 @@ namespace ShoppingFood.Controllers
             }
             else
             {
-                cart.RemoveAll(x => x.ProductId == id);
+                cart.RemoveAll(x => x.ProductId == id && x.VariantId == variantId);
             }
 
             if (cart.Count == 0)
             {
-                //HttpContext.Session.Remove("Cart");
                 ClearCartCookie();
             }
             else
             {
-                //HttpContext.Session.SetJson("Cart", cart);
                 SaveCartToCookie(cart);
             }
 
-            _notyf.Success("Decrease item quantity to cart successfully!");
+            _notyf.Success("Decrease item quantity in cart successfully!");
 
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Increase(int id)
+        public async Task<IActionResult> Increase(int id, int? variantId)
         {
             var product = await _dataContext.Products.Where(x => x.Id == id).FirstOrDefaultAsync();
-            //var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
             List<CartItemModel> cart = GetCartFromCookie();
 
-            if (cart == null)
+            if (cart == null || product == null)
             {
-                _notyf.Error("Cart is empty or not found.");
+                return RedirectToAction("Index");
             }
 
-            var cartItem = cart.Where(x => x.ProductId == id).FirstOrDefault();
+            var cartItem = cart.Where(x => x.ProductId == id && x.VariantId == variantId).FirstOrDefault();
 
             if (cartItem == null)
             {
-                _notyf.Error($"Product with ID {id} not found in the cart.");
+                return RedirectToAction("Index");
             }
 
-            if (cartItem.Quantity >= 1 && product.Quantity > cartItem.Quantity)
+            if (cartItem.Quantity < product.Quantity)
             {
                 cartItem.Quantity += 1;
-                _notyf.Success("Increase item quantity to cart successfully!");
+                _notyf.Success("Increase item quantity in cart successfully!");
             }
             else
             {
@@ -163,31 +163,27 @@ namespace ShoppingFood.Controllers
                 _notyf.Warning("Maximum Quantity in Product");
             }
 
-            //HttpContext.Session.SetJson("Cart", cart);
             SaveCartToCookie(cart);
 
             return RedirectToAction("Index");
         }
 
-        public async Task<IActionResult> Remove(int id)
+        public async Task<IActionResult> Remove(int id, int? variantId)
         {
             await Task.CompletedTask;
-            //var cart = HttpContext.Session.GetJson<List<CartItemModel>>("Cart");
             List<CartItemModel> cart = GetCartFromCookie();
             if (cart != null)
             {
-                cart.RemoveAll(x => x.ProductId == id);
+                cart.RemoveAll(x => x.ProductId == id && x.VariantId == variantId);
                 if (cart.Count == 0)
                 {
-                    //HttpContext.Session.Remove("Cart");
                     ClearCartCookie();
                 }
                 else
                 {
-                    //HttpContext.Session.SetJson("Cart", cart);
                     SaveCartToCookie(cart);
                 }
-                _notyf.Success("Remove item of cart successfully!");
+                _notyf.Success("Remove item from cart successfully!");
             }
             return RedirectToAction("Index");
         }
@@ -292,6 +288,8 @@ namespace ShoppingFood.Controllers
                     orderDetail.Price = item.Price;
                     orderDetail.Quantity = item.Quantity;
                     orderDetail.ProductId = item.ProductId;
+                    orderDetail.VariantId = item.VariantId;
+                    orderDetail.VariantName = item.VariantName;
                     orderDetail.UserName = email;
 
                     var product = await _dataContext.Products.Where(x => x.Id == item.ProductId).FirstAsync();

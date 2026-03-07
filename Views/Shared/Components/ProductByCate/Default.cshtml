@@ -11,7 +11,7 @@
 					<div class="border border-primary rounded position-relative vesitable-item">
 						<a asp-action="Details" asp-controller="Product" asp-route-Slug="@item.Slug" asp-route-Id="@item.Id">
 							<div class="vesitable-img">
-								<img src="~/media/products/@item.Image" class="img-fluid w-100 rounded-top" alt="@item.Name">
+								<img src="~/media/products/@item.Image" style="height: 200px; object-fit: cover;" class="img-fluid w-100 rounded-top" alt="@item.Name">
 							</div>
 						</a>
 						<div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; left: 10px;">@item.Category.Name</div>

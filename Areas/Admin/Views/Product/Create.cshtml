@@ -74,6 +74,12 @@
 						<img id="imgpreview" class="mt-2" style="object-fit: cover; border: 1px solid #ccc; border-radius: 5px; padding: 2px;" />
 					</div>
 					<div class="form-group">
+						<label class="form-label">Gallery Images</label>
+						<input asp-for="ImageGalleryUpload" class="form-control" type="file" multiple id="ImageGalleryUpload" />
+						<div id="gallery-preview" class="d-flex flex-wrap gap-2 mt-2"></div>
+						<span asp-validation-for="ImageGalleryUpload" class="text-danger"></span>
+					</div>
+					<div class="form-group">
 						<label class="form-label">Status</label>
 						<select asp-for="Status" class="form-select">
 							<option>-- Choose a status --</option>
@@ -84,6 +90,32 @@
 					</div>
 				</div>
 			</div>
+
+			<div class="card my-4">
+				<div class="card-header d-flex justify-content-between align-items-center">
+					<h5 class="mb-0">Product Variants (e.g. Size, Topping)</h5>
+					<button type="button" class="btn btn-sm btn-success" onclick="addVariant()">+ Add Variant</button>
+				</div>
+				<div class="card-body">
+					<table class="table table-bordered" id="variants-table">
+						<thead>
+							<tr>
+								<th>Name (e.g. Size)</th>
+								<th>Value (e.g. L)</th>
+								<th>Price Plus (VND)
+									<span id="priceSale-convert" class="my-3 d-block"></span>
+								</th>
+								<th>Action</th>
+							</tr>
+						</thead>
+						<tbody id="variants-body">
+							<!-- Variants will be added here -->
+						</tbody>
+					</table>
+					<input type="hidden" asp-for="VariantJson" id="VariantJson" />
+				</div>
+			</div>
+
 			<div class="form-group">
 				<label class="form-label">Detail</label>
 				<textarea asp-for="Detail" class="form-control"></textarea>
@@ -112,6 +144,56 @@
 			readURL(this);
 		});
 
+		$('#ImageGalleryUpload').change(function(){
+			$('#gallery-preview').empty();
+			if (this.files) {
+				Array.from(this.files).forEach(file => {
+					const reader = new FileReader();
+					reader.onload = function(e) {
+						$('#gallery-preview').append(`
+							<div class="position-relative">
+								<img src="${e.target.result}" style="width: 100px; height: 100px; object-fit: cover; border: 1px solid #ddd; border-radius: 4px;" />
+							</div>
+						`);
+					}
+					reader.readAsDataURL(file);
+				});
+			}
+		});
+
+		function addVariant() {
+			const row = `
+				<tr>
+					<td><input type="text" class="form-control v-name" placeholder="Size" /></td>
+					<td><input type="text" class="form-control v-value" placeholder="L" /></td>
+					<td><input type="number" class="form-control v-price typing-pricePlus" value="0" /><span id="pricePlus-convert" class="my-3 d-block"></span></td>
+					<td><button type="button" class="btn btn-danger btn-sm" onclick="removeVariant(this)">Remove</button></td>
+				</tr>
+			`;
+			$('#variants-body').append(row);
+		}
+
+		function removeVariant(btn) {
+			$(btn).closest('tr').remove();
+		}
+
+		$('form').submit(function() {
+			const variants = [];
+			$('#variants-body tr').each(function() {
+				const name = $(this).find('.v-name').val();
+				const value = $(this).find('.v-value').val();
+				const price = $(this).find('.v-price').val();
+				if (name && value) {
+					variants.push({
+						Name: name,
+						Value: value,
+						PricePlus: parseFloat(price) || 0
+					});
+				}
+			});
+			$('#VariantJson').val(JSON.stringify(variants));
+		});
+
 		$('.typing-price').on('keyup', function(){
 			var current = $(this).val();
 				$('#price-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
@@ -125,6 +207,11 @@
 		$('.typing-priceSale').on('keyup', function(){
 			var current = $(this).val();
 				$('#priceSale-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
+		})
+
+		$('.typing-pricePlus').on('keyup', function(){
+			var current = $(this).val();
+				$('#pricePlus-convert').html(new Intl.NumberFormat('vn-VN', { style: 'currency', currency: 'VND' }).format(current));
 		})
 	</script>
 }

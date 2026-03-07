@@ -1,7 +1,6 @@
 ﻿using AspNetCoreHero.ToastNotification;
 using Microsoft.AspNetCore.Identity;
 using ShoppingFood.Middleware;
-using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.CookiePolicy;
 using Microsoft.EntityFrameworkCore;
@@ -46,7 +45,6 @@ builder.Services.AddSession(options =>
     options.IOTimeout = TimeSpan.FromMinutes(30);
     options.Cookie.IsEssential = true;
 });
-//builder.Services.AddSession();
 
 builder.Services.AddNotyf(config =>
 {
@@ -76,7 +74,6 @@ builder.Services.Configure<IdentityOptions>(options =>
 //Configuration login google account
 builder.Services.AddAuthentication(options =>
 {
-    // Keeping default schemes set by Identity (IdentityConstants.ApplicationScheme)
 }).AddCookie("ClientScheme", options =>
 {
     options.LoginPath = "/account/login"; // Trang đăng nhập client

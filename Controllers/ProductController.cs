@@ -135,7 +135,22 @@ namespace ShoppingFood.Controllers
                 return RedirectToAction("Index");
             }
 
-            var productById = await _dataContext.Products.Include(x => x.Category).Where(x => x.Id == id && x.Slug == slug).FirstOrDefaultAsync();
+            var productById = await _dataContext.Products
+                .Include(x => x.Category)
+                .Include(x => x.ProductImages)
+                .Include(x => x.ProductVariants)
+                .Where(x => x.Id == id && x.Slug == slug)
+                .FirstOrDefaultAsync();
+
+            if (productById == null)
+            {
+                // Try finding by ID only if Slug match fails
+                productById = await _dataContext.Products
+                    .Include(x => x.Category)
+                    .Include(x => x.ProductImages)
+                    .Include(x => x.ProductVariants)
+                    .FirstOrDefaultAsync(x => x.Id == id);
+            }
 
             if (productById == null)
             {
@@ -154,7 +169,7 @@ namespace ShoppingFood.Controllers
 
             ViewBag.Related = related;
 
-            var reviews = await _dataContext.Reviews.Where(x => x.ProductId == id).Include(x => x.Users).ToListAsync();
+            var reviews = await _dataContext.Reviews.Where(x => x.ProductId == id).Include(x => x.User).ToListAsync();
 
             // Tính trung bình sao cho sản phẩm chính
             double averageRating = reviews.Any() ? reviews.Average(x => x.Star) : 0;
@@ -204,7 +219,7 @@ namespace ShoppingFood.Controllers
                     Comment = model.Comment,
                     Star = model.Star,
                     CreatedDate = DateTime.Now,
-                    Users = user
+                    User = user
                 };
                 await _dataContext.Reviews.AddAsync(reviews);
                 await _dataContext.SaveChangesAsync();

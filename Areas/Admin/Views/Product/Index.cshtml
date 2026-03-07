@@ -62,7 +62,7 @@
 									<td>@item.Sold</td>
 									<td>@item.Price.ToString("#,##0 VND")</td>
 									<td>@item.CapitalPrice.ToString("#,##0 VND")</td>
-									<td>@item.Category.Name</td>
+									<td>@(item.Category?.Name ?? "N/A")</td>
 									<td>
 										@if (item.Status == 1)
 										{

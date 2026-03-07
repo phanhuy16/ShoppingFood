@@ -29,6 +29,61 @@
 				color: gold;
 			}
 
+	/* Product Gallery Refinement */
+	.product-gallery .item {
+		height: 450px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		background-color: #f8f9fa;
+		border-radius: 10px;
+		overflow: hidden;
+	}
+
+	.product-gallery .item img {
+		max-height: 100%;
+		max-width: 100%;
+		width: auto !important;
+		object-fit: contain;
+	}
+
+	.product-gallery.owl-carousel .owl-nav {
+		position: absolute;
+		top: 50%;
+		width: 100%;
+		display: flex;
+		justify-content: space-between;
+		transform: translateY(-50%);
+		pointer-events: none;
+		z-index: 10;
+	}
+
+	.product-gallery.owl-carousel .owl-nav button {
+		pointer-events: all;
+		background: rgba(129, 196, 8, 0.7) !important; /* primary green */
+		color: white !important;
+		width: 40px;
+		height: 40px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		transition: 0.3s;
+		border: none !important;
+		margin: 0 10px;
+	}
+
+	.product-gallery.owl-carousel .owl-nav button:hover {
+		background: rgba(129, 196, 8, 1) !important;
+	}
+
+	.product-gallery.owl-carousel .owl-dots {
+		position: absolute;
+		bottom: 10px;
+		width: 100%;
+		text-align: center;
+	}
+
 </style>
 
 <!-- Single Page Header start -->
@@ -49,15 +104,50 @@
 				<div class="row g-4">
 					<div class="col-lg-6">
 						<div class="border rounded">
-							<a href="#">
-								<img src="~/media/products/@Model.Product.Image" class="img-fluid rounded" alt="Image">
-							</a>
+							<div class="owl-carousel product-gallery">
+								<div class="item">
+									<img src="~/media/products/@Model.Product.Image" class="img-fluid" alt="@Model.Product.Name">
+								</div>
+								@if (Model.Product.ProductImages != null)
+								{
+									foreach (var img in Model.Product.ProductImages)
+									{
+										<div class="item">
+											<img src="~/media/products/@img.ImageUrl" class="img-fluid" alt="@Model.Product.Name">
+										</div>
+									}
+								}
+							</div>
 						</div>
 					</div>
 					<div class="col-lg-6">
 						<h4 class="fw-bold mb-3">@Model.Product.Name</h4>
-						<p class="mb-3">Category: @Model.Product.Category.Name</p>
-						<h5 class="fw-bold mb-3">@Model.Product.Price.ToString("#,##0 VND")</h5>
+						<p class="mb-3">Category: @(Model.Product.Category?.Name ?? "N/A")</p>
+						<h5 class="fw-bold mb-3" id="product-price" data-base="@((Model.Product.PriceSale > 0 && Model.Product.PriceSale < Model.Product.Price) ? Model.Product.PriceSale : Model.Product.Price)">
+							@((Model.Product.PriceSale > 0 && Model.Product.PriceSale < Model.Product.Price) ? Model.Product.PriceSale.ToString("#,##0 VND") : Model.Product.Price.ToString("#,##0 VND"))
+						</h5>
+						
+						@if (Model.Product.ProductVariants != null && Model.Product.ProductVariants.Any())
+						{
+							<div class="mb-4">
+								<h6 class="fw-bold mb-2">Options:</h6>
+								<div class="d-flex flex-wrap gap-2">
+									@foreach (var variant in Model.Product.ProductVariants)
+									{
+										<div class="variant-item">
+											<input type="radio" name="variant" id="v-@variant.Id" class="btn-check v-radio" data-plus="@variant.PricePlus" />
+											<label class="btn btn-sm btn-outline-secondary rounded-pill" for="v-@variant.Id">
+												@variant.Name: @variant.Value 
+												@if (variant.PricePlus > 0)
+												{
+													<span>(+@variant.PricePlus.ToString("#,##0 VND"))</span>
+												}
+											</label>
+										</div>
+									}
+								</div>
+							</div>
+						}
 						<div class="d-flex mb-4 align-items-center">
 							@{
 								double averageRating = ViewBag.AverageRating ?? 0; // Default to 0 if null
@@ -141,9 +231,9 @@
 												<p class="mb-2" style="font-size: 14px;">@item.CreatedDate.ToString("dd/MM/yyyy")</p>
 												<div class="d-flex justify-content-between">
 													<div>
-														@if (item.Users != null)
+														@if (item.User != null)
 														{
-															<h5>@item.Users.Email</h5>
+															<h5>@item.User.Email</h5>
 														}
 														else
 														{
@@ -256,7 +346,7 @@
 										</h6>
 										<div class="d-flex mb-2">
 											@{
-												double avgRating = ViewBag.ProductRatings.ContainsKey(item.Id) ? ViewBag.ProductRatings[item.Id] : 0;
+												double avgRating = (ViewBag.ProductRatings != null && ViewBag.ProductRatings.ContainsKey(item.Id)) ? ViewBag.ProductRatings[item.Id] : 0;
 											}
 
 											@for (int i = 1; i <= 5; i++)
@@ -267,7 +357,7 @@
 												}
 												else if (i == Math.Ceiling(avgRating) && (avgRating % 1 != 0))
 												{
-													<i class="fas fa-star-half-alt text-secondary"></i> <!-- Sao nửa -->
+													<i class="fas fa-star-half-alt text-secondary"></i>
 												}
 												else
 												{
@@ -306,13 +396,13 @@
 					{
 						<div class="border border-primary rounded position-relative vesitable-item">
 							<div class="vesitable-img">
-								<img src="~/media/products/@item.Image" class="img-fluid w-100 rounded-top" alt="">
+								<img src="~/media/products/@item.Image" style="height: 200px; object-fit: cover;" class="img-fluid w-100 rounded-top" alt="">
 							</div>
 							@if (User.Identity.IsAuthenticated)
 							{
 								<button class="px-2 py-1 bg-transparent rounded border border-pri position-absolute add-to-wishlist" style="top: 10px; left: 10px;" data-id="@item.Id"><i class="fas fa-heart text-primary"></i></button>
 							}
-							<div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">@item.Category.Name</div>
+							<div class="text-white bg-primary px-3 py-1 rounded position-absolute" style="top: 10px; right: 10px;">@(item.Category?.Name ?? "Uncategorized")</div>
 							<div class="p-4 pb-0 rounded-bottom">
 								<h4>@item.Name</h4>
 								<p>@item.Description</p>
@@ -369,10 +459,11 @@
 		$(document).ready(function () {
 			$('.add-to-cart').click(function () {
 				var id = $(this).data('id');
+				var variantId = $('input[name="variant"]:checked').attr('id')?.replace('v-', '') || null;
 
 				$.ajax({
 					url: "@Url.Action("Add", "Cart")",
-					data: { id: id },
+					data: { id: id, variantId: variantId },
 					type: 'POST',
 					success: function (response) {
 						if (response.success) {
@@ -421,6 +512,27 @@
 
 			$(".rating input").change(function () {
 				let rating = $(this).val();
+			});
+
+			// Product Gallery Slider
+			$(".product-gallery").owlCarousel({
+				items: 1,
+				loop: true,
+				autoplay: true,
+				dots: true,
+				nav: true,
+				navText: ["<i class='fa fa-arrow-left'></i>", "<i class='fa fa-arrow-right'></i>"]
+			});
+
+			// Variant Price Update
+			$('.v-radio').change(function() {
+				let basePrice = parseFloat($('#product-price').data('base'));
+				let plus = parseFloat($(this).data('plus')) || 0;
+				let total = basePrice + plus;
+				$('#product-price').text(new Intl.NumberFormat('vn-VN', { 
+					style: 'currency', 
+					currency: 'VND' 
+				}).format(total).replace('₫', 'VND'));
 			});
 		});
 	</script>

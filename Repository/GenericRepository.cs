@@ -1,3 +1,4 @@
+#nullable enable
 using Microsoft.EntityFrameworkCore;
 using System.Linq.Expressions;
 
@@ -67,6 +68,10 @@ namespace ShoppingFood.Repository
     public void Update(T entity)
     {
       dbSet.Update(entity);
+    }
+    public async Task SaveAsync()
+    {
+      await _db.SaveChangesAsync();
     }
   }
 }
