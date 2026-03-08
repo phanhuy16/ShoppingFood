@@ -1,96 +1,109 @@
 ﻿@model AppUserModel
 
 @{
-	ViewData["Title"] = "Profile";
+	ViewData["Title"] = "Cài đặt tài khoản";
 }
 
 <!-- Single Page Header start -->
 <div class="container-fluid page-header py-5">
-	<h1 class="text-center text-white display-6">Profile</h1>
+	<h1 class="text-center text-white display-6">Quản lý tài khoản</h1>
 	<ol class="breadcrumb justify-content-center mb-0">
-		<li class="breadcrumb-item"><a href="#">Home</a></li>
-		<li class="breadcrumb-item"><a href="#">Pages</a></li>
-		<li class="breadcrumb-item active text-white">Profile</li>
+		<li class="breadcrumb-item"><a href="/">Trang chủ</a></li>
+		<li class="breadcrumb-item active text-white">Quản lý tài khoản</li>
 	</ol>
 </div>
 <!-- Single Page Header End -->
-<!-- Tastimonial Start -->
-<div class="container-fluid testimonial py-5">
-	<div class="container py-5">
-		<div class="testimonial-header text-center">
-			<h4 class="text-primary">Profile</h4>
-			<h1 class="display-5 mb-5 text-dark">Hello, @Model.Email</h1>
+<!-- Profile Content Start -->
+<div class="container py-5">
+	<div class="row g-4">
+		<!-- Sidebar Navigation -->
+		<div class="col-lg-3">
+			<div class="card border-0 shadow-sm rounded-3 mb-4">
+				<div class="card-body text-center p-4">
+					<div class="rounded-circle bg-light d-inline-flex align-items-center justify-content-center mb-3" style="width: 80px; height: 80px;">
+						<i class="fas fa-user-circle text-secondary" style="font-size: 80px;"></i>
+					</div>
+					<h5 class="mb-1 text-truncate" title="@Model.Email">@Model.Email</h5>
+					<p class="text-muted small mb-0">Thành viên</p>
+				</div>
+				<div class="list-group list-group-flush rounded-bottom pb-2">
+					<a asp-action="Profile" asp-controller="Account" class="list-group-item list-group-item-action border-0 py-3">
+						<i class="fas fa-file-invoice fa-fw text-primary me-2"></i> Đơn hàng của tôi
+					</a>
+					<a asp-action="Profile" asp-controller="Account" class="list-group-item list-group-item-action border-0 py-3">
+						<i class="fas fa-heart fa-fw text-danger me-2"></i> Sản phẩm yêu thích
+					</a>
+					<a asp-action="Profile" asp-controller="Account" class="list-group-item list-group-item-action border-0 py-3">
+						<i class="fas fa-exchange-alt fa-fw text-info me-2"></i> Sản phẩm so sánh
+					</a>
+					<a asp-action="Profile" asp-controller="Account" class="list-group-item list-group-item-action border-0 py-3">
+						<i class="fas fa-map-marker-alt fa-fw text-success me-2"></i> Sổ địa chỉ
+					</a>
+					<a href="#" class="list-group-item list-group-item-action active border-0 py-3">
+						<i class="fas fa-cog fa-fw text-secondary me-2"></i> Cài đặt tài khoản
+					</a>
+					<a asp-action="Logout" asp-controller="Account" class="list-group-item list-group-item-action border-0 py-3 text-danger">
+						<i class="fas fa-sign-out-alt fa-fw me-2"></i> Đăng xuất
+					</a>
+				</div>
+			</div>
 		</div>
 
-		<div class="card" style="margin-bottom: 100px;">
-			<div class="card-header p-2">
-				<ul class="nav nav-pills">
-					<li class="nav-item"><a class="nav-link" href="#activity" data-bs-toggle="tab">Wishlist</a></li>
-					<li class="nav-item"><a class="nav-link" asp-action="Profile" asp-controller="Account">Compare</a></li>
-					<li class="nav-item"><a class="nav-link active" href="#settings" data-bs-toggle="tab">Settings</a></li>
-				</ul>
-			</div><!-- /.card-header -->
-			<div class="card-body">
-				<div class="tab-content">
-					<div class="active tab-pane">
-						<form autocomplete="off" class="form-horizontal" asp-action="Edit" asp-controller="Account" method="post">
-							<input type="hidden" asp-for="Id"/>
-							<div class="text-danger" asp-validation-summary="ModelOnly"></div>
-							<div class="form-group row my-3">
-								<label for="inputName" class="col-sm-2 form-label">Name</label>
-								<div class="col-sm-10">
-									<input type="text" asp-for="UserName" readonly class="form-control" id="inputName" placeholder="Name">
-									<span asp-validation-for="UserName" class="text-danger"></span>
-								</div>
+		<!-- Main Content Area -->
+		<div class="col-lg-9">
+			<div class="card border-0 shadow-sm rounded-3">
+				<div class="card-header bg-white border-bottom py-3">
+					<h4 class="mb-0 fw-bold">Cài đặt tài khoản</h4>
+				</div>
+				<div class="card-body p-4">
+					<form autocomplete="off" asp-action="Edit" asp-controller="Account" method="post">
+						<input type="hidden" asp-for="Id"/>
+						
+						<div class="row g-4">
+							<div class="col-md-6">
+								<label class="form-label text-muted fw-bold">Tên hiển thị</label>
+								<input type="text" asp-for="UserName" readonly class="form-control bg-light" placeholder="Nhập tên">
+								<span asp-validation-for="UserName" class="text-danger small"></span>
 							</div>
-							<div class="form-group row my-3">
-								<label for="inputEmail" class="col-sm-2 form-label">Email</label>
-								<div class="col-sm-10">
-									<input type="email" class="form-control" readonly asp-for="Email" id="inputEmail" placeholder="Email">
-									<span asp-validation-for="Email" class="text-danger"></span>
-								</div>
+							<div class="col-md-6">
+								<label class="form-label text-muted fw-bold">Email đăng nhập</label>
+								<input type="email" class="form-control bg-light" readonly asp-for="Email" placeholder="Email">
+								<span asp-validation-for="Email" class="text-danger small"></span>
 							</div>
-							<div class="form-group row my-3">
-								<label for="inputPhone" class="col-sm-2 form-label">Phone</label>
-								<div class="col-sm-10">
-									<input type="text" asp-for="PhoneNumber" class="form-control" id="inputPhone" placeholder="PhoneNumber">
-									<span asp-validation-for="PhoneNumber" class="text-danger"></span>
-								</div>
+							
+							<div class="col-12 border-top pt-4 mt-2">
+								<h5 class="mb-3">Thay đổi mật khẩu</h5>
 							</div>
-							<div class="form-group row my-3">
-								<label for="inputOldPassword" class="col-sm-2 form-label">Old password</label>
-								<div class="col-sm-10">
-									<input type="text" readonly value="@Model.PasswordHash" class="form-control" id="inputOldPassword" placeholder="Password">
-								</div>
+
+							<div class="col-md-6">
+								<label class="form-label text-muted fw-bold">Số điện thoại bảo mật</label>
+								<input type="text" asp-for="PhoneNumber" class="form-control" placeholder="Nhập số điện thoại">
+								<span asp-validation-for="PhoneNumber" class="text-danger small"></span>
 							</div>
-							<div class="form-group row my-3">
-								<label for="inputPassword" class="col-sm-2 form-label">New password</label>
-								<div class="col-sm-10">
-									<input type="password" name="PasswordHash" class="form-control" id="inputPassword" placeholder="Password">
-									<span asp-validation-for="PasswordHash" class="text-danger"></span>
-								</div>
-							</div>
-							<div class="form-group row my-3">
-								<div class="offset-sm-2 col-sm-10">
-									<div class="checkbox">
-										<label>
-											<input type="checkbox"> I agree to the <a href="#">terms and conditions</a>
-										</label>
+
+							<div class="col-12">
+								<div class="row g-3">
+									<div class="col-md-6">
+										<label class="form-label text-muted fw-bold">Mật khẩu cũ (Hash)</label>
+										<input type="text" readonly value="@Model.PasswordHash" class="form-control bg-light" placeholder="Mật khẩu cũ">
+									</div>
+									<div class="col-md-6">
+										<label class="form-label text-muted fw-bold">Mật khẩu mới</label>
+										<input type="password" name="PasswordHash" class="form-control border-primary" placeholder="Nhập mật khẩu mới">
+										<span asp-validation-for="PasswordHash" class="text-danger small"></span>
 									</div>
 								</div>
 							</div>
-							<div class="form-group row my-3">
-								<div class="offset-sm-2 col-sm-10">
-									<button type="submit" class="btn btn-danger">Submit</button>
-								</div>
-							</div>
-						</form>
-					</div>
-					<!-- /.tab-pane -->
+						</div>
+
+						<div class="d-flex justify-content-end mt-5 pt-3 border-top">
+							<a asp-action="Profile" asp-controller="Account" class="btn btn-light rounded-pill px-4 me-3">Hủy bỏ</a>
+							<button type="submit" class="btn btn-primary text-white rounded-pill px-5">Lưu thay đổi</button>
+						</div>
+					</form>
 				</div>
-				<!-- /.tab-content -->
-			</div><!-- /.card-body -->
+			</div>
 		</div>
 	</div>
 </div>
-<!-- Tastimonial End -->
+<!-- Profile Content End -->

@@ -576,10 +576,16 @@ namespace ShoppingFood.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<DateTime?>("ApprovedDate")
+                        .HasColumnType("datetime2");
+
                     b.Property<string>("CouponCode")
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("DeliveredDate")
                         .HasColumnType("datetime2");
 
                     b.Property<string>("OrderCode")
@@ -587,6 +593,9 @@ namespace ShoppingFood.Migrations
 
                     b.Property<string>("PaymentMethod")
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime?>("PreparedDate")
+                        .HasColumnType("datetime2");
 
                     b.Property<decimal>("ShippingCode")
                         .HasColumnType("decimal(18,2)");
@@ -954,6 +963,49 @@ namespace ShoppingFood.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("Subscribes");
+                });
+
+            modelBuilder.Entity("ShoppingFood.Models.UserAddressModel", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
+
+                    b.Property<string>("DetailedAddress")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("FullName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<bool>("IsDefault")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("PhoneNumber")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Phuong")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Quan")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Tinh")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("UserAddresses");
                 });
 
             modelBuilder.Entity("ShoppingFood.Models.VnpayModel", b =>

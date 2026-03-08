@@ -130,8 +130,11 @@ namespace ShoppingFood.Controllers
                                  join u in _dataContext.Users on c.UserId equals u.Id
                                  select new { User = u, Product = p, Compare = c }).ToListAsync();
 
+            var addresses = await _dataContext.UserAddresses.Where(x => x.UserId == userId).ToListAsync();
+
             ViewBag.Wishlist = wishlist;
             ViewBag.Compare = compare;
+            ViewBag.Addresses = addresses;
             ViewBag.UserEmail = userEmail;
 
             return View(orders);
@@ -171,6 +174,71 @@ namespace ShoppingFood.Controllers
                 _notyf.Error("Compare not found!");
                 return RedirectToAction("Profile");
             }
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddAddress(UserAddressModel model)
+        {
+            if ((bool)!User.Identity.IsAuthenticated)
+            {
+                return RedirectToAction("Login", "Account");
+            }
+
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            model.UserId = userId;
+
+            // Nếu đây là địa chỉ đầu tiên, set làm mặc định
+            var existingAddrs = await _dataContext.UserAddresses.Where(x => x.UserId == userId).ToListAsync();
+            if (existingAddrs.Count == 0)
+            {
+                model.IsDefault = true;
+            }
+            else if (model.IsDefault)
+            {
+                foreach (var addr in existingAddrs)
+                {
+                    addr.IsDefault = false;
+                }
+                _dataContext.UserAddresses.UpdateRange(existingAddrs);
+            }
+
+            _dataContext.UserAddresses.Add(model);
+            await _dataContext.SaveChangesAsync();
+
+            _notyf.Success("Thêm địa chỉ thành công!");
+            return RedirectToAction("Profile");
+        }
+
+        public async Task<IActionResult> DeleteAddress(int id)
+        {
+            if ((bool)!User.Identity.IsAuthenticated) return RedirectToAction("Login", "Account");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var address = await _dataContext.UserAddresses.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
+            if (address != null)
+            {
+                _dataContext.UserAddresses.Remove(address);
+                await _dataContext.SaveChangesAsync();
+                _notyf.Success("Xóa địa chỉ thành công!");
+            }
+            return RedirectToAction("Profile");
+        }
+
+        public async Task<IActionResult> SetDefaultAddress(int id)
+        {
+            if ((bool)!User.Identity.IsAuthenticated) return RedirectToAction("Login", "Account");
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            var existingAddrs = await _dataContext.UserAddresses.Where(x => x.UserId == userId).ToListAsync();
+            foreach (var addr in existingAddrs)
+            {
+                addr.IsDefault = (addr.Id == id);
+            }
+            _dataContext.UserAddresses.UpdateRange(existingAddrs);
+            await _dataContext.SaveChangesAsync();
+
+            _notyf.Success("Đổi địa chỉ mặc định thành công!");
+            return RedirectToAction("Profile");
         }
 
         public async Task<IActionResult> CancelOrder(string code)

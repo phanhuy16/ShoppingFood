@@ -73,20 +73,13 @@
 			<div class="col-md-3">
 				<h6>Total: @total.ToString("#,##0 VND")</h6>
 				<h6>ShippingCost: @ViewBag.ShippingCost.ToString("#,##0 VND")</h6>
-				@if (ViewBag.Status == 0)
-				{
-					<select class="form-select select-update-order">
-						<option disabled value="1">Đơn hàng mới</option>
-						<option value="0">Đã xử lý</option>
-					</select>
-				}
-				else
-				{
-					<select class="form-select select-update-order">
-						<option value="1">Đơn hàng mới</option>
-						<option value="0">Đã xử lý</option>
-					</select>
-				}
+				<select class="form-select select-update-order">
+					@if (ViewBag.Status == 1) { <option value="1" selected>Chờ duyệt</option> } else { <option value="1">Chờ duyệt</option> }
+					@if (ViewBag.Status == 3) { <option value="3" selected>Đang chuẩn bị</option> } else { <option value="3">Đang chuẩn bị</option> }
+					@if (ViewBag.Status == 4) { <option value="4" selected>Đang giao</option> } else { <option value="4">Đang giao</option> }
+					@if (ViewBag.Status == 0) { <option value="0" selected>Hoàn thành</option> } else { <option value="0">Hoàn thành</option> }
+					@if (ViewBag.Status == 2) { <option value="2" selected>Đã huỷ</option> } else { <option value="2">Đã huỷ</option> }
+				</select>
 			</div>
 		</div>
 		<div class="text-end">

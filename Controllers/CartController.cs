@@ -225,7 +225,10 @@ namespace ShoppingFood.Controllers
 
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
 
+            var addresses = await _dataContext.UserAddresses.Where(x => x.UserId == userId).ToListAsync();
+
             ViewBag.User = user;
+            ViewBag.Addresses = addresses;
 
             ViewBag.PaypalClientId = _paypalClient.ClientId;
 
@@ -301,6 +304,8 @@ namespace ShoppingFood.Controllers
                     await _dataContext.SaveChangesAsync();
                 }
 
+                decimal totalAmount = cart.Sum(x => x.Quantity * x.Price) + shippingPrice;
+
                 //HttpContext.Session.Remove("Cart");
                 ClearCartCookie();
                 Response.Cookies.Delete("ShippingPrice");
@@ -313,8 +318,21 @@ namespace ShoppingFood.Controllers
                 await _emailSender.SendEmailAsync(receiver, subject, message);
 
                 _notyf.Success("Đặt hàng thành công, vui lòng chờ duyệt đơn hàng!");
+
+                if (paymentMethod == "QR")
+                {
+                    return RedirectToAction("PaymentQR", "Cart", new { orderCode = orderCode, amount = totalAmount });
+                }
+
                 return RedirectToAction("Profile", "Account");
             }
+        }
+
+        public IActionResult PaymentQR(string orderCode, decimal amount)
+        {
+            ViewBag.OrderCode = orderCode;
+            ViewBag.Amount = amount;
+            return View();
         }
 
         [HttpPost]
@@ -345,7 +363,7 @@ namespace ShoppingFood.Controllers
                 };
 
                 Response.Cookies.Append("ShippingPrice", priceConvert, cookieOptions);
-                return Ok(new { success = true });
+                return Ok(new { success = true, price = shippingPrice });
             }
             catch (Exception ex)
             {
@@ -359,7 +377,7 @@ namespace ShoppingFood.Controllers
         {
             var validCoupon = await _dataContext.Coupons.FirstOrDefaultAsync(x => x.Name == value);
 
-            string couponTitle = validCoupon.Name + " | " + validCoupon.Description;
+            string couponTitle = validCoupon!.Name + " | " + validCoupon.Description;
 
             if (couponTitle != null)
             {
@@ -408,14 +426,14 @@ namespace ShoppingFood.Controllers
                 {
                     OrderId = request["orderId"],
                     FullName = User.FindFirstValue(ClaimTypes.Email),
-                    Amount = decimal.Parse(request["Amount"]),
+                    Amount = decimal.Parse(request["Amount"]!),
                     OrderInfo = request["orderInfo"],
                     DatePaid = DateTime.Now,
                 };
                 await _dataContext.MomoInfos.AddAsync(newMomoInsert);
                 await _dataContext.SaveChangesAsync();
                 var paymentMethod = "Momo";
-                await CheckOut(request["orderId"], paymentMethod);
+                await CheckOut(request["orderId"]!, paymentMethod);
             }
             else
             {
@@ -476,7 +494,7 @@ namespace ShoppingFood.Controllers
             var cartCookie = Request.Cookies["Cart"];
             if (!string.IsNullOrEmpty(cartCookie))
             {
-                return JsonConvert.DeserializeObject<List<CartItemModel>>(cartCookie);
+                return JsonConvert.DeserializeObject<List<CartItemModel>>(cartCookie)!;
             }
             Console.WriteLine("Cart Cookie: " + cartCookie);
             return new List<CartItemModel>();

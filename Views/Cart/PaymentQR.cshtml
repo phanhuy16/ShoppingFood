@@ -1,0 +1,39 @@
+@{
+    ViewData["Title"] = "Thanh toán QR Code";
+}
+
+<!-- Single Page Header start -->
+<div class="container-fluid page-header py-5">
+    <h1 class="text-center text-white display-6">Thanh toán chuyển khoản</h1>
+    <ol class="breadcrumb justify-content-center mb-0">
+        <li class="breadcrumb-item"><a href="#">Home</a></li>
+        <li class="breadcrumb-item active text-white">Thanh toán</li>
+    </ol>
+</div>
+<!-- Single Page Header End -->
+<div class="container-fluid py-5">
+    <div class="container py-5 text-center">
+        <h2 class="mb-4">Quét mã QR để thanh toán</h2>
+        <p class="mb-4 text-muted">Vui lòng sử dụng ứng dụng Ngân hàng hoặc Ví điện tử hỗ trợ VietQR để quét mã dưới đây.</p>
+        
+        <div class="card mx-auto shadow-sm" style="max-width: 450px;">
+            <div class="card-body">
+                <h5 class="card-title text-primary">Đơn hàng #@ViewBag.OrderCode</h5>
+                <p class="card-text mb-4">Số tiền: <strong>@ViewBag.Amount.ToString("#,##0 VND")</strong></p>
+                
+                <!-- Hiển thị QR tĩnh thông qua API VietQR -->
+                <!-- Cấu trúc: https://img.vietqr.io/image/<BANK_ID>-<ACCOUNT_NO>-<TEMPLATE>.png?amount=<AMOUNT>&addInfo=<CONTENT>&accountName=<NAME> -->
+                <!-- Ở đây, tạm dùng mã mặc định của VietQR phục vụ demo. User sẽ thay bằng mã thật -->
+                <!-- Ví dụ Ngân hàng: 970436 (Vietcombank), STK: 123456789 -->
+                <img src="https://img.vietqr.io/image/970436-123456789-compact2.png?amount=@ViewBag.Amount&addInfo=@ViewBag.OrderCode&accountName=NGUYEN%20PHAN%20HUY" class="img-fluid border rounded p-2 mb-4" alt="QR Code" />
+
+                <div class="alert alert-info" role="alert">
+                    <i class="fas fa-info-circle"></i> Đơn hàng của bạn sẽ được duyệt sau khi chúng tôi nhận được thanh toán.
+                </div>
+            </div>
+            <div class="card-footer bg-white border-0 pb-4">
+                <a asp-action="Profile" asp-controller="Account" class="btn btn-primary text-white rounded-pill px-4 py-2">Hoàn tất & Về trang cá nhân</a>
+            </div>
+        </div>
+    </div>
+</div>

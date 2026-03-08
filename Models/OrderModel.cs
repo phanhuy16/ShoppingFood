@@ -14,6 +14,9 @@ namespace ShoppingFood.Models
         public string UserName { get; set; }
 
         public DateTime CreatedDate { get; set; }
+        public DateTime? ApprovedDate { get; set; }
+        public DateTime? PreparedDate { get; set; }
+        public DateTime? DeliveredDate { get; set; }
 
         public int Status { get; set; }
 

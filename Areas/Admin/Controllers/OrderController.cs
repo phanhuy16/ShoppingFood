@@ -48,9 +48,28 @@ namespace ShoppingFood.Areas.Admin.Controllers
             }
 
             order.Status = status;
+
+            if (status == 1 && order.ApprovedDate == null)
+            {
+                order.ApprovedDate = DateTime.Now;
+            }
+            else if (status == 3)
+            {
+                if (order.ApprovedDate == null) order.ApprovedDate = DateTime.Now;
+                order.PreparedDate = DateTime.Now;
+            }
+            else if (status == 4)
+            {
+                if (order.ApprovedDate == null) order.ApprovedDate = DateTime.Now;
+                if (order.PreparedDate == null) order.PreparedDate = DateTime.Now;
+                order.DeliveredDate = DateTime.Now; // Used for "Đang giao" date
+            }
+
             _dataContext.Orders.Update(order);
             if (status == 0)
             {
+                if (order.DeliveredDate == null) order.DeliveredDate = DateTime.Now;
+
                 var details = await _dataContext.OrderDetails.Include(x => x.Product).Where(x => x.OrderCode == orderCode).Select(x => new
                 {
                     x.Quantity,
