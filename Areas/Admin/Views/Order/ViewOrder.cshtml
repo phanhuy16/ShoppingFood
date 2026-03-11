@@ -73,16 +73,37 @@
 			<div class="col-md-3">
 				<h6>Total: @total.ToString("#,##0 VND")</h6>
 				<h6>ShippingCost: @ViewBag.ShippingCost.ToString("#,##0 VND")</h6>
-				<select class="form-select select-update-order">
-					@if (ViewBag.Status == 1) { <option value="1" selected>Chờ duyệt</option> } else { <option value="1">Chờ duyệt</option> }
-					@if (ViewBag.Status == 3) { <option value="3" selected>Đang chuẩn bị</option> } else { <option value="3">Đang chuẩn bị</option> }
-					@if (ViewBag.Status == 4) { <option value="4" selected>Đang giao</option> } else { <option value="4">Đang giao</option> }
-					@if (ViewBag.Status == 0) { <option value="0" selected>Hoàn thành</option> } else { <option value="0">Hoàn thành</option> }
-					@if (ViewBag.Status == 2) { <option value="2" selected>Đã huỷ</option> } else { <option value="2">Đã huỷ</option> }
+				<select class="form-select select-update-order" @(ViewBag.Status == 0 || ViewBag.Status == 2 ? "disabled" : "")>
+					<!-- Always allow the current status -->
+					@if (ViewBag.Status == 1) { <option value="1" selected>Chờ duyệt</option> }
+					@if (ViewBag.Status == 3) { <option value="3" selected>Đang chuẩn bị</option> }
+					@if (ViewBag.Status == 4) { <option value="4" selected>Đang giao</option> }
+					@if (ViewBag.Status == 0) { <option value="0" selected>Hoàn thành</option> }
+					@if (ViewBag.Status == 2) { <option value="2" selected>Đã huỷ</option> }
+
+					<!-- Logical next steps -->
+					@if (ViewBag.Status == 1)
+					{
+						<option value="3">Đang chuẩn bị</option>
+						<option value="2">Đã huỷ</option>
+					}
+					else if (ViewBag.Status == 3)
+					{
+						<option value="4">Đang giao</option>
+						<option value="2">Đã huỷ</option>
+					}
+					else if (ViewBag.Status == 4)
+					{
+						<option value="0">Hoàn thành</option>
+						<option value="2">Đã huỷ</option>
+					}
 				</select>
 			</div>
 		</div>
 		<div class="text-end">
+			<a class="btn btn-outline-success btn-sm" asp-action="ExportInvoicePdf" asp-controller="Order" asp-route-code="@Model.FirstOrDefault()?.OrderCode">
+				<i class="fas fa-file-pdf me-1"></i> Xuất hóa đơn PDF
+			</a>
 			<a class="btn btn-outline-secondary btn-sm" asp-action="Index" asp-controller="Order" type="submit">Cancel</a>
 		</div>
 	</div>
@@ -114,9 +135,17 @@
 							});
 						}
 					},
-					error: function(req,status,error){
-						alert('Error');
-						console.log(error);
+					error: function(xhr){
+						var message = "Đã có lỗi xảy ra!";
+						if (xhr.responseJSON && xhr.responseJSON.message) {
+							message = xhr.responseJSON.message;
+						}
+						Swal.fire({
+							title: "Lỗi!",
+							text: message,
+							icon: "error",
+							draggable: true
+						});
 					}
 				});
 			});

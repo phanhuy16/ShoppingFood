@@ -1,4 +1,4 @@
-﻿@model StatisticalModel
+@model StatisticalModel
 @{
 	ViewData["Title"] = "Dashboard";
 }
@@ -93,9 +93,29 @@
 				</div>
 			</div>
 		</div>
-		<div>
+		<div class="mt-5">
 			<h6>Thống kê biểu đồ</h6>
 			<div id="myfirstchart" style="height: 250px;"></div>
+
+			<h6>Bảng thống kê chi tiết</h6>
+			<div class="card mb-4">
+				<div class="card-body">
+					<table id="datatablesSimple" class="table table-striped table-bordered">
+						<thead>
+							<tr>
+								<th>Ngày</th>
+								<th>Đơn hàng</th>
+								<th>Sản phẩm bán</th>
+								<th>Doanh thu</th>
+								<th>Lợi nhuận</th>
+							</tr>
+						</thead>
+						<tbody id="statisticalTableBody">
+							<!-- Data will be populated via AJAX -->
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
 </main>
@@ -103,47 +123,86 @@
 @section Scripts {
 	<script>
 		$(document).ready(function(){
-			var ChartMorris = new Morris.Line({
-				// ID of the element in which to draw the chart.
-				element: 'myfirstchart',
-				// Chart data records -- each entry in this array corresponds to a point on
-				// the chart.
-				data: [],
-				// The name of the data record attribute that contains x-values.
-				xkey: 'date',
-				// A list of names of data record attributes that contain y-values.
-				ykeys: ['sold', 'quantity', 'revenue', 'profit'],
-				// Labels for the ykeys -- will be displayed when you hover over the
-				// chart.
-				labels: ["Số lượng bán", 'Đơn hàng', 'Doanh thu', 'Lợi nhuận']
+			// Initialize DataTable once
+			var statisticalTable = new DataTable('#datatablesSimple', {
+				layout: {
+					topStart: {
+						buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+					}
+				},
+				order: [[0, 'desc']],
+				language: {
+					emptyTable: "Không có dữ liệu hiển thị",
+					zeroRecords: "Không tìm thấy dữ liệu phù hợp"
+				}
 			});
 
+			var ChartMorris = new Morris.Line({
+				element: 'myfirstchart',
+				data: [],
+				xkey: 'date',
+				ykeys: ['sold', 'quantity', 'revenue', 'profit'],
+				labels: ["Số lượng bán", 'Đơn hàng', 'Doanh thu', 'Lợi nhuận'],
+				hideHover: 'auto',
+				resize: true
+			});
+
+			function updateDashboard(data) {
+				if (!data || data.length === 0) {
+					ChartMorris.setData([]);
+					statisticalTable.clear().draw();
+					return;
+				}
+
+				// Update Chart
+				var chartData = data.map(function(item){
+					return {
+						date: item.date || item.Date,
+						sold: item.sold || item.Sold || 0,
+						quantity: item.quantity || item.Quantity || 0,
+						revenue: item.revenue || item.Revenue || 0,
+						profit: item.profit || item.Profit || 0
+					};
+				});
+				ChartMorris.setData(chartData);
+
+				// Update Table using DataTables API
+				statisticalTable.clear();
+				data.forEach(function(item) {
+					var dateVal = item.date || item.Date;
+					var quantityVal = item.quantity || item.Quantity || 0;
+					var soldVal = item.sold || item.Sold || 0;
+					var revenueVal = item.revenue || item.Revenue || 0;
+					var profitVal = item.profit || item.Profit || 0;
+
+					statisticalTable.row.add([
+						dateVal,
+						quantityVal,
+						soldVal,
+						parseFloat(revenueVal).toLocaleString('vi-VN') + " VND",
+						parseFloat(profitVal).toLocaleString('vi-VN') + " VND"
+					]);
+				});
+				statisticalTable.draw();
+			}
+
+			// Initial data load
 			$.ajax({
 				url:"@Url.Action("GetData", "Dashboard")",
 				type: 'POST',
 				dataType: 'json',
-				success:function(data){
-					if(data){
-						ChartMorris.setData(data.map(function(item){
-							return {
-								date:item.date,
-								sold:item.sold,
-								quantity:item.quantity,
-								revenue:item.revenue,
-								profit:item.profit
-							};
-						}));
-					} else {
-						ChartMorris.setData([]);
-					}
+				success: function(data) {
+					updateDashboard(data);
 				},
-				error: function(error){
-					console.error(error);
+				error: function(error) {
+					console.error("GetData Error:", error);
 				}
 			});
 
 			$('.filter-select').on('change', function(){
 				var days = $(this).val();
+				if (!days || isNaN(days)) return;
+
 				var endDate = new Date();
 				var startDate = new Date(endDate.getTime() - days * 24 * 60 * 60 * 1000);
 
@@ -155,23 +214,11 @@
 						startDate: startDate.toISOString().split('T')[0],
 						endDate: endDate.toISOString().split('T')[0],
 					},
-					success:function(data){
-						if(data){
-							ChartMorris.setData(data.map(function(item){
-								return {
-									date:item.date,
-									sold:item.sold,
-									quantity:item.quantity,
-									revenue:item.revenue,
-									profit:item.profit
-								};
-							}));
-						} else {
-							ChartMorris.setData([]);
-						}
+					success: function(data) {
+						updateDashboard(data);
 					},
-					error: function(error){
-						console.error(error);
+					error: function(error) {
+						console.error("GetDataByDate Error:", error);
 					}
 				})
 			});
@@ -179,6 +226,7 @@
 			$('#btnFilter').click(function(){
 				var fromDate = $('#date_form').val();
 				var toDate = $('#date_to').val();
+				
 				$.ajax({
 					url:"@Url.Action("FilterDate", "Dashboard")",
 					type:"POST",
@@ -187,23 +235,11 @@
 						fromDate: fromDate,
 						toDate: toDate
 					},
-					success:function(data){
-						if(data){
-							ChartMorris.setData(data.map(function(item){
-								return {
-									date:item.date,
-									sold:item.sold,
-									quantity:item.quantity,
-									revenue:item.revenue,
-									profit:item.profit
-								};
-							}));
-						} else {
-							ChartMorris.setData([]);
-						}
+					success: function(data) {
+						updateDashboard(data);
 					},
-					error: function(error){
-						console.error(error);
+					error: function(error) {
+						console.error("FilterDate Error:", error);
 					}
 				})
 			});

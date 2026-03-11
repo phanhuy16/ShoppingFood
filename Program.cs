@@ -9,11 +9,16 @@ using ShoppingFood.Hubs;
 using ShoppingFood.Models;
 using ShoppingFood.Models.Momo;
 using ShoppingFood.Services;
+using ShoppingFood.Services.Cart;
+using ShoppingFood.Services.Order;
+using ShoppingFood.Services.Product;
+using ShoppingFood.Services.Address;
 using ShoppingFood.Services.Momo;
 using ShoppingFood.Services.Paypal;
 using ShoppingFood.Services.Vnpay;
 using ShoppingFood.Repository;
 using ShoppingFood.Models.Configuration;
+using ShoppingFood.Services.Pdf;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -34,6 +39,16 @@ builder.Services.AddTransient<IEmailSender, EmailSender>();
 // Register Infrastructure
 builder.Services.AddScoped(typeof(IGenericRepository<>), typeof(GenericRepository<>));
 builder.Services.AddScoped<IFileService, FileService>();
+
+// Register HttpContextAccessor (required by CartService)
+builder.Services.AddHttpContextAccessor();
+
+// Register custom Business Services
+builder.Services.AddScoped<ICartService, CartService>();
+builder.Services.AddScoped<IOrderService, OrderService>();
+builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IAddressService, AddressService>();
+builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

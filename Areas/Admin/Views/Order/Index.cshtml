@@ -68,11 +68,19 @@
 										{
 											<span class="badge bg-primary"> Đơn hàng mới </span>
 										}
+										else if (item.Status == 3)
+										{
+											<span class="badge bg-warning"> Đang chuẩn bị </span>
+										}
+										else if (item.Status == 4)
+										{
+											<span class="badge bg-info"> Đang giao </span>
+										}
 										else if (item.Status == 0)
 										{
 											<span class="badge bg-success"> Đã hoàn thành đơn hàng </span>
 										}
-										else
+										else if (item.Status == 2)
 										{
 											<span class="badge bg-danger"> Đã huỷ </span>
 										}

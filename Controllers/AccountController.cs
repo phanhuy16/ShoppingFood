@@ -9,6 +9,7 @@ using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Models;
 using ShoppingFood.Repository;
+using ShoppingFood.Services.Address;
 using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
@@ -20,14 +21,16 @@ namespace ShoppingFood.Controllers
         private readonly SignInManager<AppUserModel> _signInManager;
         private readonly INotyfService _notyf;
         private readonly IEmailSender _emailSender;
+        private readonly IAddressService _addressService;
 
-        public AccountController(DataContext context, UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, INotyfService notyf, IEmailSender email)
+        public AccountController(DataContext context, UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, INotyfService notyf, IEmailSender email, IAddressService addressService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
             _notyf = notyf;
             _dataContext = context;
             _emailSender = email;
+            _addressService = addressService;
         }
 
         [HttpGet]
@@ -180,30 +183,10 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> AddAddress(UserAddressModel model)
         {
             if ((bool)!User.Identity.IsAuthenticated)
-            {
                 return RedirectToAction("Login", "Account");
-            }
 
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            model.UserId = userId;
-
-            // Nếu đây là địa chỉ đầu tiên, set làm mặc định
-            var existingAddrs = await _dataContext.UserAddresses.Where(x => x.UserId == userId).ToListAsync();
-            if (existingAddrs.Count == 0)
-            {
-                model.IsDefault = true;
-            }
-            else if (model.IsDefault)
-            {
-                foreach (var addr in existingAddrs)
-                {
-                    addr.IsDefault = false;
-                }
-                _dataContext.UserAddresses.UpdateRange(existingAddrs);
-            }
-
-            _dataContext.UserAddresses.Add(model);
-            await _dataContext.SaveChangesAsync();
+            await _addressService.AddAddressAsync(model, userId!);
 
             _notyf.Success("Thêm địa chỉ thành công!");
             return RedirectToAction("Profile");
@@ -214,13 +197,8 @@ namespace ShoppingFood.Controllers
             if ((bool)!User.Identity.IsAuthenticated) return RedirectToAction("Login", "Account");
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var address = await _dataContext.UserAddresses.FirstOrDefaultAsync(x => x.Id == id && x.UserId == userId);
-            if (address != null)
-            {
-                _dataContext.UserAddresses.Remove(address);
-                await _dataContext.SaveChangesAsync();
-                _notyf.Success("Xóa địa chỉ thành công!");
-            }
+            await _addressService.DeleteAddressAsync(id, userId!);
+            _notyf.Success("Xóa địa chỉ thành công!");
             return RedirectToAction("Profile");
         }
 
@@ -229,14 +207,7 @@ namespace ShoppingFood.Controllers
             if ((bool)!User.Identity.IsAuthenticated) return RedirectToAction("Login", "Account");
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
 
-            var existingAddrs = await _dataContext.UserAddresses.Where(x => x.UserId == userId).ToListAsync();
-            foreach (var addr in existingAddrs)
-            {
-                addr.IsDefault = (addr.Id == id);
-            }
-            _dataContext.UserAddresses.UpdateRange(existingAddrs);
-            await _dataContext.SaveChangesAsync();
-
+            await _addressService.SetDefaultAddressAsync(id, userId!);
             _notyf.Success("Đổi địa chỉ mặc định thành công!");
             return RedirectToAction("Profile");
         }

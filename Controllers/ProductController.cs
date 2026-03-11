@@ -2,12 +2,11 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.CodeAnalysis;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Models;
 using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
-using System.Globalization;
+using ShoppingFood.Services.Product;
 using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
@@ -17,112 +16,44 @@ namespace ShoppingFood.Controllers
         private readonly DataContext _dataContext;
         private readonly INotyfService _notyf;
         private readonly UserManager<AppUserModel> _userManager;
+        private readonly IProductService _productService;
 
-        public ProductController(DataContext context, INotyfService notyf, UserManager<AppUserModel> userManager)
+        public ProductController(DataContext context, INotyfService notyf, UserManager<AppUserModel> userManager, IProductService productService)
         {
             _dataContext = context;
             _notyf = notyf;
             _userManager = userManager;
+            _productService = productService;
         }
 
         public async Task<IActionResult> Index(string sort_by = "", string startprice = "", string endprice = "", int page = 1)
         {
-            var products = _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1);
+            const int pageSize = 6;
+            if (page < 1) page = 1;
 
-            if (sort_by == "price_increase")
-            {
-                products = products.OrderBy(x => x.Price);
-            }
-            else if (sort_by == "price_decrease")
-            {
-                products = products.OrderByDescending(x => x.Price);
-            }
-            else if (sort_by == "price_newest")
-            {
-                products = products.OrderByDescending(x => x.Id);
-            }
-            else if (sort_by == "price_oldest")
-            {
-                products = products.OrderBy(x => x.Id);
-            }
-            else if (startprice != "" && endprice != "")
-            {
-                decimal start;
-                decimal end;
-                if (decimal.TryParse(startprice, out start) && decimal.TryParse(endprice, out end))
-                {
-                    products = products.Where(x => x.Price >= start && x.Price <= end);
-                }
-                else
-                {
-                    products = products.OrderByDescending(x => x.Id);
-                }
-            }
-            else
-            {
-                products = products.OrderByDescending(x => x.Id);
-            }
+            var (products, totalCount) = await _productService.GetFilteredProductsAsync(sort_by, startprice, endprice, page, pageSize);
 
-            const int pageSize = 6; //10 items/trang
-
-            if (page < 1) //page < 1;
-            {
-                page = 1; //page ==1
-            }
-            int recsCount = products.Count(); //33 items;
-
-            var pager = new Paginate(recsCount, page, pageSize);
-
-            int recSkip = (page - 1) * pageSize; //(3 - 1) * 10; 
-
-            var data = await products.Skip(recSkip).Take(pager.PageSize).ToListAsync();
-
+            var pager = new Paginate(totalCount, page, pageSize);
             ViewBag.Page = pager;
 
-            var bestSellers = await _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1 && x.PriceSale < x.Price).OrderByDescending(x => x.Sold).Take(4).ToListAsync();
-
+            var bestSellers = await _productService.GetBestSellersAsync(4);
             ViewBag.BestSellers = bestSellers;
+            ViewBag.ProductRatings = await _productService.GetProductRatingsAsync(bestSellers);
 
-            // Dictionary để lưu trung bình sao cho từng sản phẩm best-seller
-            var productRatings = new Dictionary<int, double>();
-            foreach (var product in bestSellers)
-            {
-                var starList = await _dataContext.Reviews
-                    .Where(x => x.ProductId == product.Id)
-                    .ToListAsync();
-                double avgRating = starList.Any() ? starList.Average(x => x.Star) : 0;
-                productRatings[product.Id] = avgRating;
-            }
-
-            // Truyền dictionary vào ViewBag
-            ViewBag.ProductRatings = productRatings;
-
-            return View(data);
+            return View(products);
         }
 
         [HttpPost]
         public async Task<IActionResult> Search(string keyword)
         {
-            var keys = await _dataContext.Products.Include(x => x.Category).Where(x => x.Name.Contains(keyword) || x.Description.Contains(keyword) || x.Slug.Contains(keyword)).ToListAsync();
+            var keys = await _dataContext.Products
+                .Include(x => x.Category)
+                .Where(x => x.Name.Contains(keyword) || x.Description.Contains(keyword) || x.Slug.Contains(keyword))
+                .ToListAsync();
 
-            var bestSellers = await _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1 && x.PriceSale < x.Price).OrderByDescending(x => x.Sold).Take(4).ToListAsync();
-
+            var bestSellers = await _productService.GetBestSellersAsync(4);
             ViewBag.BestSellers = bestSellers;
-
-            // Dictionary để lưu trung bình sao cho từng sản phẩm best-seller
-            var productRatings = new Dictionary<int, double>();
-            foreach (var product in bestSellers)
-            {
-                var starList = await _dataContext.Reviews
-                    .Where(x => x.ProductId == product.Id)
-                    .ToListAsync();
-                double avgRating = starList.Any() ? starList.Average(x => x.Star) : 0;
-                productRatings[product.Id] = avgRating;
-            }
-
-            // Truyền dictionary vào ViewBag
-            ViewBag.ProductRatings = productRatings;
-
+            ViewBag.ProductRatings = await _productService.GetProductRatingsAsync(bestSellers);
             ViewBag.Keyword = keyword;
 
             return View(keys);
@@ -131,71 +62,38 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> Details(int id, string slug = "")
         {
             if (id <= 0 && slug == null)
+                return RedirectToAction("Index");
+
+            var productById = await _productService.GetProductDetailsAsync(id, slug);
+
+            if (productById == null)
             {
+                _notyf.Error("Product not found!");
                 return RedirectToAction("Index");
             }
 
-            var productById = await _dataContext.Products
+            var bestSellers = await _productService.GetBestSellersAsync(4);
+            var related = await _dataContext.Products
+                .Where(x => x.CategoryId == productById.CategoryId && x.Id != productById.Id)
                 .Include(x => x.Category)
-                .Include(x => x.ProductImages)
-                .Include(x => x.ProductVariants)
-                .Where(x => x.Id == id && x.Slug == slug)
-                .FirstOrDefaultAsync();
+                .Take(4)
+                .ToListAsync();
 
-            if (productById == null)
-            {
-                // Try finding by ID only if Slug match fails
-                productById = await _dataContext.Products
-                    .Include(x => x.Category)
-                    .Include(x => x.ProductImages)
-                    .Include(x => x.ProductVariants)
-                    .FirstOrDefaultAsync(x => x.Id == id);
-            }
-
-            if (productById == null)
-            {
-                _notyf.Error("Product not found!");
-                return RedirectToAction("Index");
-            }
-
-            var bestSellers = await _dataContext.Products.Include(x => x.Category).Where(x => x.Status == 1 && x.PriceSale < x.Price).OrderByDescending(x => x.Sold).Take(4).ToListAsync();
-
-            if (productById == null)
-            {
-                _notyf.Error("Product not found!");
-            }
-
-            var related = await _dataContext.Products.Where(x => x.CategoryId == productById.CategoryId && x.Id != productById.Id).Include(x => x.Category).Take(4).ToListAsync();
+            var reviews = await _dataContext.Reviews
+                .Where(x => x.ProductId == id)
+                .Include(x => x.User)
+                .ToListAsync();
 
             ViewBag.Related = related;
-
-            var reviews = await _dataContext.Reviews.Where(x => x.ProductId == id).Include(x => x.User).ToListAsync();
-
-            // Tính trung bình sao cho sản phẩm chính
-            double averageRating = reviews.Any() ? reviews.Average(x => x.Star) : 0;
-            ViewBag.AverageRating = averageRating;
-
-            // Dictionary để lưu trung bình sao cho từng sản phẩm best-seller
-            var productRatings = new Dictionary<int, double>();
-            foreach (var product in bestSellers)
-            {
-                var starList = await _dataContext.Reviews
-                    .Where(x => x.ProductId == product.Id)
-                    .ToListAsync();
-                double avgRating = starList.Any() ? starList.Average(x => x.Star) : 0;
-                productRatings[product.Id] = avgRating;
-            }
-
-            // Truyền dictionary vào ViewBag
-            ViewBag.ProductRatings = productRatings;
+            ViewBag.AverageRating = await _productService.GetAverageRatingAsync(id);
+            ViewBag.ProductRatings = await _productService.GetProductRatingsAsync(bestSellers);
+            ViewBag.BestSellers = bestSellers;
 
             var review = new ProductRatingViewModel
             {
                 Product = productById,
                 Reviews = reviews
             };
-
-            ViewBag.BestSellers = bestSellers;
 
             return View(review);
         }
@@ -205,10 +103,8 @@ namespace ShoppingFood.Controllers
         public async Task<IActionResult> Comment(ReviewModel model)
         {
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-
             var user = await _userManager.Users.FirstOrDefaultAsync(x => x.Id == userId);
-            if (user == null)
-                return Unauthorized();
+            if (user == null) return Unauthorized();
 
             if (ModelState.IsValid)
             {
@@ -230,14 +126,10 @@ namespace ShoppingFood.Controllers
             {
                 List<string> errors = new List<string>();
                 foreach (var modelState in ModelState.Values)
-                {
                     foreach (var error in modelState.Errors)
-                    {
                         errors.Add(error.ErrorMessage);
-                    }
-                }
-                string errorMessage = string.Join("\n", errors);
-                return BadRequest(errorMessage);
+
+                return BadRequest(string.Join("\n", errors));
             }
         }
     }

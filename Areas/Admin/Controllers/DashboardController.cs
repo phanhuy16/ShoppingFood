@@ -78,7 +78,7 @@ namespace ShoppingFood.Areas.Admin.Controllers
 
             if (toDate.HasValue)
             {
-                query = query.Where(x => x.CreatedDate >= toDate);
+                query = query.Where(x => x.CreatedDate <= toDate);
             }
 
             var data = await query.Select(x => new
