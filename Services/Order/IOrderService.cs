@@ -8,5 +8,6 @@ namespace ShoppingFood.Services.Order
     Task<string> CreateOrderAsync(string email, string paymentMethod, string? paymentId, decimal shippingPrice, string? coupon, List<CartItemModel> cart);
     Task<decimal> GetShippingPriceAsync(string tinh, string quan, string phuong);
     Task<bool> CancelOrderAsync(string orderCode, string userEmail);
+    Task<(bool success, string message)> UpdateOrderStatusAsync(string orderCode, int status);
   }
 }

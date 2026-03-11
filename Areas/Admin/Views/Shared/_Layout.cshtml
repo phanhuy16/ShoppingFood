@@ -50,5 +50,14 @@
 	<script src="~/admin/js/site.js"></script>
 	@await Component.InvokeAsync("Notyf")
 	@await RenderSectionAsync("Scripts", required: false)
+	<script>
+		let table = new DataTable('#datatablesSimple', {
+			layout: {
+				topStart: {
+					buttons: ['copy', 'csv', 'excel', 'pdf', 'print']
+				}
+			}
+		});
+	</script>
 </body>
 </html>

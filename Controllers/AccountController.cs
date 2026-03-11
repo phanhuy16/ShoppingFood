@@ -1,4 +1,4 @@
-﻿using AspNetCoreHero.ToastNotification.Abstractions;
+using AspNetCoreHero.ToastNotification.Abstractions;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -8,8 +8,11 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ShoppingFood.Areas.Admin.Repository;
 using ShoppingFood.Models;
+using ShoppingFood.Models.ViewModel;
 using ShoppingFood.Repository;
 using ShoppingFood.Services.Address;
+using ShoppingFood.Services.Account;
+using ShoppingFood.Services.Auth;
 using System.Security.Claims;
 
 namespace ShoppingFood.Controllers
@@ -22,8 +25,10 @@ namespace ShoppingFood.Controllers
         private readonly INotyfService _notyf;
         private readonly IEmailSender _emailSender;
         private readonly IAddressService _addressService;
+        private readonly IAccountService _accountService;
+        private readonly IAuthService _authService;
 
-        public AccountController(DataContext context, UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, INotyfService notyf, IEmailSender email, IAddressService addressService)
+        public AccountController(DataContext context, UserManager<AppUserModel> userManager, SignInManager<AppUserModel> signInManager, INotyfService notyf, IEmailSender email, IAddressService addressService, IAccountService accountService, IAuthService authService)
         {
             _userManager = userManager;
             _signInManager = signInManager;
@@ -31,6 +36,8 @@ namespace ShoppingFood.Controllers
             _dataContext = context;
             _emailSender = email;
             _addressService = addressService;
+            _accountService = accountService;
+            _authService = authService;
         }
 
         [HttpGet]
@@ -45,7 +52,7 @@ namespace ShoppingFood.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
+                var result = await _authService.LoginAsync(model);
                 if (result.Succeeded)
                 {
                     _notyf.Success("Login successfully!");
@@ -68,31 +75,11 @@ namespace ShoppingFood.Controllers
         {
             if (ModelState.IsValid)
             {
-                var newUser = new AppUserModel
+                var result = await _authService.RegisterAsync(model);
+
+                if (result.Success)
                 {
-                    UserName = model.Username,
-                    Email = model.Email
-                };
-
-                IdentityResult result = await _userManager.CreateAsync(newUser, model.Password);
-
-                if (result.Succeeded)
-                {
-                    var roleAssign = await _userManager.AddToRoleAsync(newUser, "User");
-
-                    if(!roleAssign.Succeeded)
-                    {
-                        _notyf.Error("Register fail!");
-                        foreach (var error in roleAssign.Errors)
-                        {
-                            ModelState.AddModelError("", error.Description);
-                        }
-                        return View(model);
-                    }
-
-                    await _signInManager.PasswordSignInAsync(model.Username, model.Password, false, false);
                     _notyf.Success("Register successfully!");
-
                     return RedirectToAction("Index", "Home");
                 }
 
@@ -107,7 +94,7 @@ namespace ShoppingFood.Controllers
 
         public async Task<IActionResult> Logout(string returnUrl = "/")
         {
-            await _signInManager.SignOutAsync();
+            await _authService.LogoutAsync();
             return Redirect(returnUrl);
         }
 
@@ -121,62 +108,44 @@ namespace ShoppingFood.Controllers
             var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
             var userEmail = User.FindFirstValue(ClaimTypes.Email);
 
-            var orders = await _dataContext.Orders.Where(x => x.UserName == userEmail).OrderByDescending(x => x.Id).ToListAsync();
+            var profileView = await _accountService.GetProfileAsync(userId, userEmail);
 
-            var wishlist = await (from w in _dataContext.Wishlists
-                                  join p in _dataContext.Products on w.ProductId equals p.Id
-                                  join u in _dataContext.Users on w.UserId equals u.Id
-                                  select new { User = u, Product = p, Wishlist = w }).ToListAsync();
+            ViewBag.Wishlist = profileView.Wishlist;
+            ViewBag.Compare = profileView.Compare;
+            ViewBag.Addresses = profileView.Addresses;
+            ViewBag.UserEmail = profileView.UserEmail;
 
-            var compare = await (from c in _dataContext.Compares
-                                 join p in _dataContext.Products on c.ProductId equals p.Id
-                                 join u in _dataContext.Users on c.UserId equals u.Id
-                                 select new { User = u, Product = p, Compare = c }).ToListAsync();
-
-            var addresses = await _dataContext.UserAddresses.Where(x => x.UserId == userId).ToListAsync();
-
-            ViewBag.Wishlist = wishlist;
-            ViewBag.Compare = compare;
-            ViewBag.Addresses = addresses;
-            ViewBag.UserEmail = userEmail;
-
-            return View(orders);
+            return View(profileView.Orders);
         }
 
         public async Task<IActionResult> DeteleWishlist(int id)
         {
-            var wishlist = await _dataContext.Wishlists.FindAsync(id);
+            var result = await _accountService.DeleteWishlistAsync(id);
 
-            if (wishlist != null)
+            if (result)
             {
-                _dataContext.Wishlists.Remove(wishlist);
-                await _dataContext.SaveChangesAsync();
                 _notyf.Success("Deleted successfully!");
-                return RedirectToAction("Profile");
             }
             else
             {
                 _notyf.Error("Wishlist not found!");
-                return RedirectToAction("Profile");
             }
+            return RedirectToAction("Profile");
         }
 
         public async Task<IActionResult> DeteleCompare(int id)
         {
-            var compare = await _dataContext.Compares.FindAsync(id);
+            var result = await _accountService.DeleteCompareAsync(id);
 
-            if (compare != null)
+            if (result)
             {
-                _dataContext.Compares.Remove(compare);
-                await _dataContext.SaveChangesAsync();
                 _notyf.Success("Deleted successfully!");
-                return RedirectToAction("Profile");
             }
             else
             {
                 _notyf.Error("Compare not found!");
-                return RedirectToAction("Profile");
             }
+            return RedirectToAction("Profile");
         }
 
         [HttpPost]
@@ -241,27 +210,17 @@ namespace ShoppingFood.Controllers
         [HttpPost]
         public async Task<IActionResult> ForgotPassword(AppUserModel model)
         {
-            var checkMail = await _userManager.Users.FirstOrDefaultAsync(x => x.Email == model.Email);
+            var result = await _accountService.ProcessForgotPasswordAsync(model.Email, Request.Host.ToString(), Request.Scheme);
 
-            if (checkMail == null)
+            if (result.Success)
             {
-                _notyf.Error("Email not found!");
-                return RedirectToAction("ForgotPassword", "Account");
+                _notyf.Success(result.Message);
             }
             else
             {
-                string token = Guid.NewGuid().ToString();
-                checkMail.Token = token;
-                _dataContext.Users.Update(checkMail);
-                await _dataContext.SaveChangesAsync();
-
-                var receiver = checkMail.Email;
-                var subject = "Change password for user " + checkMail.Email;
-                var message = "Click on link to change password " + "<a href='" + $"{Request.Scheme}://{Request.Host}/Account/ForgotPasswordConfirm?email=" + checkMail.Email + "&token=" + token + "'>";
-
-                await _emailSender.SendEmailAsync(receiver, subject, message);
+                _notyf.Error(result.Message);
             }
-            _notyf.Success("Send email successfully");
+            
             return RedirectToAction("ForgotPassword", "Account");
         }
 
@@ -364,57 +323,19 @@ namespace ShoppingFood.Controllers
             {
                 return RedirectToAction("Login");
             }
-            var claims = result.Principal.Identities.FirstOrDefault().Claims.Select(claims => new
+            
+            var claims = result.Principal.Identities.FirstOrDefault().Claims;
+            var authResult = await _authService.HandleGoogleResponseAsync(claims);
+
+            if (authResult.Success)
             {
-                claims.Issuer,
-                claims.OriginalIssuer,
-                claims.Type,
-                claims.Value
-            });
-            var email = claims.FirstOrDefault(x => x.Type == ClaimTypes.Email)?.Value;
-            string name = email.Split('@')[0];
-            // check user có tồn tại không
-            var exitsUser = await _userManager.FindByEmailAsync(email);
-            // nếu không tồn tại trong db thì tạo user mới với password hashed mặc địng 1-9
-            if (exitsUser == null)
-            {
-                var password = new PasswordHasher<AppUserModel>();
-                var passwordHasher = password.HashPassword(null, "Abc@123");
-
-                var newUser = new AppUserModel { UserName = name, Email = email, };
-                newUser.PasswordHash = passwordHasher;
-
-                var createUser = await _userManager.CreateAsync(newUser);
-                if (!createUser.Succeeded)
-                {
-                    _notyf.Error("Đăng ký tài khoản thất bại. Vui lòng thử lại sau");
-                    return RedirectToAction("Login", "Account");
-                }
-                else
-                {
-                    // Assign the "Admin" role to the new user
-                    var roleExist = await _userManager.IsInRoleAsync(newUser, "User");
-                    if (!roleExist)
-                    {
-                        var roleAssignResult = await _userManager.AddToRoleAsync(newUser, "User");
-
-                        if (!roleAssignResult.Succeeded)
-                        {
-                            _notyf.Error("Đăng ký tài khoản thất bại. Vui lòng thử lại sau");
-                            return RedirectToAction("Login", "Account");
-                        }
-                    }
-
-
-                    await _signInManager.SignInAsync(newUser, isPersistent: false);
-                    _notyf.Success("Đăng ký tài khoản thành công");
-                    return RedirectToAction("Index", "Home");
-                }
+                _notyf.Success(authResult.Message);
             }
             else
             {
-                await _signInManager.SignInAsync(exitsUser, isPersistent: false);
+                _notyf.Error(authResult.Message);
             }
+
             return RedirectToAction("Index", "Home");
         }
     }

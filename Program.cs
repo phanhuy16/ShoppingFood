@@ -1,4 +1,4 @@
-﻿using AspNetCoreHero.ToastNotification;
+using AspNetCoreHero.ToastNotification;
 using Microsoft.AspNetCore.Identity;
 using ShoppingFood.Middleware;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -14,6 +14,8 @@ using ShoppingFood.Services.Order;
 using ShoppingFood.Services.Product;
 using ShoppingFood.Services.Address;
 using ShoppingFood.Services.Momo;
+using ShoppingFood.Services.Account;
+using ShoppingFood.Services.Auth;
 using ShoppingFood.Services.Paypal;
 using ShoppingFood.Services.Vnpay;
 using ShoppingFood.Repository;
@@ -47,6 +49,9 @@ builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<ICartService, CartService>();
 builder.Services.AddScoped<IOrderService, OrderService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IProductManagementService, ProductManagementService>();
+builder.Services.AddScoped<IAccountService, AccountService>();
+builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IAddressService, AddressService>();
 builder.Services.AddScoped<IInvoiceService, InvoiceService>();
 
